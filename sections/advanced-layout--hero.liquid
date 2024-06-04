@@ -1,0 +1,598 @@
+<link rel="preload" href="{{ 'section-video.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<link rel="preload" href="{{ 'section-advanced-layout-hero.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+
+<div class="homepage-sections-wrapper" data-wetheme-section-type="advanced-layout--hero" data-wetheme-section-id="{{ section.id }}">
+	<div class="wrapper-padded">
+		<div class="homepage-indiv-section-wrapper grid--full homepage-hero-wrapper">
+
+        {% if section.blocks.size > 0 %}
+        <div class="grid__item large--two-thirds">
+        {% else %}
+        <div class="grid__item large--one-whole">
+        {% endif %}
+
+				<div class="{% if section.settings.homepage-hero-featured-content != 'homepage-hero-video-selection' %}homepage-hero-content-overlay-wrapper homepage-hero-content-overlay-wrapper-{{ section.id }}{% else %}homepage-hero-content-overlay-wrapper--video homepage-hero-content-overlay-wrapper-{{ section.id }}{% endif %}{% if section.settings.home-page-hero-image == blank %} onboarding{% endif %}">
+
+					{% if section.settings.homepage-hero-featured-content == 'homepage-hero-image-selection' %}
+
+						{% if section.settings.homepage-hero-featured-content.size > 0 %}
+
+							{% if section.settings.homepage-hero-image-link %}
+								<a href="{{ section.settings.homepage-hero-image-link }}" class="homepage-hero-image--link-wrapper">
+							{% endif %}
+
+							<div class="homepage-hero-content-link-wrapper">
+								<div class="advanced-layout--hero__text-block">
+									{% if section.settings.homepage-hero-image-heading != empty %}
+										<h2 class="hero-header-fit">{{ section.settings.homepage-hero-image-heading | escape }}</h2>
+									{% endif %}
+
+									{% if section.settings.homepage-hero-image-description != empty %}
+										<p>{{ section.settings.homepage-hero-image-description | escape }}</p>
+									{% endif %}
+
+									{% if section.settings.homepage-hero-image-button-label != empty %}
+									<span href="{{ section.settings.homepage-hero-image-link }}" class="btn btn-default">
+										{{ section.settings.homepage-hero-image-button-label | escape }}
+									</span>
+									{% endif %}
+								</div>
+							</div>
+
+							<div class="{% if settings.ken_burns_enabled %}kb-enabled{% endif %}">
+								{% if section.settings.home-page-hero-image == blank %}
+									<div class="onboarding">
+									{{ 'lifestyle-1' | placeholder_svg_tag: 'icon icon--placeholder' }}
+									</div>
+								{% else %}
+                  {% assign hero_alt = section.settings.home-page-hero-image.alt | default: shop.name %}
+									{% render 'responsive-image' with section.settings.home-page-hero-image, alt: hero_alt | escape %}
+								{% endif %}
+							</div>
+
+							{% if section.settings.homepage-hero-image-link %}
+								</a>
+							{% endif %}
+
+						{% endif %}
+
+					{% endif %}
+
+					{% for block in section.blocks %}
+						{% if block.settings.hero-menu-image != blank %}
+							{% capture id %}overlay-block-{{ block.id }}{% endcapture %}
+							{% capture selector %}#{{ id }}{% endcapture %}
+							<style>
+							{% render 'responsive-background-image' with block.settings.hero-menu-image, selector: selector %}
+							</style>
+
+              {% assign menu_item_alt = block.settings.hero-menu-image.alt | default: shop.name %}
+							<div class="homepage-hero-content-overlay homepage-hero-content-overlay-menu-item" id="{{ id }}" role="img" aria-label="{{ menu_item_alt | escape }}"></div>
+						{% endif %}
+					{% endfor %}
+
+					{% if section.settings.homepage-hero-featured-content == 'homepage-hero-video-selection' %}
+						<div class="embed-container">
+							<div class="homepage-hero-youtube-video" id="homepage-hero-youtube-video-{{ section.id }}">
+                <wetheme-video
+                  section-id="{{ section.id }}"
+                  v-bind:hero="false"
+                  video-type="{{ section.settings.video_url.type }}"
+                  url="{{ section.settings.video_url.id }}"
+                  v-bind:autoplay="{% if section.settings.homepage-hero-video-autoplay %}true{% else %}false{% endif %}"
+                  v-bind:loop="{% if section.settings.homepage-hero-video-loop %}true{% else %}false{% endif %}"
+                  v-bind:mute="{% if section.settings.homepage-hero-video-mute %}true{% else %}false{% endif %}"
+                  v-bind:overlay="true"
+                >
+                </wetheme-video>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+				<div class="advanced-layout--hero__text-block advanced-layout--hero__text-block--mobile">
+					{% if section.settings.homepage-hero-image-heading != empty %}
+						<h2 class="hero-header-fit">{{ section.settings.homepage-hero-image-heading | escape }}</h2>
+					{% endif %}
+
+					{% if section.settings.homepage-hero-image-description != empty %}
+						<p>{{ section.settings.homepage-hero-image-description | escape }}</p>
+					{% endif %}
+
+					{% if section.settings.homepage-hero-image-button-label != empty %}
+					<a href="{{ section.settings.homepage-hero-image-link }}" class="btn btn-default">
+						{{ section.settings.homepage-hero-image-button-label | escape }}
+					</a>
+					{% endif %}
+				</div>
+
+			</div>
+
+			{% if section.blocks.size > 0 %}
+			<div class="grid__item large--one-third">
+				<div class="homepage-hero-menu-wrapper{% if section.blocks.size == 0 %} no-menu-mobile{% endif %}">
+          <div class="homepage-hero-menu">
+            <ul>
+              {% for block in section.blocks %}
+                <li data-overlay-id="overlay-block-{{ block.id }}" {% unless block.settings.hero-menu-link %}class="no-link"{% endunless %}>
+                    {% if block.settings.hero-menu-link %}
+                      <a href="{{ block.settings.hero-menu-link }}" class="homepage-hero-menu-link">
+                    {% endif %}
+
+                    {% if block.settings.featured_image %}
+                      {% case block.settings.featured_image_size %}
+                        {% when 'x-small' %}
+                            {% assign height = 50 %}
+                        {% when 'small' %}
+                            {% assign height = 100 %}
+                        {% when 'medium' %}
+                            {% assign height = 150 %}
+                        {% when 'large' %}
+                            {% assign height = 200 %}
+                        {% when 'x-large' %}
+                            {% assign height = 250 %}
+                        {% when 'original' %}
+                            {% assign height = block.settings.featured_image.height %}
+                      {% endcase %}
+
+                      <div class="homepage-hero-menu-indiv-image">
+                        {% capture styles %}max-height: {{ height }}px; max-width: {{ block.settings.featured_image.width }}px{% endcapture %}
+                        {% assign menu_item_alt = block.settings.featured_image.alt | default: shop.name %}
+                        {% render 'responsive-image' with block.settings.featured_image, alt: menu_item_alt | escape, props: props, allow_stretch: true, styles: styles %}
+                      </div>
+                    {% endif %}
+                    <div class="homepage-hero-menu--indiv-text">
+                      <span class="h4">{{ block.settings.hero-menu-heading | escape }}</span>
+                      <p>{{ block.settings.hero-menu-subheading | escape }}</p>
+                    </div>
+
+                    {% if block.settings.hero-menu-link%}
+                      </a>
+                    {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+				</div>
+			</div>
+			{% endif %}
+
+		</div>
+	</div>
+</div>
+
+<noscript>{{ 'section-video.min.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'section-advanced-layout-hero.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+<style>
+	{% if section.settings.homepage-hero-featured-content != 'homepage-hero-video-selection' %}
+		.homepage-hero-content-overlay-wrapper-{{ section.id }}::before{
+			opacity: 0.{{ section.settings.image_overlay_opacity }} !important;
+		}
+	{% endif %}
+
+    .advanced-layout--hero__text-block {
+        color: {{ section.settings.text-color }};
+
+        @media screen and (min-width: 769px) {
+            color: {{ settings.color_body_text }}
+        }
+    }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Hero",
+        "de": "Hero",
+        "es": "Héroe",
+        "fr": "Héros",
+        "pt-PT": "Herói"
+    },
+    "class": "hero-wrapper show-on-scroll",
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Featured content",
+                "de": "Hervorgehobener Inhalt",
+                "es": "Contenido destacado",
+                "fr": "Contenu en vedette",
+                "pt-PT": "Conteúdo em destaque"
+            }
+        },
+        {
+            "type": "select",
+            "id": "homepage-hero-featured-content",
+            "label": {
+                "en": "Content",
+                "de": "Inhalt",
+                "es": "Contenido",
+                "fr": "Contenu",
+                "pt-PT": "Conteúdo"
+            },
+            "options": [
+                {
+                    "value": "homepage-hero-video-selection",
+                    "label": {
+                        "en": "Video",
+                        "de": "Video",
+                        "es": "Vídeo",
+                        "fr": "Vidéo",
+                        "pt-PT": "Vídeo"
+                    }
+                },
+                {
+                    "value": "homepage-hero-image-selection",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    }
+                }
+            ],
+            "default": "homepage-hero-image-selection"
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Image settings",
+                "de": "Image-Einstellungen",
+                "es": "Ajustes de imagen",
+                "fr": "Paramètres de l'image",
+                "pt-PT": "Configurações de imagem"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "home-page-hero-image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "range",
+            "id": "image_overlay_opacity",
+            "min": 0,
+            "max": 95,
+            "step": 5,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Overlay opacity",
+                "de": "Überlagerungsdeckkraft",
+                "es": "Capacidad de sobrexposición",
+                "fr": "Opacité de superposition",
+                "pt-PT": "Opacidade de sobreposição"
+            },
+            "default": 0
+        },
+        {
+            "type": "text",
+            "id": "homepage-hero-image-heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "text",
+            "id": "homepage-hero-image-description",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            }
+        },
+        {
+            "type": "color",
+            "id": "text-color",
+            "label": {
+                "en": "Overlay text color",
+                "de": "Überlagerungstext-Farbe",
+                "es": "Color del texto de superposición",
+                "fr": "Couleur du texte de superposition",
+                "pt-PT": "Cor da sobreposição de texto"
+            },
+            "default": "#fff"
+        },
+        {
+            "type": "text",
+            "id": "homepage-hero-image-button-label",
+            "label": {
+                "en": "Button label",
+                "de": "Button-Bezeichnung",
+                "es": "Etiqueta del botón",
+                "fr": "Étiquette du bouton",
+                "pt-PT": "Etiqueta do botão"
+            }
+        },
+        {
+            "type": "url",
+            "id": "homepage-hero-image-link",
+            "label": {
+                "en": "Link",
+                "de": "Link",
+                "es": "Enlace",
+                "fr": "Lien",
+                "pt-PT": "Ligação"
+            }
+        },
+		{
+            "type": "header",
+            "content": {
+                "en": "Video settings",
+                "de": "Video-Einstellungen",
+                "es": "Ajustes de vídeo",
+                "fr": "Paramètres vidéo",
+                "pt-PT": "Configurações de vídeo"
+            }
+        },
+        {
+            "id": "video_url",
+            "type": "video_url",
+            "label": {
+                "en": "Video URL",
+                "de": "Video-URL",
+                "es": "URL del vídeo",
+                "fr": "URL de la vidéo",
+                "pt-PT": "URL do Vídeo"
+            },
+            "accept": [
+                "youtube",
+                "vimeo"
+            ],
+            "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+            "type": "checkbox",
+            "id": "homepage-hero-video-autoplay",
+            "label": {
+                "en": "Autoplay",
+                "de": "Automatische Wiedergabe",
+                "es": "Reproducción automática",
+                "fr": "Lecture automatique",
+                "pt-PT": "Reprodução Automática"
+            },
+			"info": {
+                "en": "Video will be muted and some devices may prevent autoplay.",
+                "de": "Das Video wird stumm geschaltet, und einige Geräte verhindern möglicherweise die automatische Wiedergabe.",
+                "es": "El vídeo se silenciará y algunos dispositivos pueden evitar la reproducción automática",
+                "fr": "Le son de la vidéo sera désactivé et certains appareils peuvent empêcher la lecture automatique.",
+                "pt-PT": "O vídeo será silenciado e alguns dispositivos podem impedir a reprodução automática"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "homepage-hero-video-loop",
+            "label": {
+                "en": "Loop",
+                "de": "Schleife",
+                "es": "En bucle",
+                "fr": "Boucle",
+                "pt-PT": "Repetição"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "homepage-hero-video-mute",
+            "label": {
+                "en": "Mute",
+                "de": "Stummschalten",
+                "es": "Silenciar",
+                "fr": "Muet",
+                "pt-PT": "Silenciar"
+            },
+            "default": false
+        }
+    ],
+    "max_blocks": 5,
+    "blocks": [
+        {
+            "type": "text",
+            "name": {
+                "en": "Menu item",
+                "de": "Menüelement",
+                "es": "Artículo del menú",
+                "fr": "Élément du menu",
+                "pt-PT": "Item do menu"
+            },
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "hero-menu-heading",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Highlight your best sellers",
+                        "de": "Heben Sie Ihre Bestseller hervor!",
+                        "es": "Destaca tus mejores vendedores",
+                        "fr": "Mettez en valeur vos meilleurs vendeurs",
+                        "pt-PT": "Destaque os seus sucessos de vendas"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "hero-menu-subheading",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subencabezado",
+                        "fr": "Sous-rubrique",
+                        "pt-PT": "Subtítulo"
+                    },
+                    "default": {
+                        "en": "Link to any collection, product or page",
+                        "de": "Link zu einer beliebigen Sammlung, einem Produkt oder einer Seite",
+                        "es": "Enlace a cualquier colección, producto o página",
+                        "fr": "Lien vers n'importe quelle collection, produit ou page",
+                        "pt-PT": "Link para qualquer coleção, produto ou página"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "hero-menu-link",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    }
+                },
+                {
+                    "type": "image_picker",
+                    "id": "featured_image",
+                    "label": {
+                        "en": "Featured image",
+                        "de": "Hervorgehobenes Bild",
+                        "es": "Imagen destacada",
+                        "fr": "Image en vedette",
+                        "pt-PT": "Imagem em destaque"
+                    },
+                    "info": {
+                        "en": "500 x 250px (recommended)",
+                        "de": "500 x 250 px (empfohlen)",
+                        "es": "500 x 250px (recomendado)",
+                        "fr": "500 x 250 px (recommandé)",
+                        "pt-PT": "500 x 250px (recomendado)"
+                    }
+                },
+                {
+                    "type": "select",
+                    "id": "featured_image_size",
+                    "label": {
+                        "en": "Image height",
+                        "de": "Bildhöhe",
+                        "es": "Altura de la imagen",
+                        "fr": "Hauteur de l'image",
+                        "pt-PT": "Altura da imagem"
+                    },
+                    "default": "original",
+                    "options": [
+                        {
+                            "label": {
+                                "en": "Small",
+                                "de": "Klein",
+                                "es": "Pequeño",
+                                "fr": "Petite",
+                                "pt-PT": "Pequeno"
+                            },
+                            "value": "small"
+                        },
+                        {
+                            "label": {
+                                "en": "Medium",
+                                "de": "Mittel",
+                                "es": "Mediano",
+                                "fr": "Moyenne",
+                                "pt-PT": "Médio"
+                            },
+                            "value": "medium"
+                        },
+                        {
+                            "label": {
+                                "en": "Large",
+                                "de": "Groß",
+                                "es": "Grande",
+                                "fr": "Grande",
+                                "pt-PT": "Grande"
+                            },
+                            "value": "large"
+                        },
+                        {
+                            "label": {
+                                "en": "Extra Large",
+                                "de": "Extra groß",
+                                "es": "Muy grande",
+                                "fr": "Extra grande",
+                                "pt-PT": "Extra Grande"
+                            },
+                            "value": "x-large"
+                        },
+                        {
+                            "label": {
+                                "en": "Original (uncropped)",
+                                "de": "Original (unbeschnitten)",
+                                "es": "Original (sin recortar)",
+                                "fr": "D'origine (non coupé)",
+                                "pt-PT": "Original (sem cortes)"
+                            },
+                            "value": "original"
+                        }
+                    ]
+                },
+                {
+                    "type": "image_picker",
+                    "id": "hero-menu-image",
+                    "label": {
+                        "en": "Hover image",
+                        "de": "Hover-Bild",
+                        "es": "Efecto hover sobre la imagen",
+                        "fr": "Survoler l'image",
+                        "pt-PT": "Passar o rato sobre a imagem"
+                    },
+                    "info": {
+                        "en": "1500 x 1000px (recommended)",
+                        "de": "1500 x 1000 px (empfohlen)",
+                        "es": "1500 x 1000px (recomendado)",
+                        "fr": "1 500 x 1 000 px (recommandé)",
+                        "pt-PT": "1500 x 1000px (recomendado)"
+                    }
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Hero",
+            "category": {
+                "en": "Advanced layout",
+                "de": "Erweitertes Layout",
+                "es": "Diseño avanzado",
+                "fr": "Mise en page avancée",
+                "pt-PT": "Apresentação avançada"
+            },
+            "blocks": [
+                {
+                    "type": "text",
+                    "settings": {
+                        "hero-menu-heading": "Highlight your best sellers",
+                        "hero-menu-subheading": "Link to any collection, product or page"
+                    }
+                },
+                {
+                    "type": "text",
+                    "settings": {
+                        "hero-menu-heading": "Promote a new collection",
+                        "hero-menu-subheading": "Link to any collection, product or page"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,529 @@
+{% assign footer_item_width = '' %}
+{% case section.blocks.size %}
+{% when 1 %}
+	{% assign footer_item_width = 'large--one-whole medium--one-whole small--one-whole' %}
+{% when 2 %}
+	{% assign footer_item_width = 'large--one-half medium--one-half small--one-whole' %}
+{% when 3 %}
+	{% assign footer_item_width = 'large--one-third medium--one-half small--one-whole' %}
+{% when 4 %}
+	{% assign footer_item_width = 'large--one-quarter medium--one-half small--one-whole' %}
+{% when 5 %}
+	{% assign footer_item_width = 'large--one-quarter medium--one-half small--one-whole' %}  
+{% endcase %}
+{% assign footer-header-class="font-bold text-lg pb-4" %}
+<style>
+  ul.payment-icons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  @media only screen and (max-width: 768px)
+  {
+    ul.payment-icons {
+      display: inline-grid;
+    }
+  }
+</style>
+<footer
+  class="site-footer px-4 md:px-0 py-4 {% if template contains 'product' %}{% if settings.related_products_enable %}{% else %} product-sticker-stop{% endif %}{% endif %} footer-alignment--{{ section.settings.alignment }}"
+  data-wetheme-section-type="footer" data-wetheme-section-id="{{ section.id }}"
+>
+	<div class="container pt-4 border-t border-slate-300">
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+			{% for block in section.blocks %}
+				{% case block.type %}
+					{% when 'social' %}
+						<div class="social-media-footer">
+							{% if block.settings.social_title == "" %}
+								<h3 class="{{footer-header-class}}">{{ 'layout.footer.social_title' | t }}</h3>
+							{% else %}
+								<h3 class="{{footer-header-class}}">{{ block.settings.social_title | escape }}</h3>
+							{% endif %}
+							{% render 'social-icons' %}
+						</div>
+					{% when 'menu' %}
+					{% assign menu = linklists[block.settings.footer_linklist] %}
+						<div class="links-footer">
+							{% if block.settings.menu_title == "" %}
+								<h3 class="{{footer-header-class}}">{{ 'layout.footer.menu_title' | t }}</h3>
+							{% else %}
+								<h3 class="{{footer-header-class}}">{{ block.settings.menu_title | escape }}</h3>
+							{% endif %}
+							<ul class="footer-content">
+								{% for link in menu.links %}
+									{% if link.links != blank %}
+										<li>
+											<a href="{{ link.url }}" class="footer--has-dropdown-title">{{ link.title }}</a>
+											<ul class="footer--level-2">
+											{% for sub_link in link.links %}
+												<li class="mb-1"><a class="text-gray-taupe text-sm" href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a></li>
+											{% endfor %}
+											</ul>
+										</li>
+									{% else %}
+										<li class="mb-1">
+											<a href="{{ link.url }}" class="text-gray-taupe text-sm">{{ link.title }}</a>
+										</li>
+									{% endif %}
+								{% endfor %}
+							</ul>
+						</div>
+					{% when 'text' %}
+						<div class="content-footer">
+							{% if block.settings.title == "" %}
+								<h3 class="{{footer-header-class}}">{{ 'layout.footer.contact' | t }}</h3>
+							{% else %}
+								<h3 class="{{footer-header-class}}">{{ block.settings.title | escape }}</h3>
+							{% endif %}
+							{% if block.settings.richtext == "" %}
+								<div class="rte footer-article">{{ 'layout.footer.contact_text' | t }}</div>
+							{% else %}
+								<div class="rte footer-article">{{ block.settings.richtext }}</div>
+							{% endif %}
+						</div>
+					{% when 'image' %}
+						<div class="image-footer">
+                    		{% if block.settings.image != blank %}
+				      			{%- assign img_url = block.settings.image | img_url: '600x' -%}
+                        		{% if block.settings.image.alt != empty %}
+                            		{% capture footer_alt %}{{ block.settings.image.alt }}{% endcapture %}
+                        		{% else %}
+                            		{% if block.settings.title != empty %}
+                                		{% capture footer_alt %}{{ block.settings.title }}{% endcapture %}
+                            		{% else %}
+                                		{% capture footer_alt %}{{ shop.name }}{% endcapture %}
+                            		{% endif %}
+                        		{% endif %}
+				    		{% else %}
+				      			{%- assign img_url = '' -%}
+				    		{% endif %}
+				    		{% if block.settings.link != blank and img_url != blank %}
+				      			<a href="{{ block.settings.link }}">
+				    		{% elsif img_url != blank %}
+				      			<div class="image-bar__item">
+				    		{% else %}
+				      			<div class="image-bar__item">
+				    		{% endif %}
+							<div class="image-bar__content">
+							  {% if img_url == blank %}
+								  {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+							  {% else %}
+								{% render 'responsive-image' with block.settings.image, alt: footer_alt | escape %}
+							  {% endif %}
+				    		</div>
+				    		{% if block.settings.link != blank and img_url != blank %}
+				      			</a>
+				    		{% else %}
+				      			</div>
+				    		{% endif %}
+				    		{% if block.settings.title %}
+				      			<h3 class="image-bar--title">{{ block.settings.title }}</h3>
+				    		{% endif %}
+						</div>
+					{% when 'newsletter' %}
+						<div class="newsletter-footer">
+							{% if block.settings.newsletter_title == "" %}
+								<h3 class="{{footer-header-class}}">{{ 'layout.footer.newsletter_title' | t }}</h3>
+							{% else %}
+								<h3 class="{{footer-header-class}}">{{ block.settings.newsletter_title | escape }}</h3>
+							{% endif %}
+							{% if block.settings.footer_newsletter_description != empty %}
+								{{ block.settings.footer_newsletter_description }}
+							{% endif %}
+							{% form 'customer', id: 'newsletter-footer_form' %}
+                                <div class="input-group">
+                                    <input type="email" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="" required name="contact[email]" id="Email" class="form-input px-4 py-3 w-full border border-orange-dark focus:ring-0" aria-label="{{ 'general.newsletter_form.newsletter_email' | t }}"autocorrect="off" autocapitalize="off" aria-required="true" aria-label="email" autocomplete="email"{% if form.errors %} autofocus aria-invalid="true"aria-describedby="ContactFooter-error"{% elsif form.posted_successfully? %}aria-describedby="ContactFooter-success"{% endif %}required/>
+                                    <input type="hidden" name="contact[tags]" value="newsletter">
+                                    <input type="submit" class="btn mt-1 py-3 px-4 bg-orange-dark text-sm uppercase text-white" name="subscribe" id="subscribe" value="{{ 'general.newsletter_form.submit' | t }}">
+                                </div>
+                                {%- if form.posted_successfully? -%}
+                                    <h3 class="newsletter-form__message newsletter-form__message--success form__message" id="ContactFooter-success" tabindex="-1" autofocus>{{ 'general.newsletter_form.success' | t }}</h3>
+                                {%- endif -%}
+                                {%- if form.errors -%}
+                                    <h3 class="newsletter-form__message form__message newsletter-form__message--error" id="ContactFooter-error">{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}</h3>
+                                {%- endif -%}
+							{% endform %}
+						</div>
+					{% endcase %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	<div class="bottom--footer py-4 px-4 md:px-0">
+		<div class="container">
+			{% if section.settings.footer_text != blank %}
+				<div class="footer-description footer-description--{{ section.settings.alignment }}">
+					{{ section.settings.footer_text }}
+				</div>
+			{% endif %}
+			<div class="bottom--footer-row md:flex md:justify-between md:items-center{% if section.settings.show_methods_of_payment %} bottom--footer--payment-methods{% endif %}">
+				<ul class="inline-block">
+					<li><a href="{{ routes.root_url }}">&copy; {{ 'now' | date: "%Y" }}, {{ shop.name | escape }}</a>. All rights reserved.</span> </a></li>
+				
+				</ul>
+            <div class="ultimate-badges"></div>
+				{% if section.settings.show_methods_of_payment %}
+					{%- assign enabled_payment_types = shop.enabled_payment_types -%}
+						{%- assign payment_icons_available = 'amazon_payments,american_express,apple_pay,bitcoin,cirrus,dankort,diners_club,discover,dogecoin,dwolla,forbrugsforeningen,interac,jcb,litecoin,maestro,master,paypal,stripe,visa,ali_pay,unionpay' | split: ',' -%}
+					{% comment %}
+						Uncomment next line to show all icons
+						{%- assign enabled_payment_types = payment_icons_available -%}
+					{% endcomment %}
+					{% unless enabled_payment_types == empty %}
+						<ul class="grid grid-cols-4 md:grid-cols-8 gap-2 payment-icons">
+                        {% assign enabled_payment_types = 'american_express,apple_pay,google_pay,master,paypal,shopify_pay,visa,alipay,alipay_hk,unionpay' | remove: ' ' | split: ',' %}
+                        {% comment %}
+                        Use next line iteration to show the default payment types. By default the icons that show are determined by your store's payment settings.
+						for type in shop.enabled_payment_types.
+                        {% endcomment %}
+                        {% for type in enabled_payment_types %}
+							<li>{{ type | payment_type_svg_tag: class:'payment-icon' }}</li>
+						{% endfor %}
+					</ul>
+					{% endunless %}
+				{% endif %}
+				{% if section.settings.show_locale_selector == true or section.settings.show_currency_selector == true %}
+					<div class="localization-form-wrapper">
+						{% render 'localization-form', show_locale_selector: section.settings.show_locale_selector, show_currency_selector: section.settings.show_currency_selector %}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+  	</div>
+</footer>
+
+{% schema %}
+{
+    "name": {
+        "en": "Footer",
+        "de": "Fußzeile",
+        "es": "Pie de página",
+        "fr": "Pied de page",
+        "pt-PT": "Rodapé"
+    },
+    "max_blocks": 5,
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_methods_of_payment",
+            "label": {
+                "en": "Show payment icons",
+                "de": "Zahlungssymbole anzeigen",
+                "es": "Mostrar iconos de pago",
+                "fr": "Afficher les icônes de paiement",
+                "pt-PT": "Mostrar ícones de pagamento"
+            }
+        },
+        {
+            "type": "select",
+            "id": "alignment",
+            "label": {
+                "en": "Alignment",
+                "de": "Ausrichtung",
+                "es": "Alineación",
+                "fr": "Alignement",
+                "pt-PT": "Alinhamento"
+            },
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Centro",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                }
+            ],
+            "default": "left"
+        },
+        {
+            "type": "richtext",
+            "id": "footer_text",
+            "label": {
+                "en": "Footer text",
+                "de": "Footer-Text",
+                "es": "Texto del pie de página",
+                "fr": "Texte de bas de page",
+                "pt-PT": "Texto de rodapé"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+              "en": "Country\/region selector",
+              "de": "Auswahl für Land\/Region",
+              "es": "Selector de país\/región",
+              "fr": "Sélecteur de pays\/région",
+              "pt-PT": "Seletor de país\/região"
+            },
+            "info": {
+                "en": "To add a country\/region, go to your [market settings.](\/admin\/settings\/markets)",
+                "de": "Gehe zu den [Markteinstellungen](\/admin\/settings\/markets), um ein Land \/ eine Region hinzuzufügen.",
+                "es": "Para agregar un país\/región, ve a tu [configuración de mercado.](\/admin\/settings\/markets)",
+                "fr": "Pour ajouter un pays\/une région, allez à vos [paramètres du marché.](\/admin\/settings\/markets)",
+                "pt-PT": "Para adicionar um país\/região, vá a [configurações de mercado.](\/admin\/settings\/markets)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_currency_selector",
+            "label": {
+              "en": "Enable country\/region selector",
+              "de": "Auswahl für Land\/Region aktivieren",
+              "es": "Activar selector de país\/región",
+              "fr": "Activer le sélecteur de pays\/région",
+              "pt-PT": "Ativar seletor de país\/região"
+            },
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": {
+              "en": "Language selector",
+              "de": "Sprachauswahl",
+              "es": "Selector de idioma",
+              "fr": "Sélecteur de langue",
+              "pt-PT": "Seletor de idioma"
+            },
+            "info": {
+              "en": "To add a language, go to your [language settings.](\/admin\/settings\/languages)",
+              "de": "Gehe zu den [Spracheinstellungen](\/admin\/settings\/languages), um eine Sprache hinzuzufügen.",
+              "es": "Para agregar un idioma, ve a tu [configuración de idiomas.](\/admin\/settings\/languages)",
+              "fr": "Pour ajouter une langue, allez à vos [paramètres de langue.](\/admin\/settings\/languages)",
+              "pt-PT": "Para adicionar um idioma, vá a [definições de idioma.](\/admin\/settings\/languages)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_locale_selector",
+            "label": {
+              "en": "Enable language selector",
+              "de": "Sprachauswahl aktivieren",
+              "es": "Activar selector de idioma",
+              "fr": "Activer le sélecteur de langue",
+              "pt-PT": "Ativar seletor de idioma"
+            },
+            "default": true
+        }
+    ],
+    "blocks": [
+        {
+            "type": "text",
+            "name": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "richtext",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "menu",
+            "name": {
+                "en": "Navigation",
+                "de": "Navigation",
+                "es": "Navegación",
+                "fr": "La navigation",
+                "pt-PT": "Navegação"
+            },
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "menu_title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "link_list",
+                    "id": "footer_linklist",
+                    "label": {
+                        "en": "Footer menu",
+                        "de": "Fußzeilenmenü",
+                        "es": "Menú de pie de página",
+                        "fr": "Menu de pied de page",
+                        "pt-PT": "Menu de Rodapé"
+                    },
+                    "default": "footer",
+                    "info": {
+                        "en": "This navigation has limited support for dropdown items",
+                        "de": "Dieses Menü hat nur begrenzte Unterstützung für Dropdown-Einträge",
+                        "es": "Este menú tiene un soporte limitado para los menús desplegables.",
+                        "fr": "Ce menu prend en charge un nombre limité d'éléments de la liste déroulante",
+                        "pt-PT": "Este menu tem suporte limitado para itens suspensos"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "newsletter",
+            "name": {
+                "en": "Newsletter",
+                "de": "Newsletter",
+                "es": "Boletín de noticias",
+                "fr": "Bulletin d'information",
+                "pt-PT": "Newsletter"
+            },
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "newsletter_title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "footer_newsletter_description",
+                    "label": {
+                        "en": "Newsletter description",
+                        "de": "Newsletter-Beschreibung",
+                        "es": "Descripción del boletín de noticias",
+                        "fr": "Description du bulletin d'information",
+                        "pt-PT": "Descrição da newsletter"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "social",
+            "name": {
+                "en": "Social icons",
+                "de": "Soziale Symbole",
+                "es": "Iconos de redes sociales",
+                "fr": "Icônes sociales",
+                "pt-PT": "Ícones sociais"
+            },
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "social_title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "paragraph",
+                    "content": {
+                        "en": "Edit your social settings and accounts in Theme settings",
+                        "de": "Bearbeiten Sie Ihre sozialen Einstellungen und Konten in den Theme-Einstellungen.",
+                        "es": "Edite sus ajustes de redes sociales y cuentas en la configuración del tema",
+                        "fr": "Modifiez les paramètres de vos médias sociaux et de vos comptes dans les paramètres du Thème",
+                        "pt-PT": "Edite as suas configurações e contas sociais nas configurações do Tema"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "name": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "link",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    },
+                    "info": {
+                        "en": "Optional",
+                        "de": "Optional",
+                        "es": "Opcional",
+                        "fr": "Facultatif",
+                        "pt-PT": "Opcional"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Title",
+                        "de": "Titel",
+                        "es": "Título",
+                        "fr": "Titre",
+                        "pt-PT": "Título"
+                    },
+                    "info": {
+                        "en": "Optional",
+                        "de": "Optional",
+                        "es": "Opcional",
+                        "fr": "Facultatif",
+                        "pt-PT": "Opcional"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

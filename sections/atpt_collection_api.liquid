@@ -1,0 +1,23 @@
+
+        {% paginate collection.products by 30 %}
+          { 
+          "collection": {{ collection | json }},
+          "products": {{ collection.products | json }},
+          "paginate" : {{ paginate | json }},
+          "filter": [{% for temp_1 in collection.filters %} { "label": {{ temp_1.label | json }} , "type": {{ temp_1.type | json }} , "url_to_remove": {{ temp_1.url_to_remove | json }} , "min_value":  { "param_name": {{ temp_1.min_value.param_name | json }} , "value": {{ temp_1.min_value.value | json }} }  , "range_max": {{ temp_1.range_max | json }} , "max_value":  { "param_name": {{ temp_1.max_value.param_name | json }} , "value": {{ temp_1.max_value.value | json }} }  , "values": [{% for temp_4 in temp_1.values %} { "active": {{ temp_4.active | json }} , "count": {{ temp_4.count | json }} , "label": {{ temp_4.label | json }} } {% unless forloop.last %},{% endunless %}{% endfor %}] } {% unless forloop.last %},{% endunless %}{% endfor %}]
+          }
+        {% endpaginate %}
+        
+        {% schema %}
+          {
+            "name": "Tapita Collection Api",
+            "settings": []
+          }
+        {% endschema %}
+        
+        {% stylesheet %}
+        {% endstylesheet %}
+        
+        {% javascript %}
+        {% endjavascript %}
+        

@@ -1,0 +1,34 @@
+<ul{% if class != blank %} class="{{ class }}"{% endif %}>
+  {% for link in menu.links %}
+    {% if link.links != blank %}
+      {% assign link-title = link.title | strip %}
+      <li>
+        <a href="{{ link.url }}">{{ link.title }}</a>
+        <ul>
+          {% for sub_link in link.links %}
+            {% if sub_link.levels > 0 %}
+              <li>
+                <a href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a>
+                <ul>
+                  {% for sub_sub_link in sub_link.links %}
+                    <li>
+                      <a href="{{ sub_sub_link.url }}">{{ sub_sub_link.title | escape }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% else %}
+              <li>
+                <a href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </li>
+    {% else %}
+      <li>
+        <a href="{{ link.url }}">{{ link.title }}</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

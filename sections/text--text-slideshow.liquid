@@ -1,0 +1,245 @@
+{{ 'section-text-slideshow.min.css' | asset_url | stylesheet_tag }}
+
+{% if section.blocks.size > 1 %}
+  <style>
+    .text-slideshow__wrapper.text-slideshow--{{ section.id }} {
+      margin-bottom: 30px;
+    }
+  </style>
+  <text-slideshow>
+{% endif %}
+    <div class="homepage-sections-wrapper homepage-sections-wrapper--{{ section.settings.colors }}">
+      <div class="text-slideshow__wrapper text-slideshow--{{ section.id }} wrapper-padded show-on-scroll">
+        <ul class="text-slideshow__slide-container" data-text-slide-container>
+        {% for block in section.blocks %}
+          {% capture index %}{% cycle 'slideIndex': 0, 1, 2, 3, 4, 5 %}{% endcapture %}
+          <li 
+            data-text-slide={{ index }} 
+            class="text-slideshow__slide{% if forloop.first == true %} active{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            <div class="text-slideshow__slide-content">
+              {% if block.settings.title != blank %}
+                <div class="sitewide--title-wrapper">
+                  <h2 class="homepage-sections--title">{{ block.settings.title | escape }}</h2>
+                </div>
+              {% endif %}
+              <div>
+                {% if block.settings.text != blank %}
+                  <div class="rte featured-row__subtext">{{ block.settings.text }}</div>
+                {% endif %}
+                {% if block.settings.button_label != blank and block.settings.button_link != blank %}
+                  <div>
+                    <a 
+                      href="{{ block.settings.button_link }}"
+                      class="homepage-featured-box-btn"
+                      tabindex="0"
+                    >
+                      {{ block.settings.button_label }}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+        </ul>
+        {% if section.blocks.size > 1 %}
+          <button 
+            class="text-slideshow__navigation alt-focus"
+            type="button"
+            name="previous"
+            aria-label="Previous slide"
+            aria-hidden="true"
+            tabindex="-1"
+            disabled
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002"><path d="M388.425 241.951L151.609 5.79c-7.759-7.733-20.321-7.72-28.067.04-7.74 7.759-7.72 20.328.04 28.067l222.72 222.105-222.728 222.104c-7.759 7.74-7.779 20.301-.04 28.061a19.8 19.8 0 0014.057 5.835 19.79 19.79 0 0014.017-5.795l236.817-236.155c3.737-3.718 5.834-8.778 5.834-14.05s-2.103-10.326-5.834-14.051z"/></svg>
+          </button>
+          <button 
+            class="text-slideshow__navigation alt-focus"
+            type="button"
+            name="next"
+            aria-label="Next slide"
+            aria-hidden="false"
+            tabindex="0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002"><path d="M388.425 241.951L151.609 5.79c-7.759-7.733-20.321-7.72-28.067.04-7.74 7.759-7.72 20.328.04 28.067l222.72 222.105-222.728 222.104c-7.759 7.74-7.779 20.301-.04 28.061a19.8 19.8 0 0014.057 5.835 19.79 19.79 0 0014.017-5.795l236.817-236.155c3.737-3.718 5.834-8.778 5.834-14.05s-2.103-10.326-5.834-14.051z"/></svg>
+          </button>
+          <ul class="text-slideshow__pagination" data-text-slide-pagination>
+            {% for block in section.blocks %}
+              {% capture index %}{% cycle 'paginationIndex': 0, 1, 2, 3, 4, 5 %}{% endcapture %}
+              <li>
+                <button
+                  class="text-slideshow__pagination-btn alt-focus{% if forloop.first == true %} active{% endif %}"
+                  data-pagination-btn={{ index }}
+                  type="button"
+                  aria-label="Go to slide {{ index | plus: 1 }}"
+                >
+                  <span></span>
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+{% if section.blocks.size > 1 %}
+  </text-slideshow>
+{% endif %}
+
+{% schema %}
+{
+    "name": "Text slideshow",
+    "settings": [
+        {
+          "type": "select",
+          "id": "colors",
+          "label": {
+              "en": "Color scheme",
+              "de": "Farbschema",
+              "es": "Esquema de colores",
+              "fr": "Palette de couleurs",
+              "pt-PT": "Esquema de cores"
+          },
+          "default": "white",
+          "options": [
+              {
+                  "value": "white",
+                  "label": {
+                      "en": "Minimal",
+                      "fr": "Minimal",
+                      "de": "Minimal",
+                      "es": "Mínimo",
+                      "pt-PT": "Mínimo"
+                  }
+              },
+              {
+                  "value": "light",
+                  "label": {
+                      "en": "Light",
+                      "de": "Licht",
+                      "es": "Luz",
+                      "fr": "Clair",
+                      "pt-PT": "Claro"
+                  }
+              },
+              {
+                  "value": "accent",
+                  "label": {
+                      "en": "Feature",
+                      "de": "Eigenschaft",
+                      "es": "Destacado",
+                      "fr": "Caractéristique",
+                      "pt-PT": "Funcionalidade"
+                  }
+              },
+              {
+                  "value": "dark",
+                  "label": {
+                      "en": "Dark",
+                      "de": "Dunkel",
+                      "es": "Oscuro",
+                      "fr": "Foncé",
+                      "pt-PT": "Escuro"
+                  }
+              }
+          ]
+        }
+    ],
+    "blocks": [
+        {
+          "type": "text",
+          "name": "Text",
+          "limit": 3,
+          "settings": [
+              {
+                  "type": "text",
+                  "id": "title",
+                  "label": {
+                      "en": "Heading",
+                      "de": "Überschrift",
+                      "es": "Encabezado",
+                      "fr": "Rubrique",
+                      "pt-PT": "Título"
+                  },
+                  "default": {
+                      "en": "Heading",
+                      "de": "Überschrift",
+                      "es": "Encabezado",
+                      "fr": "Rubrique",
+                      "pt-PT": "Título"
+                  }
+              },
+              {
+                  "type": "richtext",
+                  "id": "text",
+                  "label": {
+                      "en": "Text",
+                      "de": "Text",
+                      "es": "Texto",
+                      "fr": "Texte",
+                      "pt-PT": "Texto"
+                  },
+                  "default": "<p>Share store details, promotions, or brand content with your customers.</p>"
+              },
+              {
+                  "type": "url",
+                  "id": "button_link",
+                  "label": {
+                      "en": "Button link",
+                      "de": "Buttonlink",
+                      "es": "Enlace del botón",
+                      "fr": "Lien du bouton",
+                      "pt-PT": "Ligação do botão"
+                  },
+                  "info": {
+                      "en": "Required to show the button",
+                      "de": "Notwendig, den Button zu zeigen",
+                      "es": "Es necesario mostrar el botón",
+                      "fr": "Requis pour afficher le bouton",
+                      "pt-PT": "Necessário para exibir o botão"
+                  }
+              },
+              {
+                  "type": "text",
+                  "id": "button_label",
+                  "label": {
+                      "en": "Button label",
+                      "de": "Button-Bezeichnung",
+                      "es": "Etiqueta del botón",
+                      "fr": "Étiquette du bouton",
+                      "pt-PT": "Etiqueta do botão"
+                  }
+              }
+          ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Text slideshow",
+            "category": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "blocks": [
+                {
+                    "type": "text"
+                },
+                {
+                    "type": "text"
+                },
+                {
+                    "type": "text"
+                }
+            ]
+        }
+    ],
+    "templates": [
+      "article"
+    ]
+}
+{% endschema %}

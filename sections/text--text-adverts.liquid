@@ -1,0 +1,244 @@
+<link rel="preload" href="{{ 'section-text-blocks.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-text-blocks.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+<div
+  class="homepage-sections-wrapper text-advert-section homepage-sections-wrapper--{{ section.settings.colors }}"
+  data-wetheme-section-type="text--text-adverts" data-wetheme-section-id="{{ section.id }}"
+>
+
+{% case section.blocks.size %}
+  {% when 1 %}
+    {%- assign column_size = 'large--one-whole medium--one-whole' -%}
+    {%- assign column_amount = 'text-advert-section--one-column' -%}
+  {% when 2 %}
+    {%- assign column_size = 'large--one-half medium--one-half' -%}
+    {%- assign image_size = '1000x' -%}
+  {% when 3 %}
+    {%- assign column_size = 'large--one-third medium--one-third' -%}
+    {%- assign image_size = '700x' -%}
+{% endcase %}
+
+  <div class="wrapper-padded small--hide">
+    <div class="grid text-advert-section {{ column_amount }}">
+
+      {% for block in section.blocks %}
+        {%- assign advert_has_link = false -%}
+        {% if block.settings.link != blank %}
+          {%- assign advert_has_link = true -%}
+        {% endif %}
+
+        <div class="grid__item {{ column_size }}" {{ block.shopify_attributes }}>
+
+          {% if advert_has_link %}
+            <a href="{{ block.settings.link }}">
+          {% endif %}
+
+            {% if block.settings.heading != blank %}
+              <span class="text-advert-section--header h5">{{ block.settings.heading | escape }}</span>
+            {% endif %}
+
+            {% if block.settings.subheading != blank %}
+              <span class="text-advert-section--sub-header">{{ block.settings.subheading | escape }}</span>
+            {% endif %}
+
+          {% if advert_has_link %}
+            </a>
+          {% endif %}
+
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="container large--hide small--show medium--hide">
+    <div class="grid text-advert-section swiper-container mobile-homepage-text-adverts {{ column_amount }}">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          {%- assign advert_has_link = false -%}
+          {% if block.settings.link != blank %}
+            {%- assign advert_has_link = true -%}
+          {% endif %}
+
+          <div class="swiper-slide grid__item {{ column_size }}" {{ block.shopify_attributes }}>
+            {% if advert_has_link %}
+              <a href="{{ block.settings.link }}">
+            {% endif %}
+
+              {% if block.settings.heading != blank %}
+                <span class="text-advert-section--header h5">{{ block.settings.heading }}</span>
+              {% endif %}
+
+              {% if block.settings.subheading != blank %}
+                <span class="text-advert-section--sub-header">{{ block.settings.subheading }}</span>
+              {% endif %}
+
+            {% if advert_has_link %}
+              </a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Text adverts",
+        "de": "Textanzeigen",
+        "es": "Anuncios de texto",
+        "fr": "Annonces textuelles",
+        "pt-PT": "Anúncios de texto"
+    },
+    "class": "homepage-section--text-adverts-wrapper show-on-scroll",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        }
+    ],
+    "max_blocks": 3,
+    "blocks": [
+        {
+            "type": "text",
+            "name": {
+                "en": "Advert",
+                "de": "Anzeige",
+                "es": "Anuncio",
+                "fr": "Annonce",
+                "pt-PT": "Anúncio"
+            },
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "heading",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                      "en": "What makes you different",
+                      "de": "Was dich unterscheidet",
+                      "es": "Lo que te hace diferente",
+                      "fr": "Ce qui vous différencie",
+                      "pt-PT": "O que o torna diferente"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "subheading",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subencabezado",
+                        "fr": "Sous-rubrique",
+                        "pt-PT": "Subtítulo"
+                    },
+                    "default": {
+                      "en": "Shout about your unique selling points",
+                      "de": "Rufe laut deine Alleinstellungsmerkmale aus",
+                      "es": "Presume de tus puntos de venta exclusivos",
+                      "fr": "Donnez de la voix à vos arguments clés de vente",
+                      "pt-PT": "Fale acerca dos seus argumentos de venda exclusivos"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "link",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    },
+                    "info": {
+                        "en": "Optional",
+                        "de": "Optional",
+                        "es": "Opcional",
+                        "fr": "Facultatif",
+                        "pt-PT": "Opcional"
+                    }
+                }
+            ]
+        }
+    ],
+    "presets": [
+      {
+        "name": "Text adverts",
+        "category": {
+            "en": "Text",
+            "de": "Text",
+            "es": "Texto",
+            "fr": "Texte",
+            "pt-PT": "Texto"
+        },
+        "blocks": [
+          {
+            "type": "text"
+          },
+          {
+            "type": "text"
+          },
+          {
+            "type": "text"
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}

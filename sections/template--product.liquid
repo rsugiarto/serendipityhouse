@@ -1,0 +1,1377 @@
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+event: 'view_item',
+ecommerce: {
+items: [{
+item_name: '{{ product.title | replace: "'","##@@singleinvertedcomma@@##" }}'.replace("##@@singleinvertedcomma@@##", "'"),
+item_id: "{% if product.sku %}{{ product.sku }}{% else %}{{ product.id}}{% endif %}",
+price: "{{ product.price | money_without_currency | remove:',' }}",
+item_brand: "{{ product.vendor | remove: "'" | remove: '"' }}",
+{% for collection in product.collections %}
+item_category{% unless forloop.index == 1 %}{{ forloop.index }}{% endunless %}: "{{ collection.title }}",
+{% endfor %}
+item_variant: "{{ product.selected_or_first_available_variant.title | remove: "'" | remove: '"' }}",
+quantity: '1'
+}]
+}
+});
+</script>
+{{ 'plyr.min.css' | asset_url | stylesheet_tag }}
+{{ 'shopify-model-viewer-ui.min.css' | asset_url | stylesheet_tag }}
+<div
+  itemscope itemtype="http://schema.org/Product"
+  data-wetheme-section-type="template--product" data-wetheme-section-id="{{ section.id }}"
+>
+  <meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
+  <meta itemprop="image" content="{{ product.featured_media.preview_image | img_url: 'grande' }}">
+  <meta itemprop="brand" content="{{ product.vendor }}">
+  <meta itemprop="sku" content="{{ product.selected_or_first_available_variant.sku }}">
+  {% assign pick_an_option = false %}
+
+  {% if pick_an_option %}
+    {%- assign current_variant = product.selected_variant -%}
+  {% else %}
+    {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {% endif %}
+
+  {% assign on_sale = false %}
+  {% if current_variant.compare_at_price > current_variant.price %}
+    {% assign on_sale = true %}
+  {% endif %}
+
+  {%- assign product_description_width = '' -%}
+  {%- assign product_image_width = '' -%}
+
+  {% assign media_block = section.blocks | where: "type", "media" | first %}
+  {% assign options_block = section.blocks | where: "type", "options" | first %}
+  {% assign price_block = section.blocks | where: "type", "price" | first %}
+  {% assign pickup_block = section.blocks | where: "type", "local_pickup" | first %}
+  {% assign trust_block = section.blocks | where: "type", "trust_badges" | first %}
+  {% assign giftwrap_block = section.blocks | where: "type", "giftwrap" | first %}
+  {% assign buttons_block = section.blocks | where: "type", "buy_buttons" | first %}
+
+  {% case media_block.settings.image_size %}
+    {% when 'small' %}
+      {%- assign product_description_width = 'large--seven-twelfths' -%}
+      {%- assign product_image_width = 'large--five-twelfths' -%}
+    {% when 'medium' %}
+      {%- assign product_description_width = 'large--six-twelfths' -%}
+      {%- assign product_image_width = 'large--six-twelfths' -%}
+    {% when 'large' %}
+      {%- assign product_description_width = 'large--five-twelfths' -%}
+      {%- assign product_image_width = 'large--seven-twelfths' -%}
+  {% endcase %}
+
+  <div class="product-media-templates">
+    {% assign featured_media = current_variant.featured_media | default: product.featured_media %}
+    {% render 'product-media-templates', product: product, section_id: section.id, featured_media_id: featured_media.id, enable_image_zoom: media_block.settings.enable_image_zoom, enable_video_loop: media_block.settings.enable_video_loop %}
+  </div>
+
+  {% assign style = 'full_width' %}
+  {% if media_block.settings.image-display == 'thumbnails' %}
+    {% assign style = media_block.settings.thumbnail_position %}
+  {% endif %}
+  {% if product.media.size < 2 %}
+    {% comment %} No thumbnails {% endcomment %}
+    {% assign style = 'full_width' %}
+  {% endif %}
+
+  {% assign wrap_product_variant_id = 0 %}
+  {% assign wrap_product = false %}
+  {% if settings.giftwrap_product_selector != blank %}
+    {% assign wrap_product = all_products[settings.giftwrap_product_selector] %}
+    {% if wrap_product.variants.first.id %}
+      {% assign wrap_product_variant_id = wrap_product.variants.first.id %}
+    {% endif %}
+  {% endif %}
+
+  {% assign locations_enabled = false %}
+  {% if pickup_block %}
+    {% assign locations_enabled = true %}
+  {% endif %}
+
+  {% assign thumbnail_changes_variant = false %}
+  {% if options_block.settings.thumbnail_changes_variant %}
+    {% assign thumbnail_changes_variant = true %}
+  {% endif %}
+
+	<div class="wrapper-padded product-form-vue main-page-container">
+    	<wetheme-product-form
+      		inline-template
+      		v-bind:initial-variant-id="{{ current_variant.id }}"
+      		v-bind:product="product"
+      		v-bind:product-section="productSection"
+      		v-bind:theme="theme"
+      		v-bind:slides-per-view="slidesPerView"
+      		v-bind:is-featured-product="isFeaturedProduct"
+      		v-bind:section-id="'{{ section.id }}'"
+      		v-bind:thumbnail-changes-variant="{{ thumbnail_changes_variant }}"
+      		v-bind:has-thumbnails="{% if style != 'full_width' %}true{% else %}false{% endif %}"
+      		v-bind:image-zoom-enabled="{{ media_block.settings.enable_image_zoom }}"
+      		v-bind:video-loop-enabled="{{ media_block.settings.enable_video_loop }}"
+      		v-bind:cart-method="'{{ settings.ajax_cart_method }}'"
+      		v-bind:giftwrap-product-variant-id="{{ wrap_product_variant_id }}"
+      		v-bind:locations-enabled="{{ locations_enabled }}"
+      		language-url="{{ localization.language.root_url }}"
+    	>
+      		<div class="product-single-wrapper">
+        		<div class="md:flex md:items-start product-single product-sticky-wrapper{% if options_block.settings.product_variant_style == 'dropdowns' %} variant-dropdown-enabled{% else %} variant-swatches-enabled{% endif %}" data-section-id="{{ section.id }}">
+          			<div class="grid__item w-full md:w-5/12 context">
+            			{% render 'product-media', product: product, style: style, enable_image_zoom: media_block.settings.enable_image_zoom, hide_soldout_variants: options_block.settings.hide_soldout_variants %}
+          			</div>
+					<div class="grid__item w-full md:w-7/12{% if section.settings.enable_sticky %} product-sticky{% endif %}">
+        				<div class="product-details-wrapper p-4 bg-secondary">
+              				<div itemprop="offers" itemscope itemtype="http://schema.org/Offer" class="product-details--form-wrapper{% if product.available %} product-details--form-wrapper---in-stock{% else %} product-details--form-wrapper---out-of-stock{% endif %}">
+                				<meta itemprop="priceCurrency" content="{{ shop.currency }}">
+                				<meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
+                				<link itemprop="availability" href="http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}">
+                				<div class="form-vertical">
+                  					{% form 'product', product, id: "AddToCartForm" %}
+                  						{%- for block in section.blocks -%}
+                    						{%- case block.type -%}
+                    							{%- when '@app' -%}
+                      								<div id="shopify-block-{{block.id}}"></div>
+                    							{%- when 'cross-sells' -%}
+                      								<div id="cross-sell-{{block.id}}"></div>
+                    							{%- when 'sale_badge' -%}
+                      								<div class="product-page--sale-badge{% unless current_variant.compare_at_price > current_variant.price %} js{% endunless %}" v-if="isSale" v-cloak>
+                        								{{ 'products.product.on_sale' | t }}
+													</div>
+												{%- when 'vendor' -%}
+													<h2 class="uppercase font-bold text-3xl text-brown-zin mb-2">{{product.vendor}}</h2>	
+                    							{%- when 'vendor_sku' -%}
+                      								<div class="product__meta--sku-vendor">
+                        								<div class="product__meta--sku {% if current_variant.sku == "" %}js{% endif %}" v-if="variant && variant.sku !== ''">
+                          								<h4>{{ 'customer.order.sku' | t }}: <span class="js__currentVariantSKU" v-text="variant.sku">{{ current_variant.sku }}</span></h4>
+                        							</div>
+                        							{% if product.vendor != "" %}
+                          								<div class="product__meta--vendor">
+                           	 								<h4>{{ product.vendor | link_to_vendor }}</h4>
+                          								</div>
+                        							{% endif %}
+                      								</div>
+                    							{%- when 'title' -%}
+                      								<h1 itemprop="name" class="product-details-product-title font-medium text-3xl text-brown-zin mb-4 leading-8" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
+                    			{% render 'judgeme_widgets', widget_type: 'judgeme_preview_badge', jm_style: '', concierge_install: true, product: product %}			
+                          {%- when 'price' -%}
+                      								<span class="visually-hidden">{{ 'products.general.sale_price' | t }}</span>
+                      								<p id="ComparePrice" class="inline-block line-through m-0{% if settings.show_discount == 'hide' %}sale-price{% endif %}{% unless on_sale %} js{% endunless %}" v-if="isSale" v-money="variant.compare_at_price">
+                        								<span class="money">{{ current_variant.compare_at_price | money }}</span>
+                      								</p>
+													{% if on_sale %}
+														<ul>
+                      									{% case settings.show_discount %}
+                        									{%- when 'percentage' -%}
+                          										<li class="product-page--pricing--discount">
+                            										<span class="variant-percentage-wrapper{% unless on_sale %} js{% endunless %}" v-if="isSale">
+                    													-<span class="variant-percentage" v-text="((variant.compare_at_price - variant.price) / variant.compare_at_price * 100).toFixed(0) + '%'">
+                                										{{ current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | money_without_currency | times: 100 | remove: '.0' }}%</span></span>
+                          										</li>
+                        									{%- when 'value' -%}
+                          										<li class="product-page--pricing--discount">
+                            										<span class="variant-value-wrapper{% unless on_sale %} js{% endunless %}" v-if="isSale">
+									  									-<span class="variant-value" v-money="variant.compare_at_price - variant.price">
+																			<span class="money">
+										  										{{ current_variant.compare_at_price | minus: current_variant.price | money }}
+																			</span>
+									  									</span>
+																	</span>
+                         	 									</li>
+														{% endcase %}
+														</ul>
+													{% endif %}
+													<div class="flex items-center mb-4">
+														<div>
+															{% render 'product-pricing', current_variant: current_variant %}
+															{% render 'unit-price-measurement-variant', variant: current_variant %}
+														</div>
+														<div class="px-4 text-center border-r border-green-kombu">
+															{% if product.available %}
+																<span class="font-bold text-green-kombu"><i class="icon-circle-ok"></i>{{ 'products.product.on_sale' | t }}</span>
+															{% endif %}
+															{% unless product.available %}
+																	<span class="font-bold text-red-strong">{{ 'products.product.sold_out' | t }}</span>
+															{% endunless %}
+														</div>
+														<div class="px-4 text-center">
+															<h3 class="text-brown-zin font-medium">SKU#: {{ current_variant.sku }}</h3>
+														</div>
+													</div>
+                      								{% comment %} {%- if cart.taxes_included or shop.shipping_policy.body != blank -%}
+                        								<div class="product-page__policies py-2">
+                          									{%- if cart.taxes_included and price_block.settings.tax_included -%}
+                            									{{ 'products.product.include_taxes' | t }}
+                          									{%- endif -%}
+                          									{%- if shop.shipping_policy.body != blank and price_block.settings.shipping_policy -%}
+                            									{{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                          									{%- endif -%}
+                        								</div>
+                      								{%- endif -%} {% endcomment %}
+                      								<div class="shopify-payment-terms__container">
+                        								{{ form | payment_terms }}
+                      								</div>
+                    							{%- when 'options' -%}
+                      								{% render 'product-options', product: product, variant_style: options_block.settings.product_variant_style, section_id: section.id, current_variant: current_variant, hide_soldout_variants: options_block.settings.hide_soldout_variants %}
+                    							{%- when 'giftwrap' -%}
+                      								{% if settings.giftwrap_product_selector > '' and product.available and wrap_product %}
+                        								{% if wrap_product.available %}
+                          									<div class="product__meta--giftwrap">
+                            									<input type="checkbox" id="checkbox" v-model="giftwrapProduct" class="focus-visible">
+                            									<label for="checkbox">{{ settings.giftwrap_label_text }}</label>
+                          									</div>
+                        								{% endif %}
+                      								{% endif %}
+                    							{%- when 'quantity' -%}
+													<div class="{% if options_block.settings.product_variant_style == 'dropdowns' %}selector-wrapper{% else %}swatches-wrapper{% endif %} {% if section.settings.image_size == 'large' %}col-md-12{% else %}col-md-6{% endif %} w-full">
+														{% if product.available %}
+                        									<label for="Quantity" class="quantity-selector product-sub-label header text-brown-zin uppercase text-sm mb-2">{{ 'products.product.quantity' | t }}</label>
+                        									<div class="js-qty relative max-w-[85px] min-w-[75px]">
+                          										<button type="button" aria-label="-" class="js-qty__adjust js-qty__adjust--minus icon-fallback-text text-sm" v-on:click="decreaseQuantity">
+                            										<i class="fa fa-minus" aria-hidden="true"></i>
+                            										<span class="fallback-text">−</span>
+                          										</button>
+                          										<input v-model="quantity" type="text" class="js-qty__num" value="1" min="1" aria-label="quantity" pattern="[0-9]*" name="quantity-js" id="Quantity" />
+                          										<button type="button" aria-label="+" class="js-qty__adjust js-qty__adjust--plus icon-fallback-text text-sm" v-on:click="increaseQuantity">
+                            										<i class="fa fa-plus" aria-hidden="true"></i>
+                            										<span class="fallback-text">+</span>
+                          										</button>
+                        									</div>
+                        									<noscript>
+                          										<input class="quantity-noscript" type="number" name="quantity" id="Quantity-{{ section.id }}" aria-label="quantity" min="1" value="1">
+															</noscript>
+														{% endif %}
+											    	</div>
+										        {%- when 'buy_buttons' -%}
+													<div class="paymentButtonsWrapper">
+														{% if product.available %}
+                        									<button type="submit" aria-label="{{ 'products.product.add_to_cart' | t }}" name="add" id="AddToCart" class="mb-4 bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3 btn{% if buttons_block.settings.show_smart_checkout and product.selling_plan_groups.size == 0 %} add-to-cart--secondary{% endif %}" v-bind:class="{ disabled: addToCartDisabled }" v-bind:disabled="addToCartDisabled">
+                          										<i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw js" v-if="state === 'adding'"></i><span class="sr-only">{{ 'collections.paginate.loading' | t }}</span>
+                          										<span class="{% if current_variant.available %}js{% endif %}" v-if="state === 'ready'">{{ 'products.product.add_to_cart' | t }}</span>
+                          										<span class="js" v-if="state === 'added'">{{ 'products.product.added' | t }}</span>
+                          										<span class="{% unless current_variant.available %}js{% endunless %}" v-if="state === 'soldOut'">{{ 'products.product.sold_out' | t }}</span>
+                          										<span class="js" v-if="state === 'unavailable'">{{ 'products.product.unavailable' | t }}</span>
+                        									</button>
+                        									<noscript>
+                          										<button type="submit" class="mb-4 bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3 btn" aria-label="{{ 'products.product.add_to_cart' | t }}">
+                            										<span>{{ 'products.product.add_to_cart' | t }}</span>
+                          										</button>
+                        									</noscript>
+                        									{% if buttons_block.settings.show_smart_checkout %}
+                          										{{ form | payment_button }}
+															{% endif %}
+														{% endif %}
+                      								</div>
+                    							{%- when 'local_pickup' -%}
+                      								<div class="product-page--local-pickup" v-if="hasLocalPickup" v-html="hasLocalPickup"></div>
+                    							{%- when 'trust_badges' -%}
+                      								{% if trust_block.settings.trust-badge %}
+                        								<span class="trust-badge-container">
+                          									{% capture styles %}width: {{ trust_block.settings.trust-badge_max_width | escape }}px{% endcapture %}
+                          									{% render 'responsive-image' with trust_block.settings.trust-badge, class:'trust-badge', alt: '', blur: false, styles: styles %}
+                        								</span>
+                      								{% endif %}
+                    							{%- when 'product_meta' -%}
+                      								<div class="product__meta">
+                        								{% if product.tags.size > 0 %}
+                          									<div class="product__meta--tags">
+                            									<span><strong>{{ 'products.product.tags' | t }}:</strong> </span>
+                            									{% for tag in product.tags %}
+                              										<a href="{{ routes.all_products_collection_url }}/{{ tag | handleize }}"><span>{{ tag }}</span></a>{% if forloop.last == false %}, {% endif %}
+                            									{% endfor %}
+                          									</div>
+                        								{% endif %}
+                        								{% if product.collections.size > 0 %}
+                          									<div class="product__meta--tags">
+                            									<span><strong>{{ 'products.product.category' | t }}:</strong> </span>
+                            									{% for collection in product.collections %}
+                              										<a href="{{ collection.url }}"><span>{{ collection.title }}</span></a>{% if forloop.last == false %}, {% endif %}
+                            									{% endfor %}
+                          									</div>
+                        								{% endif %}
+                        								{% if product.type != "" %}
+                          									<div class="product__meta--type">
+                            									<span><strong>{{ 'products.product.type' | t }}: </strong></span>
+                            									<span>{{ product.type }}</span>
+                          									</div>
+                        								{% endif %}
+                      								</div>
+                    							{%- when 'social_sharing' -%}
+                      								{% render 'social-share' %}
+                    							{% when 'custom_liquid' %}
+                      								{{ block.settings.custom_liquid }}
+                    							{% when 'product-rating' %}
+                      								{% if block.settings.rating != blank %}
+                        								{% if block.settings.rating-label != blank %}
+                          									<p class="rating-label">{{ block.settings.rating-label }}</p>
+                          									{% assign rating_aria_label = block.settings.rating-label %}
+                        								{% else %}
+                          									{% assign rating_aria_label = "Rating" %}
+                        								{% endif %}
+                        								{% if block.settings.rating-icon-full %}
+                          									{% liquid
+                            									assign rating_decimal = 0
+                            									assign decimal = block.settings.rating | modulo: 1
+                            									if decimal >= 0.3 and decimal <= 0.7
+                              										assign rating_decimal = 0.5
+                            									elsif decimal > 0.7
+                              										assign rating_decimal = 1
+                            									endif
+                            									assign full_icons = block.settings.rating | floor | plus: rating_decimal | floor
+                            									assign empty_icons = block.settings.rating-max | round | minus: full_icons
+                            									if rating_decimal == 0.5
+                              										assign empty_icons = empty_icons | minus: 1
+                            									endif
+                            									assign full_alt = block.settings.rating-icon-full.alt | default: "Full icon"
+                            									assign empty_alt = block.setting.rating-icon-empty.alt | default: "Empty icon"
+                          									%}
+                          									<div class="rating-icons" role="img" aria-label="{{ rating_aria_label }} - {{ block.settings.rating }} out of {{ block.settings.rating-max }}">
+                            									{% for i in (1..full_icons) %}
+                              										<div class="rating-icons__icon" aria-hidden="true">
+                                										{% render 'responsive-image' with block.settings.rating-icon-full, alt: full_alt %}
+                              										</div>
+                            									{% endfor %}
+                            									{% if block.settings.rating-icon-empty %}
+                              										{% if rating_decimal == 0.5 %}
+                                										<div class="rating-icons__icon rating-icons__icon--half" aria-hidden="true">
+                                  											<div class="rating-icons__image--full">
+                                    											{% render 'responsive-image' with block.settings.rating-icon-full, alt: full_alt %}
+                                  											</div>
+                                  											<div class="rating-icons__image--empty">
+                                    											{% render 'responsive-image' with block.settings.rating-icon-empty, alt: empty_alt %}
+                                  											</div>
+                                										</div>
+                              										{% endif %}
+                              										{% for i in (1..empty_icons) %}
+                                										<div class="rating-icons__icon" aria-hidden="true">
+                                  											{% render 'responsive-image' with block.settings.rating-icon-empty, alt: empty_alt %}
+                                										</div>
+                              										{% endfor %}
+                            									{% endif %}                          
+                          									</div>
+                        								{% else %}
+                          									<p>{{ block.settings.rating }} / {{ block.settings.rating-max }}</p>
+                        								{% endif %}
+                      								{% endif %}
+                    							{% when 'image-offer' %}
+                      								<div class="image-offer-container">
+                        								{% if block.settings.link != blank and block.settings.image != blank %}
+                          									<a href="{{ block.settings.link }}" class="image-offer-container--is-link">
+                        								{% endif %}
+                        								{% if block.settings.image == blank %}
+                            								{{ 'lifestyle-1' | placeholder_svg_tag: 'icon--placeholder' }}
+                        								{% else %}
+                            								{% capture alt %}{{ block.settings.image.alt | default: shop.name }}{% endcapture %}
+                            								{% render 'responsive-image' with block.settings.image, alt: alt %}
+                        								{% endif %}
+                        								{% if block.settings.link != blank and block.settings.image != blank %}
+                          									</a>
+                        								{% endif %}
+                      								</div>
+                    							{% when 'text-with-icon' %}
+                      								{% render 'text-with-icon', icon: block.settings.icon, text: block.settings.text, link: block.settings.link  %}
+                    							{%- endcase -%}
+                  							{%- endfor -%}
+                  							<div class="errors qty-error" v-if="hasErrors" v-html="hasErrors" v-cloak></div>
+                  						{% endform %}
+                  						{% if section.settings.show_out_of_stock_email %}
+                    						{% render 'out-of-stock-form' %}
+                    						<div class="shopify-disclaimer--hidden">{{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}</div>
+										{% endif %}
+										<div class="py-4 leading-7 text-base">
+											{{product.description}}
+										</div>
+                  					</div>
+              					</div>
+            				</div>
+          				</div>
+        			</div>
+      			</div>
+    		</wetheme-product-form>
+		</div>
+  		{% unless product == empty %}
+    <script type="application/json" class="product-json" id="ProductJson-{{ section.id }}">
+      {{ product | json }}
+    </script>
+  {% endunless %}
+</div>
+
+{%- for block in section.blocks -%}
+{%- case block.type -%}
+  {%- when '@app' -%}
+    <div id="appInit" data-block-id="{{block.id}}">
+    {% render block %}
+  </div>
+  {%- when 'image-offer' -%}
+    <style>
+      .image-offer-container--is-link:hover img {
+        border-color: {{ block.settings.hover_border_color }};
+      }
+    </style>
+  {% when 'cross-sells' %}
+    <div class="cross-sell-block" id="cross-sell-{{block.id}}">
+      {% render 'cross-sells' with block_settings: block.settings %}
+    </div>
+{% endcase %}
+{% endfor %}
+{% render 'judgeme_widgets', widget_type: 'judgeme_review_widget', concierge_install: true, product: product %}
+
+
+{% schema %}
+{
+    "name": {
+        "en": "Product",
+        "de": "Produktseiten",
+        "es": "Páginas de producto",
+        "fr": "Pages des produits",
+        "pt-PT": "Páginas de produtos"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "enable_sticky",
+            "label": {
+                "en": "Enable sticky product form",
+                "de": "Sticky-Beschreibung aktivieren",
+                "es": "Habilitar descripción pegajosa",
+                "fr": "Activer la description collante",
+                "pt-PT": "Ativar descrição fixa"
+            },
+            "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_out_of_stock_email",
+          "label": {
+              "en": "Enable out of stock email",
+              "de": "Die E-Mail \"Nicht lieferbar\" aktivieren",
+              "es": "Habilitar correo electrónico agotado",
+              "fr": "Activer le courriel Rupture de stock",
+              "pt-PT": "Ativar e-mail de esgotado"
+          },
+          "default": false
+        }
+    ],
+    "blocks": [
+      {
+        "type": "@app"
+      },
+      {
+        "type": "media",
+        "name": "Media",
+        "settings": [
+          {
+              "type": "paragraph",
+              "content": {
+                  "en": "Learn more about [media types](https://help.shopify.com/en/manual/products/product-media)",
+                  "de": "Mehr erfahren über [Medientypen](https://help.shopify.com/en/manual/products/product-media)",
+                  "es": "Obtenga más información sobre [tipos de medios](https://help.shopify.com/en/manual/products/product-media)",
+                  "fr": "En savoir plus sur [types de médias](https://help.shopify.com/en/manual/products/product-media)",
+                  "pt-PT": "Saiba mais sobre [tipos de media](https://help.shopify.com/en/manual/products/product-media)"
+              }
+          },
+          {
+              "type": "select",
+              "id": "image_size",
+              "label": {
+                  "en": "Size",
+                  "de": "Größe",
+                  "es": "Tamaño",
+                  "fr": "Taille",
+                  "pt-PT": "Tamanho"
+              },
+              "info": {
+                  "en": "Recommended 950px minimum width. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020257118-Image-Dimensions)",
+                  "de": "950 px Mindestbreite empfohlen. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020257118-Image-Dimensions)",
+                  "es": "Anchura mínima recomendada: 950px. [Aprenda más](https://support.weareeight.com/hc/en-us/articles/360020257118-Image-Dimensions)",
+                  "fr": "Largeur minimale recommandée : 950 px. [En savoir plus] (https://support.weareeight.com/hc/en-us/articles/360020257118-Image-Dimensions)",
+                  "pt-PT": "950px de largura mínima (recomendado). [Saiba mais](https://support.weareeight.com/hc/en-us/articles/360020257118-Image-Dimensions)"
+              },
+              "options": [
+                  {
+                      "value": "small",
+                      "label": {
+                          "en": "Small",
+                          "de": "Klein",
+                          "es": "Pequeño",
+                          "fr": "Petite",
+                          "pt-PT": "Pequeno"
+                      }
+                  },
+                  {
+                      "value": "medium",
+                      "label": {
+                          "en": "Medium",
+                          "de": "Mittel",
+                          "es": "Mediano",
+                          "fr": "Moyenne",
+                          "pt-PT": "Médio"
+                      }
+                  },
+                  {
+                      "value": "large",
+                      "label": {
+                          "en": "Large",
+                          "de": "Groß",
+                          "es": "Grande",
+                          "fr": "Grande",
+                          "pt-PT": "Grande"
+                      }
+                  }
+              ],
+              "default": "medium"
+          },
+          {
+              "type": "radio",
+              "id": "image-display",
+              "label": {
+                  "en": "Secondary media display",
+                  "de": "Sekundäre Mediendarstellung",
+                  "es": "Visualización de medios secundarios",
+                  "fr": "Affichage des médias secondaires",
+                  "pt-PT": "Exibição de media secundária"
+              },
+              "options": [
+                  {
+                      "value": "full-size",
+                      "label": {
+                          "en": "Full size",
+                          "de": "Vollständige Größe",
+                          "es": "Tamaño completo",
+                          "fr": "Pleine grandeur",
+                          "pt-PT": "Tamanho completo"
+                      }
+                  },
+                  {
+                      "value": "thumbnails",
+                      "label": {
+                          "en": "Thumbnails",
+                          "de": "Thumbnails",
+                          "es": "Imagen en miniatura",
+                          "fr": "Vignettes",
+                          "pt-PT": "Miniaturas"
+                      }
+                  }
+              ],
+              "default": "full-size"
+          },
+          {
+              "type": "select",
+              "id": "thumbnail_position",
+              "label": {
+                  "en": "Thumbnail position",
+                  "de": "Thumbnail-Position",
+                  "es": "Posición de la imagen en miniatura",
+                  "fr": "Position de la vignette",
+                  "pt-PT": "Posição da imagem em miniatura"
+              },
+              "options": [
+                  {
+                      "value": "below",
+                      "label": {
+                          "en": "Below main media",
+                          "de": "Unterhalb Hauptmedien",
+                          "es": "Por debajo de los principales",
+                          "fr": "Sous les principaux médias",
+                          "pt-PT": "Abaixo da media principal"
+                      }
+                  },
+                  {
+                      "value": "left",
+                      "label": {
+                          "en": "Left of main media",
+                          "de": "Links von Hauptmedien",
+                          "es": "A la izquierda de los principales",
+                          "fr": "À gauche des principaux médias",
+                          "pt-PT": "À esquerda da media principal"
+                      }
+                  },
+                  {
+                      "value": "right",
+                      "label": {
+                          "en": "Right of main media",
+                          "de": "Rechts von Hauptmedien",
+                          "es": "A la derecha de los principales",
+                          "fr": "À droite des principaux médias",
+                          "pt-PT": "À direita da media principal"
+                      }
+                  }
+              ],
+              "default": "below"
+          },
+          {
+              "type": "checkbox",
+              "id": "enable_image_zoom",
+              "label": {
+                  "en": "Enable zoom for product images",
+                  "de": "Zoom für Produktbilder aktivieren",
+                  "es": "Habilitar zoom para la imágenes de los productos",
+                  "fr": "Activer le zoom pour les images de produits",
+                  "pt-PT": "Ativar zoom para imagens de produtos"
+              },
+              "default": false
+          },
+          {
+              "type": "checkbox",
+              "id": "enable_video_loop",
+              "label": {
+                  "en": "Enable video looping",
+                  "de": "Videoschleife erlauben",
+                  "es": "Habilitar bucle de vídeo",
+                  "fr": "Activer la boucle vidéo",
+                  "pt-PT": "Ativar loop de vídeo"
+              },
+              "default": false
+          }
+        ],
+        "limit": 1
+	  },
+	  {
+        "type": "vendor",
+        "name": "Vendor",
+        "limit": 1
+		},
+		{
+			"type": "quantity_price_sku",
+			"name": "Quantity / Price / Sku"
+		},
+      {
+        "type": "vendor_sku",
+        "name": "Vendor / SKU",
+        "limit": 1
+      },
+      {
+        "type": "title",
+        "name": "Title",
+        "limit": 1
+      },
+      {
+        "type": "sale_badge",
+        "name": "Sale badge",
+        "limit": 1
+      },
+      {
+        "type": "price",
+        "name": "Price",
+        "limit": 1,
+        "settings": [
+          {
+              "type": "checkbox",
+              "id": "shipping_policy",
+              "label": {
+                  "en": "Show shipping policy link",
+                  "de": "Link zur Versandrichtlinie anzeigen",
+                  "es": "Mostrar enlace de política de envío",
+                  "fr": "Afficher le lien de la politique d'expédition",
+                  "pt-PT": "Mostrar hiperligação da política de envios"
+              },
+              "default": true
+          },
+          {
+              "type": "checkbox",
+              "id": "tax_included",
+              "label": {
+                  "en": "Show 'tax included' message",
+                  "de": "Nachricht \"Steuer enthalten\" anzeigen",
+                  "es": "Mostrar mensaje \"impuesto incluido\"",
+                  "fr": "Afficher le message « taxe incluse »",
+                  "pt-PT": "Mostrar mensagem de 'impostos incluídos'"
+              },
+              "default": true
+          }
+        ]
+      },
+      {
+        "type": "options",
+        "name": "Product options",
+        "limit": 1,
+        "settings": [
+          {
+              "type": "radio",
+              "id": "product_variant_style",
+              "label": {
+                  "en": "Product variant style",
+                  "de": "Produkt Variante Stil",
+                  "es": "Variante de estilo del producto",
+                  "fr": "Style de la variante du produit",
+                  "pt-PT": "Estilo da variante de produtos"
+              },
+              "options": [
+                  {
+                      "value": "dropdowns",
+                      "label": {
+                          "en": "Dropdowns",
+                          "de": "Drop-down-Menüs",
+                          "es": "Menú desplegable",
+                          "fr": "Menus déroulants",
+                          "pt-PT": "Pendentes"
+                      }
+                  },
+                  {
+                      "value": "swatches",
+                      "label": {
+                          "en": "Swatches",
+                          "de": "Muster",
+                          "es": "Muestras",
+                          "fr": "Échantillons",
+                          "pt-PT": "Amostras"
+                      }
+                  }
+              ],
+              "default": "swatches",
+              "info": {
+                  "en": "You may need to upload custom swatch images. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020105257-How-to-Upload-Color-Swatches)",
+                  "de": "Es könnte sein, dass Sie kundenspezifische Musterbilder hochladen müssen. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020105257-How-to-Upload-Color-Swatches)",
+                  "es": "Puede que necesite subir imágenes de muestra personalizadas. [Aprenda más](https://support.weareeight.com/hc/en-us/articles/360020105257-How-to-Upload-Color-Swatches)",
+                  "fr": "Il se peut que vous ayez besoin de télécharger des images d'échantillons personnalisées. [En savoir plus](https://support.weareeight.com/hc/en-us/articles/360020105257-How-to-Upload-Color-Swatches)",
+                  "pt-PT": "Poderá ser necessário carregar imagens de amostra personalizadas. [Saber mais](https://support.weareeight.com/hc/en-us/articles/360020105257-How-to-Upload-Color-Swatches)"
+              }
+          },
+          {
+              "type": "checkbox",
+              "id": "thumbnail_changes_variant",
+              "label": {
+                  "en": "Change variant based on the thumbnail",
+                  "de": "Variante basierend auf Thumbnail verändern",
+                  "es": "Cambiar variante en base a la imagen en miniatura",
+                  "fr": "Modifier la variante en fonction de la vignette",
+                  "pt-PT": "Alterar base da variante na imagem em miniatura"
+              },
+              "default": false
+          },
+          {
+              "type": "checkbox",
+              "id": "hide_soldout_variants",
+              "label": {
+                  "en": "Hide sold-out variants",
+                  "de": "Ausverkaufte Varianten verbergen",
+                  "es": "Ocultar variantes agotadas",
+                  "fr": "Masquer les variantes épuisées",
+                  "pt-PT": "Ocultar variantes esgotadas"
+              },
+              "default": false
+          }
+        ]
+      },
+      {
+        "type": "giftwrap",
+        "name": "Giftwrap",
+        "limit": 1,
+        "settings": [
+            {
+                "type": "header",
+                "content": {
+                    "en": "Gift wrapping",
+                    "de": "Geschenkverpackung",
+                    "es": "Envoltorio de regalo",
+                    "fr": "Emballage cadeau",
+                    "pt-PT": "Embrulho do presente"
+                },
+                "info": {
+                    "en": "[Learn more](https://support.weareeight.com/hc/en-us/articles/360020396138-How-to-Enable-Product-Gift-Wrapping) about gift wrapping",
+                    "de": "[Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020396138-How-to-Enable-Product-Gift-Wrapping) über die Geschenkverpackung",
+                    "es": "[Descubre más información](https://support.weareeight.com/hc/en-us/articles/360020396138-How-to-Enable-Product-Gift-Wrapping) sobre el envoltorio de regalo",
+                    "fr": "[En savoir plus](https://support.weareeight.com/hc/en-us/articles/360020396138-How-to-Enable-Product-Gift-Wrapping) sur l'emballage cadeau",
+                    "pt-PT": "[Saiba mais](https://support.weareeight.com/hc/en-us/articles/360020396138-How-to-Enable-Product-Gift-Wrapping) sobre o embrulho do presente"
+                }
+            },
+            {
+              "type": "paragraph",
+              "content": "Select a gift wrap product at Theme settings > Product"
+            }
+        ]
+      },
+      {
+        "type": "quantity",
+        "name": "Quantity",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "Show a quantity selector"
+          }
+        ]
+      },
+      {
+        "type": "buy_buttons",
+        "name": "Buy buttons",
+        "limit": 1,
+        "settings": [
+          {
+              "type": "checkbox",
+              "id": "show_smart_checkout",
+              "label": {
+                  "en": "Show dynamic checkout button",
+                  "de": "Dynamischen Bezahlbutton anzeigen",
+                  "es": "Mostar el botón de compra dinámica",
+                  "fr": "Afficher le bouton de paiement dynamique",
+                  "pt-PT": "Mostrar botão de checkout dinâmico"
+              },
+              "default": true,
+              "info": {
+                  "en": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                  "de": "Lässt Kunden direkt unter Verwendung einer bekannten Zahlungsmethode bezahlen. [Mehr erfahren](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                  "es": "Permita a los clientes finalizar su compra directamente utilizando un método de pago que les sea familiar. [Aprenda más](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                  "fr": "Permet aux clients de payer directement en utilisant un mode de paiement familier. [En savoir plus](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                  "pt-PT": "Permita que os clientes façam checkout diretamente utilizando um método de pagamento familiar. [Saber mais](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+              }
+          }
+        ]
+      },
+      {
+        "type": "local_pickup",
+        "name": "Local pickup",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": {
+              "en": "Locations must be set up to enable display. [Learn more](https://help.shopify.com/en/manual/locations)",
+              "de": "Standorte müssen eingerichtet sein, um die Anzeige zu aktivieren. [Mehr erfahren](https://help.shopify.com/de/manual/locations)",
+              "es": "Las ubicaciones deben configurarse para habilitar la visualización. [Aprenda más](https://help.shopify.com/es/manual/locations)",
+              "fr": "Les lieux doivent être configurés pour activer l'affichage. [En savoir plus](https://help.shopify.com/fr/manual/locations)",
+              "pt-PT": "As localizações precisam de ser definidas para a exibição ser ativada. [Saber mais](https://help.shopify.com/en/manual/locations)"
+            }
+          }
+        ]
+      },
+      {
+        "type": "trust_badges",
+        "name": "Trust badges",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "range",
+            "id": "trust-badge_max_width",
+            "min": 10,
+            "max": 920,
+            "step": 10,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "default": 260
+          },
+          {
+            "type": "image_picker",
+            "id": "trust-badge",
+            "label": {
+                "en": "Trust badge",
+                "de": "Vertrauenssiegel",
+                "es": "Distintivo de confianza",
+                "fr": "Badge de confiance",
+                "pt-PT": "Crachá de confiança"
+            },
+            "info": {
+                "en": "100 x 300px recommended. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020242537-Trust-Badges)",
+                "de": "100 x 300 px empfohlen. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020242537-Trust-Badges)",
+                "es": "Recomendado: 100 x 300px. [Aprenda más](https://support.weareeight.com/hc/en-us/articles/360020242537-Trust-Badges)",
+                "fr": "100 x 300 px recommandé. [En savoir plus] (https://support.weareeight.com/hc/en-us/articles/360020242537-Trust-Badges)",
+                "pt-PT": "100 x 300px recomendado. [Saiba mais](https://support.weareeight.com/hc/en-us/articles/360020242537-Trust-Badges)"
+            }
+          }
+        ]
+      },
+      {
+        "type": "product_meta",
+        "name": "Product meta",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "Show the product tags, collection/s and type"
+          }
+        ]
+      },
+      {
+        "name": "Cross sells",
+        "type": "cross-sells",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Label",
+            "default": "Don't forget these..."
+          },
+          {
+            "type": "product",
+            "id": "cross_sell_product_1",
+            "label": "Cross sell product 1"
+          },
+          {
+            "type": "product",
+            "id": "cross_sell_product_2",
+            "label": "Cross sell product 2"
+          },
+          {
+            "type": "product",
+            "id": "cross_sell_product_3",
+            "label": "Cross sell product 3"
+          },
+          {
+            "type": "color",
+            "id": "cross_sell_bg",
+            "label": "Background color",
+            "default": "#f8f8f8"
+          }
+        ]
+      },
+      {
+        "type": "social_sharing",
+        "name": "Social media",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "Show social sharing icons"
+          }
+        ]
+      },
+      {
+        "name": "Custom Liquid",
+        "type": "custom_liquid",
+        "settings": [
+          {
+            "type": "liquid",
+            "id": "custom_liquid",
+            "label": "Custom Liquid",
+            "default": "<p>Add app snippets or other Liquid code to create advanced customizations.</p>"
+          }
+        ]
+      },
+      {
+        "name": "Product rating",
+        "type": "product-rating",
+        "settings": [
+          {
+            "type": "text",
+            "id": "rating-label",
+            "label": "Label",
+            "default": "Rating"
+          },
+          {
+            "type": "text",
+            "id": "rating",
+            "label": "Rating",
+            "info": "To display a rating, add a [product rating metafield](/admin/metafields/product)"
+          },
+          {
+            "type": "image_picker",
+            "id": "rating-icon-full",
+            "label": "Full icon"
+          },
+          {
+            "type": "image_picker",
+            "id": "rating-icon-empty",
+            "label": "Empty icon",
+            "info": "Optional"
+          },
+          {
+            "type": "number",
+            "id": "rating-max",
+            "label": "Maximum",
+            "default": 5,
+            "info": "Select a maximum equal to the rating metafield's [scale maximum](/admin/metafields/product)"
+          }
+        ]
+      },
+      {
+        "name": "Image with offers",
+        "type": "image-offer",
+        "settings": [
+          {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+          },
+          {
+          "type": "url",
+          "id": "link",
+          "label": {
+            "en": "Link",
+            "de": "Link",
+            "es": "Enlace",
+            "fr": "Lien",
+            "pt-PT": "Ligação"
+          },
+          "info": {
+            "en": "Optional",
+            "de": "Optional",
+            "es": "Opcional",
+            "fr": "Facultatif",
+            "pt-PT": "Opcional"
+            }
+          },
+          {
+            "type": "color",
+            "id": "hover_border_color",
+            "label": {
+              "en": "Link hover border color",
+              "de": "Link hover border color",
+              "es": "Link hover border color",
+              "fr": "Link hover border color",
+              "pt-PT": "Link hover border color"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Text with icon",
+        "type": "text-with-icon",
+        "settings": [
+          {
+            "type": "select",
+            "id": "icon",
+            "label": {
+                "en": "Icon",
+                "de": "Symbol",
+                "es": "Icono",
+                "fr": "Icône",
+                "pt-PT": "Ícone"
+            },
+            "default": "takeaway",
+            "options": [
+                {
+                    "value": "none",
+                    "label": {
+                        "en": "None",
+                        "de": "Keiner",
+                        "es": "Ninguno",
+                        "fr": "Aucun",
+                        "pt-PT": "Nenhum"
+                    }
+                },
+                {
+                    "value": "home-smile",
+                    "label": {
+                        "en": "Home with smile",
+                        "de": "Haus mit Lächeln",
+                        "es": "Hogar con sonrisa",
+                        "fr": "Accueil souriant",
+                        "pt-PT": "Casa com sorriso"
+                    }
+                },
+                {
+                    "value": "store",
+                    "label": {
+                        "en": "Store",
+                        "de": "Speichern",
+                        "es": "Tienda",
+                        "fr": "Magasin",
+                        "pt-PT": "Loja"
+                    }
+                },
+                {
+                    "value": "flag",
+                    "label": {
+                        "en": "Flag",
+                        "de": "Flagge",
+                        "es": "Bandera",
+                        "fr": "Drapeau",
+                        "pt-PT": "Bandeira"
+                    }
+                },
+                {
+                    "value": "service",
+                    "label": {
+                        "en": "Customer service",
+                        "de": "Kundendienst",
+                        "es": "Servicio al cliente",
+                        "fr": "Service clients",
+                        "pt-PT": "Serviço ao cliente"
+                    }
+                },
+                {
+                    "value": "chat",
+                    "label": {
+                        "en": "Chat bubble",
+                        "de": "Chat-Blase",
+                        "es": "Burbuja de chat",
+                        "fr": "Bulle de chat",
+                        "pt-PT": "Bolha de conversa"
+                    }
+                },
+                {
+                    "value": "chat-smile",
+                    "label": {
+                        "en": "Chat bubble with smile",
+                        "de": "Chat-Blase mit Lächeln",
+                        "es": "Burbuja de chat con sonrisa",
+                        "fr": "Bulle de chat avec sourire",
+                        "pt-PT": "Bolha de conversa com sorriso"
+                    }
+                },
+                {
+                    "value": "question-answer",
+                    "label": {
+                        "en": "Question and answer",
+                        "de": "Frage und Antwort",
+                        "es": "Pregunta y respuesta",
+                        "fr": "Question et réponse",
+                        "pt-PT": "Pergunta e resposta"
+                    }
+                },
+                {
+                    "value": "wallet",
+                    "label": {
+                        "en": "Wallet",
+                        "de": "Geldbörse",
+                        "es": "Cartera",
+                        "fr": "Portefeuille",
+                        "pt-PT": "Carteira"
+                    }
+                },
+                {
+                    "value": "price-tag",
+                    "label": {
+                        "en": "Price tag",
+                        "de": "Preisschild",
+                        "es": "Etiqueta de precio",
+                        "fr": "Étiquette de prix",
+                        "pt-PT": "Etiqueta de preço"
+                    }
+                },
+                {
+                    "value": "vip",
+                    "label": {
+                        "en": "VIP",
+                        "de": "VIP",
+                        "es": "VIP",
+                        "fr": "VIP",
+                        "pt-PT": "VIP"
+                    }
+                },
+                {
+                    "value": "crown",
+                    "label": {
+                        "en": "Crown",
+                        "de": "Krone",
+                        "es": "Corona",
+                        "fr": "Couronne",
+                        "pt-PT": "Coroa"
+                    }
+                },
+                {
+                    "value": "exchange",
+                    "label": {
+                        "en": "Exchange",
+                        "de": "Austausch",
+                        "es": "Intercambio",
+                        "fr": "Échange",
+                        "pt-PT": "Trocar"
+                    }
+                },
+                {
+                    "value": "gift",
+                    "label": {
+                        "en": "Gift",
+                        "de": "Geschenk",
+                        "es": "Regalo",
+                        "fr": "Cadeau",
+                        "pt-PT": "Presente"
+                    }
+                },
+                {
+                    "value": "24-hours",
+                    "label": {
+                        "en": "24 Hours",
+                        "de": "24 Stunden",
+                        "es": "24 horas",
+                        "fr": "24 heures",
+                        "pt-PT": "24 Horas"
+                    }
+                },
+                {
+                    "value": "heart",
+                    "label": {
+                        "en": "Heart",
+                        "de": "Herz",
+                        "es": "Corazón",
+                        "fr": "Cœur",
+                        "pt-PT": "Coração"
+                    }
+                },
+                {
+                    "value": "map-pin",
+                    "label": {
+                        "en": "Map pin",
+                        "de": "Karten-Nadel",
+                        "es": "Pin de mapa",
+                        "fr": "Épingle de carte",
+                        "pt-PT": "Alfinete no mapa"
+                    }
+                },
+                {
+                    "value": "car",
+                    "label": {
+                        "en": "Car",
+                        "de": "Auto",
+                        "es": "Coche",
+                        "fr": "Voiture",
+                        "pt-PT": "Automóvel"
+                    }
+                },
+                {
+                    "value": "takeaway",
+                    "label": {
+                        "en": "Takeaway",
+                        "de": "Imbissbude",
+                        "es": "Para llevar",
+                        "fr": "Emporter",
+                        "pt-PT": "Comida para fora"
+                    }
+                },
+                {
+                    "value": "restaurant",
+                    "label": {
+                        "en": "Restaurant",
+                        "de": "Restaurant",
+                        "es": "Restaurante",
+                        "fr": "Restaurant",
+                        "pt-PT": "Restaurante"
+                    }
+                },
+                {
+                    "value": "cup",
+                    "label": {
+                        "en": "Cup",
+                        "de": "Körbchen",
+                        "es": "Taza",
+                        "fr": "Tasse",
+                        "pt-PT": "Caneca"
+                    }
+                },
+                {
+                    "value": "goblet",
+                    "label": {
+                        "en": "Goblet",
+                        "de": "Kelch",
+                        "es": "Copa",
+                        "fr": "Gobelet",
+                        "pt-PT": "Cálice"
+                    }
+                },
+                {
+                    "value": "star",
+                    "label": {
+                        "en": "Star",
+                        "de": "Stern",
+                        "es": "Estrella",
+                        "fr": "Étoile",
+                        "pt-PT": "Estrela"
+                    }
+                },
+                {
+                    "value": "sun",
+                    "label": {
+                        "en": "Sun",
+                        "de": "Sonne",
+                        "es": "Sol",
+                        "fr": "Soleil",
+                        "pt-PT": "Sol"
+                    }
+                },
+                {
+                    "value": "moon",
+                    "label": {
+                        "en": "Moon",
+                        "de": "Mond",
+                        "es": "Luna",
+                        "fr": "Lune",
+                        "pt-PT": "Lua"
+                    }
+                },
+                {
+                    "value": "cake",
+                    "label": {
+                        "en": "Cake",
+                        "de": "Kuchen",
+                        "es": "Pastel",
+                        "fr": "Gâteau",
+                        "pt-PT": "Bolo"
+                    }
+                },
+                {
+                    "value": "handbag",
+                    "label": {
+                        "en": "Handbag",
+                        "de": "Handtasche",
+                        "es": "Bolso",
+                        "fr": "Sac à main",
+                        "pt-PT": "Mala de mão"
+                    }
+                },
+                {
+                    "value": "umbrella",
+                    "label": {
+                        "en": "Umbrella",
+                        "de": "Regenschirm",
+                        "es": "Paraguas",
+                        "fr": "Parapluie",
+                        "pt-PT": "Guarda-chuva"
+                    }
+                },
+                {
+                    "value": "recycle",
+                    "label": {
+                        "en": "Recycle",
+                        "de": "Recyceln",
+                        "es": "Reciclar",
+                        "fr": "Recycler",
+                        "pt-PT": "Reciclar"
+                    }
+                }
+              ]
+          },
+          {
+            "type": "text",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "Free shipping",
+                "de": "Kostenloser versand",
+                "es": "Envío gratis",
+                "fr": "Livraison gratuite",
+                "pt-PT": "Envio grátis"
+            }
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": {
+                "en": "Link",
+                "de": "Link",
+                "es": "Enlace",
+                "fr": "Lien",
+                "pt-PT": "Ligação"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}

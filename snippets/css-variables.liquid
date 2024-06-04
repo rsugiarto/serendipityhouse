@@ -1,0 +1,237 @@
+<style>
+/*============================================================================
+  #Typography
+==============================================================================*/
+
+{% assign header_font = settings.type_header_font %}
+{% assign base_font = settings.type_base_font %}
+{% assign navigation_font = settings.type_navigation_font %}
+
+{{ header_font | font_face: font_display: 'swap'  }}
+{{ base_font | font_face: font_display: 'swap'  }}
+{{ navigation_font | font_face: font_display: 'swap'  }}
+
+{%- assign base_font_bold = base_font | font_modify: 'weight', 'bolder' -%}
+{%- assign base_font_italic = base_font | font_modify: 'style', 'italic' -%}
+{%- assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic' -%}
+{%- assign header_font_bold = header_font | font_modify: 'weight', 'bolder' -%}
+
+{% if header_font_bold %}
+  {{ header_font_bold | font_face: font_display: 'swap'  }}
+{% endif %}
+
+{% if base_font_bold %}
+  {{ base_font_bold | font_face: font_display: 'swap'  }}
+{% endif %}
+
+{% if base_font_italic %}
+  {{ base_font_italic | font_face: font_display: 'swap'  }}
+{% endif %}
+
+{% if base_font_bold_italic %}
+  {{ base_font_bold_italic | font_face: font_display: 'swap'  }}
+{% endif %}
+
+/*============================================================================
+  #General Variables
+==============================================================================*/
+
+:root {
+
+  --font-weight-normal: {{ base_font.weight | default: 400 }};
+  --font-weight-bold: {{ base_font_bold.weight | default: 700 }};
+  --font-weight-header-bold: {{ header_font_bold.weight | default: 700 }};
+
+  --header-font-stack: {{ header_font.family }}, {{ header_font.fallback_families }};
+  --header-font-weight: {{ header_font.weight }};
+  --header-font-style: {{ header_font.style }};
+  --header-text-size: {{ settings.header-text-size }};
+  --header-text-size-px: {{ settings.header-text-size }}px;
+
+  --header-font-case: {{ settings.header_font_case }};
+  --header-font-size: {{ settings.header_font_size }};
+  --header-font-size-px: {{ settings.header_font_size }}px;
+
+  --heading-spacing: {{ settings.heading_spacing }}px;
+  --heading-font-case: {{ settings.heading_font_case }};
+  --heading-font-stack: {{ settings.type_header_font }};
+
+  --body-font-stack: {{ base_font.family }}, {{ base_font.fallback_families }};
+  --body-font-weight: {{ base_font.weight }};
+  --body-font-style: {{ base_font.style }};
+
+  --navigation-font-stack: {{ navigation_font.family }}, {{ navigation_font.fallback_families }};
+  --navigation-font-weight: {{ navigation_font.weight }};
+  --navigation-font-style: {{ navigation_font.style }};
+
+  --base-font-size-int: {{ settings.typography-body-font-size }};
+  --base-font-size: {{ settings.typography-body-font-size }}px;
+
+  --body-font-size-12-to-em: {{ 12 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-14-to-em: {{ 14 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-16-to-em: {{ 16 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-18-to-em: {{ 18 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-20-to-em: {{ 20 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-22-to-em: {{ 22 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-24-to-em: {{ 24 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-28-to-em: {{ 28 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+  --body-font-size-36-to-em: {{ 36 | times: 1.0 | divided_by: settings.typography-body-font-size | round: 2 | append: 'em' }};
+
+  --sale-badge-color: {{ settings.sale_badge_color }};
+  --sold-out-badge-color: {{ settings.sold_out_badge_color }};
+  --badge-font-color: {{ settings.sold_out_badge_font_color }};
+
+  --primary-btn-text-color: {{ settings.color_primary_button_text }};
+  --primary-btn-bg-color: {{ settings.color_primary_button_background }};
+  --primary-btn-bg-color-lighten50: {{ settings.color_primary_button_background | color_lighten: 50 }};
+  --primary-btn-bg-color-opacity50: {{ settings.color_primary_button_background | color_modify: 'alpha', 0.5 }};
+  --primary-btn-bg-hover-color: {{ settings.color_primary_button_background_hover }};
+  --primary-btn-text-hover-color: {{ settings.color_primary_button_text_hover }};
+
+  --button-text-case: {{ settings.button_text_case }};
+  --button-font-size: {{ settings.button_font_size }};
+  --button-font-size-px: {{ settings.button_font_size }}px;
+
+  --secondary-btn-text-color: {{ settings.color_secondary_button_text }};
+  --secondary-btn-bg-color: {{ settings.color_secondary_button_background }};
+  --secondary-btn-bg-color-lighten: {{ settings.color_secondary_button_background | color_lighten: 20 }};
+  --secondary-btn-bg-hover-color: {{ settings.color_secondary_button_background_hover }};
+  --secondary-btn-bg-text-hover-color: {{ settings.color_secondary_button_text_hover }};
+
+  {% case settings.button_style %}
+    {% when 'circle' %}
+    --alt-btn-border-radius: 1.875rem;
+    {% when 'rounded' %}
+    --alt-btn-border-radius: 0.5rem;
+  {% endcase %}
+
+  {% case settings.button_font_style %}
+    {% when 'normal' %}
+    --alt-btn-font-style: normal;
+    --alt-btn-font-weight: 400;
+    {% when 'bold' %}
+    --alt-btn-font-style: normal;
+    --alt-btn-font-weight: 700;
+    {% when 'italic' %}
+    --alt-btn-font-style: italic;
+    --alt-btn-font-weight: 400;
+  {% endcase %}
+
+  --text-color: {{ settings.color_body_text }};
+  --text-color-lighten5: {{ settings.color_body_text | color_lighten: 5 }};
+  --text-color-lighten70: {{ settings.color_body_text | color_lighten: 70 }};
+  --text-color-transparent05: {{ settings.color_body_text | color_modify: 'alpha', 0.05 }};
+  --text-color-transparent15: {{ settings.color_body_text | color_modify: 'alpha', 0.15 }};
+  --text-color-transparent5: {{ settings.color_body_text | color_modify: 'alpha', 0.5 }};
+  --text-color-transparent6: {{ settings.color_body_text | color_modify: 'alpha', 0.6 }};
+  --text-color-transparent7: {{ settings.color_body_text | color_modify: 'alpha', 0.7 }};
+  --text-color-transparent8: {{ settings.color_body_text | color_modify: 'alpha', 0.8 }};
+
+  --product-page-font-size: {{ settings.product_page_font_size }};
+  --product-page-font-size-px: {{ settings.product_page_font_size }}px;
+  --product-page-font-case: {{ settings.product_page_font_case }};
+
+  {% case settings.product_page_font_style %}
+  {% when 'light' %}
+  --product-page-font-weight: 400;
+  {% when 'normal' %}
+  --product-page-font-weight: 500;
+  {% when 'bold' %}
+  --product-page-font-weight: 700;
+  {% endcase %}
+
+  --link-color: {{ settings.color_primary }};
+  --on-sale-color: {{ settings.sale_price_color }};
+
+  --body-color: {{ settings.color_body_bg }};
+  --body-color-darken10: {{ settings.color_body_bg | color_darken: 10 }};
+  --body-color-transparent00: {{ settings.color_body_bg | color_modify: 'alpha', 0 }};
+  --body-color-transparent90: {{ settings.color_body_bg | color_modify: 'alpha', 0.9 }};
+
+  --body-secondary-color: {{ settings.color_body_bg_secondary }};
+  --body-secondary-color-transparent00: {{ settings.color_body_bg_secondary | color_modify: 'alpha', 0 }};
+  --body-secondary-color-darken05: {{ settings.color_body_bg_secondary | color_darken: 5 }};
+
+  --color-primary-background: {{ settings.color_body_bg }};
+  --color-primary-background-rgb: {{ settings.color_body_bg.red }}, {{ settings.color_body_bg.green }}, {{ settings.color_body_bg.blue }};
+  --color-secondary-background: {{ settings.color_body_bg_secondary }};
+
+  --cart-background-color: {{ settings.cart_color }};
+
+  --border-color: {{ settings.color_body_text | color_modify: 'alpha', 0.5 }};
+  --border-color-darken10: {{ settings.color_body_text | color_darken: 10 }};
+
+  --header-color: {{ settings.header-bg-color }};
+  --header-color-darken5: {{ settings.header-bg-color | color_darken: 5 }};
+  --header-color-lighten5: {{ settings.header-bg-color | color_lighten: 5 }};
+
+  --header-border-color: {{ settings.header-border-color }};
+
+  --announcement-text-size: {{ settings.announcement_text_size }}px;
+  --announcement-text-spacing: {{ settings.announcement_text_spacing }}px;
+  --announcement-text-case: {{ settings.announcement_text_case }};
+
+  {% case settings.announcement_text_style %}
+    {% when 'normal' %}
+      --announcement-font-style: normal;
+      --announcement-font-weight: 400;
+    {% when 'bold' %}
+      --announcement-font-style: normal;
+      --announcement-font-weight: 700;
+    {% when 'italic' %}
+      --announcement-font-style: italic;
+      --announcement-font-weight: 400;
+  {% endcase %}
+
+  --logo-font-size: {{settings.logo_font_size}}px;
+
+  --overlay-header-text-color: {{ settings.header-transparent-text }};
+  --nav-text-color: {{ settings.color_primary_navigation }};
+  --nav-text-hover: {{ settings.color_primary_navigation_hover }};
+
+  --color-scheme-light-background: {{ settings.colorSchemeLightBackground }};
+  --color-scheme-light-background-lighten5: {{ settings.colorSchemeLightBackground | color_lighten: 5 }};
+  --color-scheme-light-text: {{ settings.colorSchemeLightText }};
+  --color-scheme-light-text-transparent60: {{ settings.colorSchemeLightText | color_modify: 'alpha', 0.6 }};
+
+  --color-scheme-feature-background: {{ settings.homepage-sections-accent-primary-color }};
+  --color-scheme-feature-background-lighten5: {{ settings.homepage-sections-accent-primary-color | color_lighten: 5 }};
+  --color-scheme-feature-text: {{ settings.homepage-sections-accent-secondary-color }};
+  --color-scheme-feature-text-transparent60: {{ settings.homepage-sections-accent-secondary-color | color_modify: 'alpha', 0.6 }};
+
+  --homepage-sections-accent-secondary-color-transparent60: {{ settings.homepage-sections-accent-secondary-color | color_modify: 'alpha', 0.6 }};
+
+  --color-scheme-dark-background: {{ settings.colorSchemeDarkBackground }};
+  --color-scheme-dark-text: {{ settings.colorSchemeDarkText }};
+  --color-scheme-dark-text-transparent60: {{ settings.colorSchemeDarkText | color_modify: 'alpha', 0.6 }};
+
+  --filter-bg-color: {{ settings.color_body_text | color_modify: 'alpha', 0.1 }};
+
+  --color-footer-bg: {{ settings.color_footer_bg }};
+  --color-footer-bg-darken5: {{ settings.color_footer_bg | color_darken: 5 }};
+  --color-footer-text: {{ settings.color_footer_text }};
+  --color-footer-text-darken10: {{ settings.color_footer_text | color_darken: 10 }};
+  --color-footer-border: {{ settings.color_footer_text | color_modify: 'alpha', 0.1 }};
+
+  --popup-text-color: {{ settings.pop-up-text-color }};
+  --popup-text-color-lighten10: {{ settings.pop-up-text-color | color_lighten: 10 }};
+  --popup-bg-color: {{ settings.pop-up-background-color }};
+
+  --menu-drawer-color: {{ settings.mobile-menu-bg }};
+  --menu-drawer-color-darken5: {{ settings.mobile-menu-bg | color_darken: 5 }};
+  --menu-drawer-text-color: {{ settings.mobile-menu-text }};
+  --menu-drawer-border-color: {{ settings.mobile-menu-text | color_modify: 'alpha', 0.1 }};
+  --menu-drawer-text-hover-color: {{ settings.mobile-menu-text-hover }};
+
+  --cart-drawer-color: {{ settings.cart-drawer-bg }};
+  --cart-drawer-text-color: {{ settings.cart-drawer-text }};
+  --cart-drawer-text-color-lighten10: {{ settings.cart-drawer-text | color_lighten: 10 }};
+  --cart-drawer-border-color: {{ settings.cart-drawer-text | color_modify: 'alpha', 0.5 }};
+
+  --fancybox-overlay: url('{{ 'fancybox_overlay.png' | asset_url | downcase }}');
+
+  /* Shop Pay Installments variables */
+  --color-body: {{ settings.color_body_bg_secondary }};
+  --color-bg: {{ settings.color_body_bg_secondary }};
+}
+</style>

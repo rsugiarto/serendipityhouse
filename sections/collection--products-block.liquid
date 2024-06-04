@@ -1,0 +1,179 @@
+<link rel="preload" href="{{ 'section-products-block.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-products-block.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+<div
+  class="homepage-sections-wrapper"
+  data-wetheme-section-type="collection--products-block" data-wetheme-section-id="{{ section.id }}"
+>
+
+  <div class="wrapper-padded show-on-scroll">
+    <div class="homepage-indiv-section-wrapper">
+      <div class="sitewide--title-wrapper">
+        {% if section.settings.title != '' %}
+          <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+        {% endif %}
+      </div>
+
+      {% if section.settings.richtext != '' %}
+        <div class="grid">
+          <div class="grid__item large--one-half push--large--one-quarter">
+            <div class="homepage-sections--description">{{ section.settings.richtext }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="homepage-featured-products-grid">
+        {%- assign collection = collections[section.settings.collection] -%}
+
+        {% for product in collection.products limit:6 %}
+          <div class="gutter-sizer"></div>
+
+          {% assign grid_item_width = 'large--one-third medium--one-half' %}
+
+          {% comment %}
+            Check if the product is on sale and set a variable to be used below.
+          {% endcomment %}
+          {% assign on_sale = false %}
+          {% if product.compare_at_price > product.price %}
+            {% assign on_sale = true %}
+          {% endif %}
+
+          {% comment %}
+            Check if the product is sold out and set a variable to be used below.
+          {% endcomment %}
+          {% assign sold_out = true %}
+          {% if product.available %}
+            {% assign sold_out = false %}
+          {% endif %}
+
+          <div class="homepage-featured-grid-item{% cycle '', '', ' homepage-featured-grid-item--width2', ' homepage-featured-grid-item--width2', '', '' %}">
+
+            <a href="{{ product.url | within: collection }}" class="grid__image" tabindex="-1">
+              {% assign image = product.media[0].preview_image %}
+              {% capture styles %}max-width: {{ image.width }}px; margin: 0{% endcapture %}
+              {% render 'responsive-image' with image, alt: image.alt, styles: styles, allow_stretch: true %}
+            </a>
+
+            <div class="homepage-featured-grid-item-details">
+              <div class="product-grid--title">
+                <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+              </div>
+              <div class="product-grid--price">
+                {% render 'product-grid-item-price', product: product, collection: collection %}
+              </div>
+            </div>
+
+            {% if product.compare_at_price_max > product.price and product.available %}
+              <div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+            {% endif %}
+
+            {% unless product.available %}
+              <div class="sold-out-badge badge">{{ 'products.product.sold_out' | t }}</div>
+            {% endunless %}
+
+          </div>
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="gutter-sizer"></div>
+            <div class="homepage-featured-grid-item{% cycle '', '', ' homepage-featured-grid-item--width2', ' homepage-featured-grid-item--width2', '', '' %}">
+
+              <a href="{{ product.url | within: collection }}" class="grid__image" tabindex="-1">
+                {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                {{ 'product-' | append: current | placeholder_svg_tag: 'icon icon--placeholder grid__image' }}
+              </a>
+
+              <div class="homepage-featured-grid-item-details">
+                <a href="/admin/products">
+                  <div class="product-grid--title">
+                    {{ 'homepage.onboarding.product_title' | t }}
+                  </div>
+                  <div class="product-grid--price">{{ 1999 | money }}</div>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Products block",
+        "de": "Produkte-Block",
+        "es": "Bloque de productos",
+        "fr": "Bloc de produits",
+        "pt-PT": "Bloco de produtos"
+    },
+    "class": "products-block-wrapper",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Featured products",
+                "de": "Vorgestellte Produkte",
+                "es": "Productos destacados",
+                "fr": "Produits en vedette",
+                "pt-PT": "Produtos em destaque"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "id": "collection",
+            "type": "collection",
+            "label": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Products block",
+                "de": "Produkte-Block",
+                "es": "Bloque de productos",
+                "fr": "Bloc de produits",
+                "pt-PT": "Bloco de produtos"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            }
+        }
+    ]
+}
+{% endschema %}

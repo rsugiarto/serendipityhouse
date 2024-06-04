@@ -1,0 +1,25 @@
+<div class="wrapper-padded product-description-container">
+  <div class="product-description product-description_full-width py-8 px-4 md:px-0 break-words leading-normal rte{% if section.settings.enable_readmore %} readmore closed{% endif %}" itemprop="description">
+    {{ product.description }}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product description",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_readmore",
+      "label": {
+        "en": "Enable 'read more' for description",
+        "de": "'Mehr erfahren' für eine Beschreibung aktivieren",
+        "es": "Habilitar «más información» para la descripción",
+        "fr": "Activer « Lire la suite » pour la description",
+        "pt-PT": "Ativar \"ler mais\" para descrição"
+      },
+      "default": false
+    }
+  ]
+}
+{% endschema %}

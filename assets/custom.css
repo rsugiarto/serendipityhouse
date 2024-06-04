@@ -1,0 +1,11 @@
+/* Place any CSS overrides in this file. */
+@media screen and (min-width: 768px) {
+  div.col-grid{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+div.col-grid p{
+  margin:15px;
+}
+}

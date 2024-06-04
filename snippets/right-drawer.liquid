@@ -1,0 +1,305 @@
+<div class="right-drawer-vue">
+  {% comment %} There's no route available for the predictive search api URL yet {% endcomment %}
+  <wetheme-right-drawer
+    search-url="/search/suggest.json"
+    login-url="{{ routes.account_login_url }}"
+    is-predictive="{{ settings.predictive_search_enabled }}"
+    search-products="{{ settings.predictive_search_products }}"
+    search-pages="{{ settings.predictive_search_pages }}"
+    search-articles="{{ settings.predictive_search_articles }}"
+    search-collections="{{ settings.predictive_search_collections }}"
+    language-url="{{ localization.language.root_url }}"
+  >
+  </wetheme-right-drawer>
+</div>
+<script type="text/x-template" id="wetheme-right-drawer-template">
+  <div>
+    <transition name="drawer-right">
+      <div class="drawer drawer--right drawer--cart bg-white" v-if="isOpen" ref="drawerRight">
+        <div class="drawer__header sitewide--title-wrapper relative flex items-center justify-between p-4">
+          <div class="drawer__close js-drawer-close">
+            <button type="button" class="icon-fallback-text" ref="drawerClose" v-on:click="close">
+              <span class="fallback-text">{{ 'cart.general.close_cart' | t }}</span>
+            </button>
+          </div>
+          <input ref="drawerFocus" tabindex="-1" aria-hidden="true" class="sr-only" />
+          <div class="drawer__title w-full text-2xl uppercase page--title">
+            <span v-if="type === 'cart'"">{{ 'cart.general.title' | t }}</span>
+            <span class="sr-only" v-if="type === 'shop-now'">{{ 'products.product.quick_shop' | t }}</span>
+            <span v-if="type === 'login'">{{ 'customer.login.title' | t }}</span>
+            <span v-if="type === 'search'">{{ 'general.search.title' | t }}</span>
+          </div>
+        </div>
+        <div id="CartContainer" v-if="type === 'cart'">
+          <form action="{{ routes.cart_url }}" method="post" novalidate class="cart ajaxcart" v-if="cart">
+            <p class="empty-cart" v-if="cart.item_count === 0">{{ 'cart.general.empty' | t }}</p>
+            <div class="ajaxcart__inner" v-if="cart.item_count > 0">
+              <span v-if="cart.total_discount > 0" class="hide auto-discount--active"></span>
+              <div class="ajaxcart__product" v-for="(item, index) in cart.items" :key="index + item.id">
+                <div class="ajaxcart__row mb-4" v-bind:data-line="index + 1"
+                  v-bind:class="{ 'is-loading': index + 1 === lineQuantityUpdating }"
+                >
+                  <div class="display-table md:flex md:items-center w-full justify-between gap-4">
+                    <div class="grid__item small--one-whole medium--one-quarter large--one-quarter medium--display-table-cell w-full text-center md:text-left md:w-2/12">
+                      <a v-bind:href="item.url" class="ajaxcart__product-image block max-h-[150px] overflow-hidden">
+                        <img
+                          src="#"
+						  alt=""
+						  class="object-contain mx-auto max-h-[150px]"
+                          v-responsive="item.image"
+                          v-bind:alt="item.featured_image_alt"
+                          v-if="item.image"
+                        />
+                        <img v-if="!item.image" src="//cdn.shopify.com/s/assets/admin/no-image-medium-cc9732cb976dd349a0df1d39816fbcc7.gif" alt="" v-bind:alt="item.product_title" loading="lazy" />
+                      </a>
+                    </div>
+                    <div class="grid__item small--one-whole medium--two-quarters large--two-quarters medium--display-table-cell w-full text-center md:text-left md:w-6/12">
+						<p>
+					   		{% if settings.cart_vendor_enable %}
+                          		<span class="ajaxcart__product-meta block font-bold text-blue-dark pb-2" v-text="item.vendor"></span>
+                        	{% endif %}
+                        	<a v-bind:href="item.url" class="ajaxcart__product-name text-blue-dark pb-2" v-text="item.product_title"></a>
+                        	<span class="ajaxcart__product-meta" v-if="item.variant_title != 'Default Title'" v-text="item.variant_title"></span>
+                        	<span class="ajaxcart__product-meta" v-if="item.selling_plan_allocation" v-text="item.selling_plan_allocation.selling_plan.name"></span>
+                        	<span class="ajaxcart__product-meta" v-for="(item, key, index) in item.properties " :key="index">
+                          		<span v-text="key"></span>: <span v-text="item"></span>
+                        	</span>
+					  	</p>
+					    <button
+                        type="button"
+                        class="ajaxcart__qty-remove block font-medium text-red-strong mx-auto md:mx-0 underline text-sm"
+                        v-on:click="setQuantity(index + 1, 0); setSubtotal();"
+                        v-if="!isGiftwrapProduct(item)"
+                      >
+                        {{ 'cart.general.remove' | t }}
+                      </button>
+					  </div>
+					  <div class="md:w-2/12 text-center p-4">
+                      	<div class="w-full">
+                        	<s>
+                          		<span class="ajaxcart-item__price-strikethrough line-through"
+                            		v-if="item.compare_at_price > 0 && item.original_price < item.compare_at_price"
+                            		v-money="item.compare_at_price"
+                          		>
+                          		</span>
+                        	</s>
+                        	<span v-if="item.compare_at_price > 0 && item.original_price < item.compare_at_price" class="hide line-item__compare-at-price" v-text="item.compare_at_price * item.quantity"></span>
+                        	<span class="has--discount hidden" v-text="item.original_price" v-if="item.compare_at_price > 0 && item.original_price < item.compare_at_price"></span>
+                        	<span class="price-no--discount hidden" v-text="item.original_price * item.quantity" v-if="!item.compare_at_price"></span>
+                        	<span class="ajaxcart-item__price font-lg font-bold text-green-mist" v-money="item.original_price"></span>
+                        	{%- case settings.show_discount -%}
+                          		{%- when 'percentage' -%}
+                          			<span class="cart-compare-price--with-value" v-if="item.compare_at_price > 0 && item.original_price < item.compare_at_price">
+                            			<span class="discount--sale-color"> -<span class="discount--sale-color" v-text="Math.round((item.compare_at_price - item.original_price) / item.compare_at_price * 100)"></span>%</span>
+                          			</span>
+                          		{%- when 'value' -%}
+                            		<span class="cart-compare-price--with-value" v-if="item.compare_at_price > 0 && item.original_price < item.compare_at_price">
+                              			<span class="discount--sale-color"> -<span class="discount--sale-color" v-money="item.compare_at_price - item.original_price"></span></span>
+                            		</span>
+                          		{%- when 'hide' -%}
+                        	{%- endcase -%}
+                        	<div class="unit-price" v-if="item.unit_price_measurement_price">
+                          		(<span class="unit-price__price" v-money="item.unit_price_measurement_price"></span>
+                          		<span> / </span>
+                          		<span class="unit-price__ref-value" v-text="item.unit_price_measurement_value"></span>
+                          		<span class="unit-price__ref-unit" v-text="item.unit_price_measurement_unit"></span>)
+                        	</div>
+                      	</div>
+                      	<ul class="ajaxcart-item__discounts" aria-label="{{ 'customer.order.discount' | t }}">
+                        	<li class="ajaxcart-item__discount" v-if="item.line_level_discount_allocations.amount > 0">
+                          		<span class="hidden auto-discount--price" v-text="item.line_level_discount_allocations.amount"></span>
+                          		<span class="ajaxcart-item__discount_title">{{ 'customer.discount.title' | t }}</span>
+                          		<span class="ajaxcart-item__discount_money">- <span v-money="item.line_level_discount_allocations.amount"></span></span>
+                        	</li>
+					  	</ul>
+					  </div>
+					  <div class="md:w-3/12 text-center">
+                      <div class="grid--full w-full ajaxcart__quantity-wrapper mt-4">
+                        <div class="grid__item">
+                          <div class="ajaxcart__qty">
+                            <button
+                              type="button"
+                              class="ajaxcart__qty-adjust ajaxcart__qty--minus icon-fallback-text"
+                              v-on:click="setQuantity(index + 1, item.quantity - 1); setSubtotal();"
+                              v-if="!isGiftwrapProduct(item)"
+                            >
+                              <i class="fa fa-minus" aria-hidden="true"></i>
+                              <span class="fallback-text">&minus;</span>
+                            </button>
+                            <input
+                              type="text"
+                              name="updates[]"
+                              class="ajaxcart__qty-num"
+                              v-bind:value="item.quantity"
+                              min="0"
+                              aria-label="quantity"
+                              pattern="[0-9]*"
+                              v-on:change="setQuantity(index + 1, parseInt($event.target.value, 10)); setSubtotal();"
+                              :disabled="isGiftwrapProduct(item)"
+                            />
+                            <button
+                              type="button"
+                              class="ajaxcart__qty-adjust ajaxcart__qty--plus icon-fallback-text"
+                              v-on:click="setQuantity(index + 1, item.quantity + 1); setSubtotal();"
+                              v-if="!isGiftwrapProduct(item)"
+                            >
+                              <i class="fa fa-plus" aria-hidden="true"></i>
+                              <span class="fallback-text">+</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ajaxcart__footer-wrapper">
+                {% if settings.giftwrap_gift_note %}
+                  <div class="ajax-cart--gift-note">
+                    <label for="CartGiftNote" class="ajaxcart__gift-note">{{ 'products.general.giftwrap_note' | t }}</label>
+                    <textarea id="CartGiftNote" class="input-full" v-model="giftNote" :disabled="updatingGiftNote" placeholder="{{ 'products.general.giftwrap_note_placeholder' | t }}"></textarea>
+                  </div>
+                {% endif %}
+                {% if settings.cart_notes_enable %}
+                  <div class="ajax-cart--notes">
+                    <label class="ajaxcart__special_instructions" for="CartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
+                    <textarea name="note" class="input-full" id="CartSpecialInstructions">{{ note }}</textarea>
+                  </div>
+                {% endif %}
+                <div class="ajaxcart__footer">
+                  <div class="grid--full">
+                    <div class="grid__item ajaxcart__subtotal_header">
+                      <p>{{ 'cart.general.subtotal' | t }}</p>
+                    </div>
+                    <span v-for="(item, index) in cart.items" v-if="item.compare_at_price > 0" class="cart__compare-total hide"></span>
+                    <s><span v-for="(item, index) in cart.items" v-if="item.compare_at_price > 0" class="line__compare_price ajaxcart__price-strikeout text-center"></span></s>
+                    {%- case settings.show_discount -%}
+                      {%- when 'percentage' -%}
+                      <span v-for="(item, index) in cart.items" v-if="item.compare_at_price > 0" class="cart-compare-price--with-value percentage discount--sale-color">
+                      </span>
+                      {%- when 'value' -%}
+                        <span v-for="(item, index) in cart.items" v-if="item.compare_at_price > 0" class="cart-compare-price--with-value value discount--sale-color">
+                        </span>
+                      {%- when 'hide' -%}
+                    {%- endcase -%}
+
+                    <ul class="grid__item ajaxcart-item__discounts" style="margin: 0" v-for="cartItem in cart.items">
+                      <li class="ajaxcart-item__discount" v-if="cartItem.line_level_discount_allocations.amount > 0">
+                        <span class="ajaxcart-item__discount_title" >{{ 'customer.discount.title' | t }}</span>
+                        <span class="ajaxcart-item__discount_money">- <span v-money="cartItem.line_level_discount_allocations.amount"></span></span>
+                      </li>
+                    </ul>
+
+                    <p class="hidden cart__total" v-text="cart.total_price"></p>
+                    <div class="grid__item ajaxcart__subtotal">
+                      <p v-money="cart.total_price"></p>
+                    </div>
+                  </div>
+
+                  <div class="cart__shipping rte">
+                    {%- capture taxes_shipping_checkout -%}
+                      {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                        {{ 'cart.general.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                      {%- elsif cart.taxes_included -%}
+                        {{ 'cart.general.taxes_included_but_shipping_at_checkout' | t }}
+                      {%- elsif shop.shipping_policy.body != blank -%}
+                        {{ 'cart.general.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                      {%- else -%}
+                        {{ 'cart.general.taxes_and_shipping_at_checkout' | t }}
+                      {%- endif -%}
+                    {%- endcapture -%}
+                    <p class="text-center">{{ taxes_shipping_checkout }}</p>
+                  </div>
+
+                  <button type="submit" class="cart__checkout cursor-pointer bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3" name="checkout">
+                    {{ 'cart.general.checkout' | t }}
+                  </button>
+
+                  {% if additional_checkout_buttons and settings.enable-additional-checkout-buttons %}
+                    <div class="additional-checkout-buttons additional-checkout-buttons--vertical">
+                      {{ content_for_additional_checkout_buttons }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div id="ShopNowContainer" v-if="type === 'shop-now'">
+          <div ref="shopNowContent"></div>
+        </div>
+        <div id="SearchContainer" v-if="type === 'search'">
+          <div class="search-drawer px-4 py-8">
+            <div class="input-group border border-orange-dark flex items-center justify-between">
+              <span class="input-group-btn">
+                <button type="submit" class="btn icon-fallback-text text-center p-4" v-on:click="onSearchSubmit" tabindex="0">
+                  <i class="fa fa-search"></i>
+                  <span class="fallback-text">{{ 'general.search.submit' | t }}</span>
+                </button>
+              </span>
+              <div class="search-input-group w-full flex items-center">
+                <input
+				  type="text" name="q" id="search-input" placeholder="{{ 'general.search.placeholder' | t }}"
+				  class="input-group-field form-input border-0 ring-0 w-full border-transparent focus:border-transparent focus:ring-0 py-4" aria-label="{{ 'general.search.placeholder' | t }}" autocomplete="off" autocorrect="off" spellcheck="false" ref="searchText"
+                  v-model="searchQuery" @keydown.enter="onSearchSubmit"
+                />
+                <div class="search-drawer--clear" v-if="searchQuery.length > 0" v-on:click="clearSearchInput" tabindex="0">
+                  <span class="search-drawer--clear-icon p-4 mr-1 w-full"></span>
+                </div>
+              </div>
+            </div>
+            <div class="wrapper-padded px-4 py-8">
+              <div id="search-results" class="grid-uniform">
+                <div v-if="searching" class="search-loading text-center">
+                  <i class="fa fa-circle-o-notch fa-spin fa-fw animate-spin"></i><span class="sr-only">{{ 'collections.paginate.loading' | t }}</span>
+                </div>
+                <div v-text="searchSummary" v-if="!searching"></div>
+                <div class="search-results__meta top" v-if="searchHasResults">
+                  <div class="search-results__meta-view-all py-4 text-right"><a id="search-show-more" v-bind:href="searchPageUrlWithQuery" class="btn font-bold text-sm">{{ 'general.search.view_all' | t }}</a></div>
+                </div>
+                <div class="py-4" v-for="group in searchGroups" v-if="group.results.length">
+                  <h2 v-text="group.name" class="uppercase text-lg font-bold pb-4" v-if="group.results.length"></h2>
+                  <div class="indiv-search-listing-grid" v-for="result in group.results">
+                    <div class="md:flex md:items-center">
+                      <div class="grid__item large--one-fifth live-search--image w-full md:w-1/5" v-if="result.featured_image">
+                        <a 
+                        v-bind:href="{% if localization.language.iso_code == 'zh-TW' %}'/zh' + result.url{% else %}result.url{% endif %}"
+                        v-bind:title="result.title">
+                          <span v-if="result.featured_image.url">
+                            <img
+                              loading="lazy"
+							                class="object-contain max-h-[150px]"
+                              v-bind:src="result.featured_image.url"
+                              v-bind:alt="result.featured_image.alt"
+                            />
+                          </span>
+                        </a>
+                      </div>
+					  <div class="grid__item line-search-content w-full md:w-4/5 p-4" :class="(result.image || result.featured_image) ? 'large--four-fifths' : 'large--one-whole'">
+					  		{% if settings.predictive_search_show_vendor %}
+                        		<div v-if="result.vendor" class="font-bold text-blue-dark" v-text="result.vendor"></div>
+                        	{% endif %}
+                        	<h5 class="py-2"><a v-bind:href="result.url" v-text="result.title" class="text-blue-dark"></a></h5>
+                        	<div v-if="!result.available && group.name == 'Products'" class="font-bold text-red-strong">{{ 'products.product.sold_out' | t }}</div>
+                        	{% if settings.predictive_search_show_price %}
+                        		<div v-if="result.price" class="font-lg font-bold text-green-mist" v-html="result.price"></div>
+                        	{% endif %}
+                      </div>
+					</div>
+					<hr/>
+                  </div>
+                </div>
+                <div class="search-results__meta bottom" v-if="searchHasResults">
+                  <div class="search-results__meta-view-all text-right"><a id="search-show-more" v-bind:href="searchPageUrlWithQuery" class="btn font-bold text-sm">{{ 'general.search.view_all' | t }}</a></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="LogInContainer" v-if="type === 'login'">
+          <div ref="loginContent"></div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</script>

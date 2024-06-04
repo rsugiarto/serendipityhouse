@@ -1,0 +1,303 @@
+<link rel="preload" href="{{ 'section-text-testimonials.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-text-testimonials.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+{% case section.settings.colors %}
+  {% when 'white' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--white' -%}
+  {% when 'light' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--light' -%}
+  {% when 'accent' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--accent' -%}
+  {% when 'dark' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--dark' -%}
+{% endcase %}
+
+<div
+  class="homepage-sections-wrapper {{ color_scheme }}{% if section.settings.circle_images %} testimonial--circle-images{% endif %}"
+  data-wetheme-section-type="text--testimonials" data-wetheme-section-id="{{ section.id }}"
+>
+
+<div class="wrapper show-on-scroll">
+
+  {% if section.settings.title != blank %}
+    <div class="sitewide--title-wrapper">
+
+      <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+    </div>
+  {% endif %}
+
+  <div class="testimonials-block">
+
+    {% for block in section.blocks %}
+      {%- assign testimonial_has_link = false -%}
+      {% if block.settings.link != blank %}
+        {%- assign testimonial_has_link = true -%}
+      {% endif %}
+
+      <div class="testimonial--single-item" {{ block.shopify_attributes }}>
+
+        {% if testimonial_has_link %}
+          <a href="{{ block.settings.link }}">
+        {% endif %}
+
+        {% if block.settings.image != blank %}
+          <div class="testimonial-section--image">
+            {% if section.settings.circle_images %}
+              {% assign crop = 'center' %}
+            {% endif %}
+            {% assign img_alt =  block.settings.image.alt | default: shop.name %}
+            {% render 'responsive-image' with block.settings.image, alt: img_alt | escape crop: 'center', default_size: '200x200', force_height: 200, force_aspect: 1, allow_stretch: true %}
+          </div>
+        {% endif %}
+
+        {% if block.settings.stars > 0 %}
+          <div class="testimonials--star-wrapper">
+            {% assign star_total = block.settings.stars %}
+            {% for i in (1..star_total) %}
+              <i class="fa fa-star fa-lg" aria-hidden="true"></i>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if block.settings.testimonial_text != blank %}
+          <div class="testimonials--text-wrapper">
+            {{ block.settings.testimonial_text }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.customer_name != blank %}
+          <span class="h6">{{ block.settings.customer_name | escape }}</span>
+        {% endif %}
+
+        {% if testimonial_has_link %}
+          </a>
+        {% endif %}
+
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Testimonials",
+        "de": "Erfahrungsberichte",
+        "es": "Testimonios",
+        "fr": "Témoignages",
+        "pt-PT": "Testemunhos"
+    },
+    "class": "homepage-section--testimonials-wrapper",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "circle_images",
+            "label": {
+                "en": "Circular images",
+                "de": "Kreisförmige Bilder",
+                "es": "Imágenes redondas",
+                "fr": "Images circulaires",
+                "pt-PT": "Imagens circulares"
+            },
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Testimonials",
+                "de": "Erfahrungsberichte",
+                "es": "Testimonios",
+                "fr": "Témoignages",
+                "pt-PT": "Testemunhos"
+            }
+        }
+    ],
+    "max_blocks": 4,
+    "blocks": [
+        {
+            "type": "text",
+            "name": {
+                "en": "Testimonial",
+                "de": "Erfahrungsbericht",
+                "es": "Testimonio",
+                "fr": "Témoignage",
+                "pt-PT": "Testemunho"
+            },
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    },
+                    "info": {
+                        "en": "400px x 400px recommended",
+                        "de": "400 px x 400 px empfohlen",
+                        "es": "Recomendado: 400px x 400px",
+                        "fr": "400 x 400 px recommandé",
+                        "pt-PT": "400px x 400px (recomendado)"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "testimonial_text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "customer_name",
+                    "label": {
+                        "en": "Customer name",
+                        "de": "Kundenname",
+                        "es": "Nombre del cliente",
+                        "fr": "Nom du client",
+                        "pt-PT": "Nome do cliente"
+                    },
+                    "info": {
+                        "en": "Optional",
+                        "de": "Optional",
+                        "es": "Opcional",
+                        "fr": "Facultatif",
+                        "pt-PT": "Opcional"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "link",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    },
+                    "info": {
+                        "en": "Optional",
+                        "de": "Optional",
+                        "es": "Opcional",
+                        "fr": "Facultatif",
+                        "pt-PT": "Opcional"
+                    }
+                },
+                {
+                    "type": "range",
+                    "id": "stars",
+                    "min": 0,
+                    "max": 5,
+                    "step": 1,
+                    "label": {
+                        "en": "Review stars",
+                        "de": "Bewertungssterne",
+                        "es": "Estrellas de evaluación",
+                        "fr": "Étoiles d'évaluation",
+                        "pt-PT": "Estrelas de avaliação"
+                    },
+                    "default": 0
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Testimonials",
+                "de": "Erfahrungsberichte",
+                "es": "Testimonios",
+                "fr": "Témoignages",
+                "pt-PT": "Testemunhos"
+            },
+            "category": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "blocks": [
+                {
+                    "type": "text",
+                    "settings": {
+                        "testimonial_text": "<p>\"Show off incredible feedback from your customers\"</p>",
+                        "customer_name": "John Doe",
+                        "stars": 5
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

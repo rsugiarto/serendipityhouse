@@ -1,0 +1,162 @@
+{% if section.settings.enable_recently_viewed %}
+  <link rel="preload" href="{{ 'section-recently-viewed.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+  <noscript>{{ 'section-recently-viewed.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+  {% comment %} Construct product card layout {% endcomment %}
+  {%- capture product_card_blocks -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type contains "product_card_" -%}
+        {{ block.type }},
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  <div class="wrapper-padded">
+    <div
+      class="recently-viewed-products clearfix collection"
+      data-product-handle="{{ product.handle }}"
+      data-blocks="{{ product_card_blocks }}"
+      data-product-url="{% if routes.root_url != '/' %}{{ routes.root_url }}{% endif %}/products/PLACEHOLDER/?view=recently-used-grid"
+      data-wetheme-section-type="template--product--recently-viewed"
+      data-wetheme-section-id="{{ section.id }}"
+      data-quick-shop="false"
+      data-quick-add="true"
+      style="display: none"
+    >
+      <div class="wrapper" role="main">
+        {% unless section.settings.recently_viewed_title == blank %}
+          <div class="sitewide--title-wrapper">
+            <h2 class="page--title text-center font-bold text-4xl pb-4 leading-tight text-orange-dark">{{ section.settings.recently_viewed_title }}</h2>
+          </div>
+        {% endunless %}
+
+        <div class="swiper-container">
+          <div class="swiper-wrapper" id="recently-viewed-products"></div>
+        </div>
+        <div class="swiper-button--prev">
+          <i class="fa icon-angle-left"></i>
+        </div>
+        <div class="swiper-button--next">
+          <i class="fa icon-angle-right"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+      "en": "Recently viewed",
+      "de": "Zuletzt angesehen",
+      "es": "Visitado recientemente",
+      "fr": "Récemment consulté",
+      "pt-PT": "Recentemente visualizado"
+    },
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_recently_viewed",
+        "label": "Enable recently viewed",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "recently_viewed_title",
+        "label": {
+          "en": "Heading",
+          "de": "Überschrift",
+          "es": "Encabezado",
+          "fr": "Rubrique",
+          "pt-PT": "Título"
+        },
+        "default": {
+          "en": "Recently viewed products",
+          "de": "Zuletzt angesehene Produkte",
+          "es": "Productos visitados recientemente",
+          "fr": "Produits récemment consultés",
+          "pt-PT": "Produtos recentemente visualizados"
+        }
+      }
+   ],
+   "blocks": [
+      {
+        "type": "product_card_image",
+        "name": "Product image",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "hover-effect",
+            "label": {
+                "en": "Enable hover effect",
+                "de": "Hover-Effekt aktivieren",
+                "es": "Habilitar efecto hover",
+                "fr": "Activer l'effet survol",
+                "pt-PT": "Ativar efeito ao passar o rato"
+            },
+            "default": false,
+            "info": {
+                "en": "Show second product image on hover",
+                "de": "Zweites Produktbild beim Hover anzeigen",
+                "es": "Mostar la segunda imagen del producto al pasar el ratón sobre la imagen",
+                "fr": "Afficher l'image du second produit survolé",
+                "pt-PT": "Mostrar imagem do segundo produto ao passar o rato"
+            }
+          },
+          {
+            "type": "checkbox",
+            "id": "enable_badges",
+            "label": "Enable badges",
+            "default": true,
+            "info": "Sold out and Sale badges"
+          }
+        ]
+      },
+      {
+        "type": "product_card_title",
+        "name": "Product title",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product title within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_vendor",
+        "name": "Product vendor",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product vendor within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_price",
+        "name": "Product price",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product price within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_button",
+        "name": "Quick shop button",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the 'Add to cart' or 'View options' button within the product cards in your collection product list."
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}

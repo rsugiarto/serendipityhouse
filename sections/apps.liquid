@@ -1,0 +1,38 @@
+<div class="homepage-sections-wrapper" data-wetheme-section-id="{{ section.id }}">
+	{% if section.settings.include_margins %}
+        <div class="wrapper-padded">
+    {% endif %}
+        
+        {%- for block in section.blocks -%}
+            {% render block %}
+        {%- endfor -%}
+
+    {% if section.settings.include_margins %}
+        </div>
+    {% endif %}
+</div>
+  
+{% schema %}
+{
+	"name": "Apps",
+	"tag": "section",
+	"settings": [
+		{
+			"type": "checkbox",
+			"id": "include_margins",
+			"default": true,
+			"label": "Make section margins the same as theme"
+		}
+	],
+	"blocks": [
+		{
+			"type": "@app"
+		}
+	],
+	"presets": [
+		{
+			"name": "Apps"
+		}
+	]
+}
+{% endschema %}

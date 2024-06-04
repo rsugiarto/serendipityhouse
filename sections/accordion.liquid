@@ -1,0 +1,268 @@
+{% capture plus_icon %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x plus-icon" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+{% endcapture %}
+
+{% capture minus_icon %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x minus-icon" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+{% endcapture %}
+
+{% capture chevron_down %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+{% endcapture %}
+
+{% capture chevron_up %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down chevron-up"><polyline points="6 9 12 15 18 9"></polyline></svg>
+{% endcapture %}
+
+<style>
+  .accordion-container .title-bar {
+    text-align: left;
+    margin-bottom: 10px;
+    text-transform: none;
+    font-family: var(--body-font-stack);
+    font-size: 1.2rem;
+  }
+
+  .accordion-container .title-bar p {
+    margin-bottom: 0;
+  }
+
+  .accordion-faq--{{ section.id }} .accordion-content {
+    border-bottom: 1px solid;
+  }
+
+  .accordion-content summary {
+    padding: 1rem 0;
+    font-weight: 600;
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .accordion-faq--{{ section.id }} .feather-x {
+    transform: rotate(45deg);
+  }
+
+  .accordion-faq--{{ section.id }} .chevron-up {
+    transform: rotate(180deg);
+  }
+
+  .accordion-faq--{{ section.id }} .feather-x,
+  .accordion-faq--{{ section.id }} .feather-chevron-down {
+    width: var(--base-font-size);
+    height: var(--base-font-size);
+  }
+
+  .accordion-faq--{{ section.id }} details summary .minus-icon,
+  .accordion-faq--{{ section.id }} details summary .chevron-up {
+    display: none;
+  }
+
+  .accordion-faq--{{ section.id }} details[open] summary .plus-icon,
+  .accordion-faq--{{ section.id }} details[open] summary .chevron-down {
+    display: none;
+  }
+
+  .accordion-faq--{{ section.id }} details[open] summary .minus-icon,
+  .accordion-faq--{{ section.id }} details[open] summary .chevron-up {
+    display: block;
+  }
+</style>
+
+<section
+  class="homepage-sections-wrapper accordion--faq-wrapper accordion-faq--{{ section.id }} homepage-sections-wrapper--{{ section.settings.colors }}"
+  data-wetheme-section-type="accordion--faq"
+  data-wetheme-section-id="{{ section.id }}"
+>
+    <div class="accordion-container wrapper-padded">
+      {% unless section.settings.title == blank %}
+        <div class="title-bar custom-font">
+          <p>{{ section.settings.title }}</p>
+        </div>
+      {% endunless %}
+      
+      {% for block in section.blocks %}
+        {% unless block.settings.text == blank and block.settings.question == blank %}
+          <details class="accordion-content">
+            <summary role="button" aria-expanded="false" tabindex="0">
+              {{ block.settings.question }}<span>{% if section.settings.faq_icon == "plus_minus" %}{{ plus_icon }}{{ minus_icon }}{% elsif section.settings.faq_icon == "caret" %}{{ chevron_down }}{{ chevron_up }}{% endif %}</span>
+            </summary>
+            <div class="rte">
+              {{ block.settings.text }}
+            </div>
+          </details>
+        {% endunless %}
+
+        <style>
+          {% if section.settings.title == blank %}
+            .accordion-faq--{{ section.id }} details:first-of-type summary {
+              padding-top: 0;
+            }
+          {% endif %}
+        </style>
+        
+      {% endfor %}
+    </div>
+
+</section>
+
+{% schema %}
+  {
+    "name": {
+        "en": "Accordion/FAQ"
+    },
+    "class": "main-accordion--wrapper",
+    "settings": [
+        {
+          "type": "select",
+          "id": "colors",
+          "label": {
+              "en": "Color scheme",
+              "de": "Farbschema",
+              "es": "Esquema de colores",
+              "fr": "Palette de couleurs",
+              "pt-PT": "Esquema de cores"
+          },
+          "default": "white",
+          "options": [
+              {
+                  "value": "white",
+                  "label": {
+                      "en": "Minimal",
+                      "fr": "Minimal",
+                      "de": "Minimal",
+                      "es": "Mínimo",
+                      "pt-PT": "Mínimo"
+                  }
+              },
+              {
+                  "value": "light",
+                  "label": {
+                      "en": "Light",
+                      "de": "Licht",
+                      "es": "Luz",
+                      "fr": "Clair",
+                      "pt-PT": "Claro"
+                  }
+              },
+              {
+                  "value": "accent",
+                  "label": {
+                      "en": "Feature",
+                      "de": "Eigenschaft",
+                      "es": "Destacado",
+                      "fr": "Caractéristique",
+                      "pt-PT": "Funcionalidade"
+                  }
+              },
+              {
+                  "value": "dark",
+                  "label": {
+                      "en": "Dark",
+                      "de": "Dunkel",
+                      "es": "Oscuro",
+                      "fr": "Foncé",
+                      "pt-PT": "Escuro"
+                  }
+              }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+              "en": "Heading",
+              "de": "Überschrift",
+              "es": "Encabezado",
+              "fr": "Rubrique",
+              "pt-PT": "Título"
+          },
+          "default": {
+              "en": "Frequently asked questions"
+          }
+        },
+        {
+          "type": "radio",
+          "id": "faq_icon",
+          "label": {
+              "en": "Icon style"
+          },
+          "options": [
+              {
+                  "value": "plus_minus",
+                  "label": {
+                      "en": "Plus/minus"
+                  }
+              },
+              {
+                  "value": "caret",
+                  "label": {
+                      "en": "Caret"
+                  }
+              }
+          ],
+          "default": "plus_minus"
+        }
+    ],
+    "blocks": [
+      {
+        "type": "tab_content",
+        "name": {
+            "en": "Tab content"
+        },
+        "settings": [
+          {
+            "type": "text",
+            "id": "question",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Place your question or heading here"
+            }
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "<p>Here you can place an explanation or answer to the question.</p>"
+            }
+          }
+        ]
+      }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Accordion/FAQ"
+            },
+            "category": {
+                "en": "Store information"
+            },
+            "blocks": [
+                {
+                  "type": "tab_content"
+                },
+                {
+                  "type": "tab_content"
+                },
+                {
+                  "type": "tab_content"
+                }
+            ]
+        }
+    ]
+  }
+{% endschema %}

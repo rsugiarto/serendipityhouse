@@ -1,0 +1,464 @@
+<div
+  class="homepage-sections-wrapper homepage-sections-wrapper--{{ section.settings.colors }}"
+  data-wetheme-section-type="collection--featured-collection" data-wetheme-section-id="{{ section.id }}"
+>
+
+<div class="wrapper-padded show-on-scroll">
+  <div class="homepage-indiv-section-wrapper grid--full homepage-featured-content-wrapper">
+  {% if section.settings.title != blank or section.settings.richtext != blank %}
+    <div class="homepage-featured-rich-text">
+      <div class="page-width featured-products-wrapper">
+        {% if section.settings.title != blank %}
+            <div class="sitewide--title-wrapper">
+
+              <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+            </div>
+        {% endif %}
+
+        {% if section.settings.richtext != blank %}
+          <div class="rte featured-row__subtext textarea">{{ section.settings.richtext }}</div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  {%- assign collection = collections[section.settings.collection] -%}
+  {% case section.settings.grid-desktop%}
+    {% when 2 %}
+      {%- assign desktop_item_width = 'large--one-half' -%}
+      {%- assign image_size = '800x1000' -%}
+    {% when 3 %}
+      {%- assign desktop_item_width = 'large--one-third' -%}
+    {%- assign image_size = '550x750' -%}
+    {% when 4 %}
+      {%- assign desktop_item_width = 'large--one-quarter' -%}
+      {%- assign image_size = '400x' -%}
+    {% when 5 %}
+      {%- assign desktop_item_width = 'large--one-fifth' -%}
+      {%- assign image_size = '300x' -%}
+    {% when 6 %}
+      {%- assign desktop_item_width = 'large--one-sixth' -%}
+      {%- assign image_size = '200x' -%}
+  {% endcase %}
+
+  {% case section.settings.grid-tablet %}
+    {% when 2 %}
+      {%- assign tablet_item_width = 'medium--one-half' -%}
+    {% when 3 %}
+      {%- assign tablet_item_width = 'medium--one-third' -%}
+    {% when 4 %}
+      {%- assign tablet_item_width = 'medium--one-quarter' -%}
+  {% endcase %}
+
+  {% case section.settings.grid-mobile%}
+    {% when 1 %}
+      {%- assign mobile_item_width = 'small--one-whole' -%}
+    {% when 2 %}
+      {%- assign mobile_item_width = 'small--one-half' -%}
+    {% when 3 %}
+      {%- assign mobile_item_width = 'small--one-third' -%}
+  {% endcase %}
+
+  {% assign crop_setting = settings.product-grid %}
+      {% if crop_setting == "square" %}
+          {% assign image_crop = "aspect-ratio--square" %}
+      {% elsif crop_setting == "tall" %}
+          {% assign image_crop = "aspect-ratio--tall" %}
+      {% elsif crop_setting == "wide" %}
+          {% assign image_crop = "aspect-ratio--wide" %}
+      {% else %}
+          {% assign image_crop = false %}
+  {% endif %}
+
+  {%- assign grid_item_width = desktop_item_width | append: ' ' | append: tablet_item_width | append: ' ' | append: mobile_item_width -%}
+
+  {%- assign product_limit = section.settings.grid-desktop | times: section.settings.rows -%}
+
+  <div class="grid-uniform homepage-product-grid-wrapper">
+    {% for product in collection.products limit: product_limit %}
+      {%- assign grid_image_width = image_size -%}
+      {% comment %}
+        Set the default grid_item_width if no variable is set
+      {% endcomment %}
+      {% unless grid_item_width %}
+        {% assign grid_item_width = 'large--one-third medium--one-half' %}
+      {% endunless %}
+
+      {% comment %}
+        Check if the product is on sale and set a variable to be used below.
+      {% endcomment %}
+      {% assign on_sale = false %}
+      {% if product.compare_at_price > product.price %}
+        {% assign on_sale = true %}
+      {% endif %}
+
+      {% comment %}
+        Check if the product is sold out and set a variable to be used below.
+      {% endcomment %}
+      {% assign sold_out = true %}
+      {% if product.available %}
+        {% assign sold_out = false %}
+      {% endif %}
+
+      <div class="grid__item {{ grid_item_width }} featured-product--grid-item">
+
+        <div class="grid-view-item">
+          <div class="grid-view-item-image">
+
+            {% if section.settings.hover-effect %}
+              <div class="reveal">
+            {% endif %}
+
+            <a href="{{ product.url | within: collection }}" title="{{product.title}}" class="grid__image grid__image__match" tabindex="-1">
+                {% if image_crop %}<div class="aspect-ratio {{ image_crop }}">{% endif %}
+                  {% assign image = product.media[0].preview_image %}
+                  {% capture styles %}max-width: {{ image.width }}px{% endcapture %}
+                  {% render 'responsive-image' with image, alt: image.alt, styles: styles, allow_stretch: true %}
+
+                  {% if section.settings.hover-effect and product.media.size > 1 %}
+                    <div class="hidden">
+                      {% assign image = product.media[1].preview_image %}
+                      {% capture styles %}max-width: {{ image.width }}px{% endcapture %}
+                      {% render 'responsive-image' with image, alt: image.alt, styles: styles, allow_stretch: true %}
+                    </div>
+                  {% endif %}
+                {% if image_crop %}</div>{% endif %}
+            </a>
+
+            {% if section.settings.hover-effect %}
+              </div>
+            {% endif %}
+
+          </div>
+
+          <div class="grid-view-item--desc-wrapper">
+            <div>
+              {% if section.settings.show-vendor %}
+                <div class="product-grid--vendor-text">{{ product.vendor }}</div>
+              {% endif %}
+              <div class="product-grid--title">
+                <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+              </div>
+              <div class="product-grid--price">
+                {% render 'product-grid-item-price', product: product, collection: collection %}
+              </div>
+            </div>
+          </div>
+
+
+            <div class="quick-add-wrapper{% if product.variants.size == 1 %} is-singular{% endif %}">
+            {% if product.variants.size > 1 and product.available %}
+                <a class="quick-add-button-variants" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.view_options' | t }}</a>
+            {% elsif product.available %}
+              {% form 'product', product, id: "CollectionAddToCartForm" %}
+                <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+                <button class="quick-add-button" type="submit" tabindex="0">{{ 'products.product.add_to_cart' | t }}</button>
+              {% endform %}
+            {% else %}
+              <a class="sold-out-button" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.sold_out' | t }}</a>
+            {% endif %}
+            </div>
+
+
+          {% if product.compare_at_price_max > product.price and product.available %}
+            <div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+          {% endif %}
+
+
+          {% unless product.available %}
+            <div class="sold-out-badge badge">{{ 'products.product.sold_out' | t }}</div>
+          {% endunless %}
+
+
+        </div>
+
+      </div>
+
+    {% else %}
+
+      {% for i in (1..product_limit) %}
+        <div class="grid__item {{ grid_item_width }} featured-product--grid-item">
+          <div class="grid-view-item">
+            <a href="/admin/products" class="grid-view-item__link" tabindex="-1">
+              {% if image_crop %}<div class="aspect-ratio {{ image_crop }}">{% endif %}
+                  <div class="grid-view-item__image">
+                    {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                    {{ 'product-' | append: current | placeholder_svg_tag: 'icon icon--placeholder grid__image' }}
+                  </div>
+              {% if image_crop %}</div>{% endif %}
+              <div class="grid-view-item--desc-wrapper">
+                {% if section.settings.show-vendor %}
+                  <div class="product-grid--vendor-text">{{ 'homepage.onboarding.product_vendor' | t }}</div>
+                {% endif %}
+                  <div class="product-grid--title">{{ 'homepage.onboarding.product_title' | t }}</div>
+                  <div class="product-grid--price"><span class="money">{{ 1999 | money }}</span></div>
+              </div>
+            </a>
+
+              <div class="quick-add-wrapper">
+                <a class="quick-add-button-onboarding" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.add_to_cart' | t }}</a>
+              </div>
+
+          </div>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  {% if section.settings.show_view_all %}
+    <div class="text-center show-view-all--button">
+      <a href="{{ collection.url }}" class="btn" aria-label="{{ 'collections.general.view_all_label' | t: collection_name: collection.title }}">
+        {{ 'collections.general.view_all' | t }}
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Featured collection",
+        "de": "Vorgestellte Kollektion",
+        "es": "Colección destacada",
+        "fr": "Collection en vedette",
+        "pt-PT": "Coleção em destaque"
+    },
+    "class": "featured-products-wrapper",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            }
+        },
+        {
+            "id": "collection",
+            "type": "collection",
+            "label": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Products per row",
+                "de": "Produkte pro Zeile",
+                "es": "Productos por fila",
+                "fr": "Produits par ligne",
+                "pt-PT": "Produtos por linha"
+            }
+        },
+        {
+            "type": "range",
+            "id": "grid-desktop",
+            "min": 2,
+            "max": 6,
+            "step": 1,
+            "label": {
+                "en": "Desktop",
+                "de": "Desktop",
+                "es": "Escritorio",
+                "fr": "Ordinateur de bureau",
+                "pt-PT": "Ambiente de trabalho"
+            },
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "grid-tablet",
+            "min": 2,
+            "max": 4,
+            "step": 1,
+            "label": {
+                "en": "Tablet",
+                "de": "Tablet",
+                "es": "Tablet",
+                "fr": "Tablette",
+                "pt-PT": "Tablet"
+            },
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "grid-mobile",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "label": {
+                "en": "Mobile",
+                "de": "Mobil",
+                "es": "Móvil",
+                "fr": "Téléphone mobile",
+                "pt-PT": "Telemóvel"
+            },
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "rows",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "label": {
+                "en": "Rows",
+                "de": "Zeilen",
+                "es": "Filas",
+                "fr": "Lignes",
+                "pt-PT": "Linhas"
+            },
+            "default": 2
+        },
+        {
+            "type": "checkbox",
+            "id": "hover-effect",
+            "label": {
+                "en": "Enable hover effect",
+                "de": "Hover-Effekt aktivieren",
+                "es": "Habilitar efecto hover",
+                "fr": "Activer l'effet survol",
+                "pt-PT": "Ativar efeito ao passar o rato"
+            },
+            "default": false,
+            "info": {
+                "en": "Shows your products second image on hover",
+                "de": "Zeigt das zweite Bild Ihrer Produkte beim Hover an",
+                "es": "Muestra la segunda imagen de los productos cuando se pasa el ratón por encima",
+                "fr": "Affiche la seconde image de vos produits en survol",
+                "pt-PT": "Mostra a segunda imagem dos seus produtos ao passar o rato"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show-vendor",
+            "label": {
+                "en": "Show vendor",
+                "de": "Verkäufer anzeigen",
+                "es": "Mostrar vendedor",
+                "fr": "Afficher le vendeur",
+                "pt-PT": "Mostrar vendedor"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_view_all",
+            "label": {
+                "en": "Show 'View all' button",
+                "de": "„Alle ansehen“-Button anzeigen",
+                "es": "Mostrar botón «Ver todos»",
+                "fr": "Afficher le bouton « Voir tout »",
+                "pt-PT": "Mostrar botão \"Ver tudo\""
+            },
+            "default": false
+        }
+    ],
+    "templates": [
+      "404",
+      "article",
+      "blog",
+      "cart",
+      "list-collections",
+      "index",
+      "page",
+      "password",
+      "product",
+      "search"
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Featured collection",
+                "de": "Vorgestellte Kollektion",
+                "es": "Colección destacada",
+                "fr": "Collection en vedette",
+                "pt-PT": "Coleção em destaque"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            }
+        }
+    ]
+}
+{% endschema %}

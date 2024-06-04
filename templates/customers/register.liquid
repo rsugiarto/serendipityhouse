@@ -1,0 +1,36 @@
+<!-- /templates/customers/register.liquid -->
+<div class="wrapper-padded py-4 px-4 md:px-0">
+	<div class="grid page-main--wrapper max-w-md mx-auto text-center">
+    	<div class="grid grid-cols-1 gap-4">
+      		<div class="sitewide--title-wrapper">
+        		<h1 class="page--title text-brown-zin text-2xl font-normal mb-4">{{ 'customer.register.title' | t }}</h1>
+    		</div>
+      		<div class="form-vertical">
+        		{% form 'create_customer' %}
+				{{ form.errors | default_errors }}
+				<div class="block mb-4">
+          			<label for="FirstName" class="hidden">{{ 'customer.register.first_name' | t }}</label>
+          			<input type="text" name="customer[first_name]" id="FirstName" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="{{ 'customer.register.first_name' | t }}" {% if form.first_name %}value="{{ form.first_name }}"{% endif %} autocapitalize="words" autofocus>
+				</div>
+				<div class="block mb-4">
+          			<label for="LastName" class="hidden">{{ 'customer.register.last_name' | t }}</label>
+          			<input type="text" name="customer[last_name]" id="LastName" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="{{ 'customer.register.last_name' | t }}" {% if form.last_name %}value="{{ form.last_name }}"{% endif %} autocapitalize="words">
+				</div>
+				<div class="block mb-4">
+          			<label for="Email" class="hidden">{{ 'customer.register.email' | t }}</label>
+          			<input type="email" name="customer[email]" id="Email" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50{% if form.errors contains 'email' %} error{% endif %}" placeholder="{{ 'customer.register.email' | t }}" {% if form.email %} value="{{ form.email }}"{% endif %} autocorrect="off" autocapitalize="off">
+				</div>
+				<div class="block mb-4">
+          			<label for="CreatePassword" class="hidden">{{ 'customer.register.password' | t }}</label>
+          			<input type="password" name="customer[password]" id="CreatePassword" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50{% if form.errors contains 'password' %} error{% endif %}" placeholder="{{ 'customer.register.password' | t }}">
+				</div>
+          		<div class="block mb-4">
+            		<input type="submit" value="{{ 'customer.register.submit' | t }}" class="btn w-full cursor-pointer hover:text-green-mist mt-1 py-3 px-4 bg-orange-dark text-sm uppercase text-white">
+          		</div>
+          		<a href="{{ shop.url }}">{{ 'customer.register.cancel' | t }}</a>
+        		{% endform %}
+			</div>
+			<div class="hidden grid grid grid-cols-1 md:grid-cols-3"></div>
+    	</div>
+ 	 </div>
+</div>

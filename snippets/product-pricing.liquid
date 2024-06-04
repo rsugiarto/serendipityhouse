@@ -1,0 +1,5 @@
+<span class="visually-hidden">{{ 'products.general.regular_price' | t }}</span>
+<span id="ProductPrice" class="text-2xl font-bold text-black" itemprop="price" content="{{ current_variant.price | divided_by: 100 }}" v-bind:content="variant ? variant.price / 100 : null" v-html="variant ? money(variant.price) : '{{ 'products.product.unavailable' | t }}'">
+  	<span class="money">{{ current_variant.price | money }}</span>
+</span>
+

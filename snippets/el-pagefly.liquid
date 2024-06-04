@@ -1,0 +1,300 @@
+
+{% assign shopLocale = shop.locale %}
+{% assign lang       = 'pagefly_lancode_'| append: shopLocale %}
+{% assign jsons      = shop.metafields.e_l_pagefly[lang] | json %}
+{% assign domain     = shop.domain %}
+{% assign page_url   = page.url %}
+
+<script>
+
+let pagefly = document.getElementById('__pf');
+if(pagefly != undefined)
+{
+
+    function button_fetch()
+    {
+        let button_list = pagefly.getElementsByTagName('button')
+        button_list     = Array.from(button_list)
+        let text_list   = {};
+
+        for (let index in button_list) {
+            var pattern = /pf-\S{2,8}/gm
+            var pf_keys = button_list[index].className.match(pattern)
+            if(pf_keys != undefined)
+            {
+
+                var soldout_text = button_list[index].outerHTML.indexOf('data-soldout')
+                if(soldout_text != -1 )
+                {
+                    continue;
+                }
+                text_list[pf_keys[0]] = button_list[index].innerHTML
+            }
+        }
+
+        let common_text_list = {};
+        for (let index in button_list) {
+            var pattern = /pf-\S{2,8}/gm
+            var pf_keys = button_list[index].className.match(pattern)
+            if(pf_keys != undefined)
+            {
+                var soldout_text = button_list[index].outerHTML.indexOf('data-soldout')
+                var adding_text  = button_list[index].outerHTML.indexOf('data-adding')
+                var added_text   = button_list[index].outerHTML.indexOf('data-added')
+                if(soldout_text != -1 && adding_text != -1 && added_text != -1)
+                {   
+                    common_text_list['button-data-soldout'] = button_list[index].getAttribute('data-soldout');
+                    common_text_list['button-data-adding'] = button_list[index].getAttribute('data-adding');
+                    common_text_list['button-data-added'] = button_list[index].getAttribute('data-added');
+                    common_text_list['button-add-to-cart'] = button_list[index].innerHTML;
+                    break;
+                }
+            }
+        }
+
+        return Object.assign(text_list, common_text_list);
+    }
+
+
+
+    function countdown_fetch()
+    {
+        text_list = {};
+        if(document.getElementsByClassName('pf-countdown__outter2') !=undefined && document.getElementsByClassName('pf-countdown__outter2').length > 0)
+        {
+            var pattern = /pf-\S{2,8}/gm
+            var pf_keys = document.getElementsByClassName('pf-countdown__outter2')[0].className.match(pattern)
+
+            text_list[pf_keys[0] + '-days']  = document.getElementsByClassName('pf-countdown__outter2')[0].getElementsByClassName('pf-countdown__days')[0].nextSibling.innerText;
+            text_list[pf_keys[0] + '-hours'] = document.getElementsByClassName('pf-countdown__outter2')[0].getElementsByClassName('pf-countdown__hours')[0].nextSibling.innerText
+            text_list[pf_keys[0] + '-mins']  = document.getElementsByClassName('pf-countdown__outter2')[0].getElementsByClassName('pf-countdown__mins')[0].nextSibling.innerText
+            text_list[pf_keys[0] + '-secs']  = document.getElementsByClassName('pf-countdown__outter2')[0].getElementsByClassName('pf-countdown__secs')[0].nextSibling.innerText
+        }
+
+        return text_list;
+    }
+
+    function default_table()
+    {
+        text_list = {};
+        var dome_object = document.getElementsByClassName('pagefly__table--default')
+        dome_object = Array.from(dome_object)
+        var pattern = /pf-\S{2,8}/gm
+        
+        if(dome_object !=undefined && dome_object.length > 0)
+        {
+            for (let index in dome_object) {
+                var pf_keys = dome_object[index].className.match(pattern)
+                var soldout_text = dome_object[index].outerHTML
+                if(!soldout_text)
+                {
+                    continue;
+                }
+                text_list[pf_keys[0]] = dome_object[index].innerHTML
+            }
+        }
+        return text_list;
+    }
+
+
+
+    function span_fetch()
+    {
+        let span_list = pagefly.getElementsByTagName('span')
+        let span_text_list = {};
+        if(span_list != undefined)
+        {
+            span_list     = Array.from(span_list)
+            for (let index in span_list) {
+                var pattern = /pf-\S{2,8}/gm
+                var pf_keys  = span_list[index].className.match(pattern)
+                if(pf_keys != undefined)
+                {
+                    span_text_list[pf_keys[0]] = span_list[index].innerHTML
+                }
+            }
+        }
+
+        return span_text_list;
+    }
+
+    function form_fetch()
+    {
+        let label_list = pagefly.getElementsByTagName('label')
+        let label_text_list = {};
+        var pattern_label = /sc-\S{2,6}/gm
+        var pattern = /pf-\S{3,6}/gm
+        if(label_list != undefined && label_list.length > 0)
+        {
+            label_list     = Array.from(label_list)
+            for (let index in label_list) {
+                var label_list_dome = label_list[index]
+                var label_keys  = label_list_dome.className.match(pattern_label)
+                if(label_keys != undefined)
+                {
+                    var label_list_dome_parent = label_list_dome.parentNode
+                    var pf_keys  = label_list_dome_parent.className.match(pattern)
+                    if(pf_keys != undefined){
+                        label_text_list[pf_keys[0]] = label_list_dome_parent.innerHTML
+                    }
+                }
+            }
+        }
+
+
+        return label_text_list;
+    }
+    
+
+
+
+
+    var span_text_list = span_fetch();
+
+    button_text_list = button_fetch();
+
+    countdown_text = countdown_fetch();
+
+    var default_table_list = default_table();
+
+    var form_fetch_list = form_fetch();
+
+    var text_list = Object.assign(span_text_list, button_text_list, countdown_text, default_table_list, form_fetch_list);
+
+    xmlHttp = new XMLHttpRequest();
+    var post_data = {
+            "page_url" :window.location.pathname + window.location.search,  //表示pagefly的页面
+            "text_list": text_list,
+            "domain":'{{shop.permanent_domain}}',
+            "lan_code":'{{shopLocale}}'
+        }
+
+    xmlHttp.open("post","/apps/pagefly");
+    xmlHttp.setRequestHeader("Content-Type","application/json");
+    xmlHttp.setRequestHeader("CrossOrigin", "true");
+    xmlHttp.send(JSON.stringify(post_data));
+    xmlHttp.onreadystatechange = function() {
+        if(this.status==200){
+            //some code here
+        }
+    };
+
+    let trans_data = {{jsons}};
+    let trans_data_array = ''
+    if(typeof trans_data == 'string'){
+        trans_data_array = JSON.parse(trans_data);
+    } else {
+        trans_data_array = trans_data
+    }
+    if(trans_data_array != null)
+    {
+        for (let pf_key in text_list) {
+            if(document.getElementsByClassName(pf_key) != undefined)
+            {
+                if(document.getElementsByClassName(pf_key).length > 0)
+                {
+                    if(trans_data_array[pf_key]){
+                        document.getElementsByClassName(pf_key)[0].innerHTML = trans_data_array[pf_key]
+                    }
+                }
+
+
+                if(pf_key == 'button-data-soldout')
+                {
+                    let button_list = pagefly.getElementsByTagName('button')
+                    button_list     = Array.from(button_list)
+                    for (let index in button_list) {
+                        if(button_list[index].outerHTML.indexOf('data-soldout') != -1 && trans_data_array[pf_key]){
+                            button_list[index].setAttribute('data-soldout', trans_data_array[pf_key])
+                        }
+                    }
+                }
+
+                if(pf_key == 'button-data-adding')
+                {
+                    let button_list = pagefly.getElementsByTagName('button')
+                    button_list     = Array.from(button_list)
+                    for (let index in button_list) {
+                        if(button_list[index].outerHTML.indexOf('data-adding') != -1 && trans_data_array[pf_key]){
+                            button_list[index].setAttribute('data-adding', trans_data_array[pf_key])
+                        }
+                    }
+                }
+
+                if(pf_key == 'button-data-added')
+                {
+                    let button_list = pagefly.getElementsByTagName('button')
+                    button_list     = Array.from(button_list)
+                    for (let index in button_list) {
+                        if(button_list[index].outerHTML.indexOf('data-added') != -1 && trans_data_array[pf_key]){
+                            button_list[index].setAttribute('data-added', trans_data_array[pf_key])
+                        }
+                    }
+                }
+
+                if(pf_key == 'button-add-to-cart')
+                {
+                    let button_list = pagefly.getElementsByTagName('button')
+                    button_list     = Array.from(button_list)
+                    for (let index in button_list) {
+                        if(button_list[index].outerHTML.indexOf('data-product-id') != -1 && trans_data_array[pf_key]){
+                            button_list[index].innerHTML = trans_data_array[pf_key];
+                        }
+                    }
+                }
+
+
+                var countdown_list = document.getElementsByClassName('pf-countdown__outter2');
+                if(countdown_list != undefined)
+                {
+                    countdown_list = Array.from(countdown_list)
+                    if(pf_key.indexOf('days') != -1)
+                    {
+                        for(index in countdown_list)
+                        {
+                            if(trans_data_array[pf_key]){
+                                countdown_list[index].getElementsByClassName('pf-countdown__days')[0].nextSibling.innerText = trans_data_array[pf_key]
+                            }
+                        }
+                    }
+
+                    if(pf_key.indexOf('hours') != -1)
+                    {
+                        for(index in countdown_list)
+                        {
+                            if(trans_data_array[pf_key]){
+                                countdown_list[index].getElementsByClassName('pf-countdown__hours')[0].nextSibling.innerText = trans_data_array[pf_key]
+                            }
+                        }
+                    }
+
+                    if(pf_key.indexOf('mins') != -1)
+                    {
+                        for(index in countdown_list)
+                        {
+                            if(trans_data_array[pf_key]){
+                                countdown_list[index].getElementsByClassName('pf-countdown__mins')[0].nextSibling.innerText = trans_data_array[pf_key]
+                            }
+                        }
+                    }
+
+                    if(pf_key.indexOf('secs') != -1)
+                    {
+                        for(index in countdown_list)
+                        {
+                            if(trans_data_array[pf_key]){
+                                countdown_list[index].getElementsByClassName('pf-countdown__secs')[0].nextSibling.innerText = trans_data_array[pf_key]
+                            }
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
+}
+
+
+</script>
+

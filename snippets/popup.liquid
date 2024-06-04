@@ -1,0 +1,132 @@
+<style>
+.popup_image.newsletter-top {
+  background-image: url('{{ settings.popup-newsletter-top | img_url: '800x' }}');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 50%;
+}
+</style>
+
+{% if settings.popup--enable %}
+
+<div id="popup" data-desktop-type="{{ settings.desktop-popup-style }}" data-popup-time="{{ settings.pop-up-time }}" data-popup-delay="{{ settings.pop-up-delay }}" data-popup-test-mode="{{ settings.popup--test-mode }}">
+
+  {% if settings.popup-newsletter-top.alt != blank %}
+    {% assign popup_alt = settings.popup-newsletter-top.alt | escape  %}
+  {% elsif settings.pop-up-text-header-text != blank %}
+    {% assign popup_alt = settings.pop-up-text-header-text | escape  %}
+  {% else %}
+    {% assign popup_alt = shop.name | escape  %}
+  {% endif %}
+
+  {% if settings.desktop-popup-style == 'fullscreen' %}
+    <div id="fullscreen" class="popup" style="display:none;">
+      <div class="popup--body-outer{% if settings.popup-newsletter-top != blank %} popup--with-image{% else %} popup--no-image{% endif %}">
+        <div class="popup--body">
+          {% if settings.settings.pop-up-text-header-text != empty %}
+            <h2 class="custom-font">{{ settings.pop-up-text-header-text }}</h2>
+          {% endif %}
+          {% if settings.pop-up-text-description-text != empty %}
+            <div class="popup--description">
+            	{{ settings.pop-up-text-description-text }}
+            </div>
+          {% endif %}
+
+          {% if settings.popup--show-newsletter %}
+            <div id="subs-container">
+              <div>
+                {% form 'customer', id: 'newsletter-popup_form' %}
+                  {{ form.errors | default_errors }}
+
+                  {% if form.posted_successfully? %}
+                    <p class="note form-success">{{ 'general.newsletter_form.confirmation' | t }}</p>
+                  {% else %}
+                    <div class="input-group">
+                      <div class="form-control">
+                        <input type="email" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="{{ 'general.newsletter_form.newsletter_email' | t }}" name="contact[email]" id="Email" class="input-group-field" aria-label="{{ 'general.newsletter_form.newsletter_email' | t }}">
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                      </div>
+
+                      <div class="form-control">
+                        <span>
+                          <input type="submit" class="btn" name="subscribe" id="subscribe" value="{{ 'general.newsletter_form.submit' | t }}">
+                        </span>
+                      </div>
+
+                      <div class="newsletter--blurb"></div>
+                    </div>
+                  {% endif %}
+                {% endform %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if settings.popup--show-social-icons %}
+            <div class="social-media-footer">
+              {% render 'social-icons' %}
+            </div>
+          {% endif %}
+         </div>
+       </div>
+
+      {% if settings.popup-newsletter-top != blank %}
+      <div class="popup_image newsletter-top" role="img" aria-label="{{ popup_alt }}">
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% comment %}We need slide-up for mobile (even when using fullscreen on desktop){% endcomment %}
+  <div id="slide-up" style="display:none;">
+    <a class="popup--close-btn" tabindex="0"></a>
+
+      {% if settings.popup-newsletter-top != blank %}
+      <div class="popup_image newsletter-top" role="img" aria-label="{{ popup_alt }}">
+      </div>
+      {% endif %}
+
+      <div class="popup--body-outer{% if settings.popup-newsletter-top != blank %} popup--with-image{% else %} popup--no-image{% endif %}">
+        <div class="popup--body">
+          {% if settings.settings.pop-up-text-header-text != empty %}
+            <h3 class="custom-font">{{ settings.pop-up-text-header-text }}</h3>
+          {% endif %}
+          {% if settings.pop-up-text-description-text != empty %}
+            <div class="popup--description">
+            	{{ settings.pop-up-text-description-text }}
+            </div>
+          {% endif %}
+
+  				{% if settings.popup--show-newsletter %}
+  					<div id="subs-container">
+  						<div>
+                {% form 'customer' %}
+                {{ form.errors | default_errors }}
+                  {% if form.posted_successfully? %}
+                  <p class="note form-success">{{ 'general.newsletter_form.confirmation' | t }}</p>
+                  {% else %}
+                  <div class="input-group">
+                    <input type="email" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="{{ 'general.newsletter_form.newsletter_email' | t }}" name="contact[email]" id="Email" class="input-group-field" aria-label="{{ 'general.newsletter_form.newsletter_email' | t }}">
+                    <input type="hidden" name="contact[tags]" value="newsletter">
+                    <span>
+                      <input type="submit" class="btn" name="subscribe" id="subscribe" value="{{ 'general.newsletter_form.submit' | t }}">
+                    </span>
+                  </div>
+                  {% endif %}
+                  {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+                {% endform %}
+  						</div>
+  					</div>
+  				{% endif %}
+
+  				{% if settings.popup--show-social-icons %}
+            <div class="social-media-footer">
+              {% render 'social-icons' %}
+            </div>
+          {% endif %}
+        </div>
+
+    </div>
+  </div>
+</div>
+{% endif %}

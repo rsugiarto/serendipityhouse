@@ -1,0 +1,51 @@
+{% comment %}
+  Check if the product is on sale and set a variable to be used below.
+{% endcomment %}
+{% assign on_sale = false %}
+{% if product.compare_at_price > product.price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% comment %}
+  Check if the product is sold out and set a variable to be used below.
+{% endcomment %}
+{% assign sold_out = true %}
+{% if product.available %}
+  {% assign sold_out = false %}
+{% endif %}
+
+{% comment %}
+  You can show a leading 'from' or 'up to' by checking 'product.price_varies'
+  if your variants have different prices.
+{% endcomment %}
+<a href="{{ product.url | within: collection }}" data-product-id="{{ product.id }}" class="font-lg font-bold text-green-mist" tabindex="-1">
+  {% if on_sale %}
+    {% if product.price_varies %}
+      {{ 'products.general.from_text' | t }}
+    {% endif %}
+    <span class="visually-hidden">{{ 'products.general.regular_price' | t }}</span>
+    <span class="money line--through{% if settings.show_discount == 'hide' %} sale-price{% endif %}">{{ product.compare_at_price | money }}</span>
+    {% case settings.show_discount %}
+      {% when 'percentage' %}
+        <span class="money sale-price">-{{ product.compare_at_price | minus: product.price | times: 100.0 | divided_by:product.compare_at_price | round }}%</span>
+      {% when 'value' %}
+        <span class="money sale-price">-{{ product.compare_at_price | minus: product.price | money }}</span>
+    {% endcase %}
+    {% unless settings.show_discount == "hide" %}
+      <span class="sale-price--with-discount">
+    {% endunless %}
+        <span class="money">{{ product.price | money }}</span>
+    {% unless settings.show_discount == "hide" %}
+      </span>
+    {% endunless %}
+  {% else %}
+    {% if product.price_varies %}
+      {{ 'products.general.from_text' | t }} <span class="money">{{ product.price | money }}</span>
+    {% else %}
+      <span class="money">{{ product.price | money }}</span>
+    {% endif %}
+  {% endif %}
+
+  {% assign first_variant = product.variants[0] %}
+  {% render 'unit-price-measurement-variant', variant: first_variant %}
+</a>

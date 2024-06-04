@@ -1,0 +1,427 @@
+{% if page.handle == 'contact-us' %}
+<link rel="stylesheet" type="text/css" href="{{ 'page-contact-us.css' | asset_url }}">
+{% endif %}
+{% assign description_width = '' %}
+{% assign form_width = '' %}
+{% assign description_width = 'small--one-whole wow fadeInUp' %}
+{% assign form_width = 'small--one-whole wow fadeInUp' %}
+
+{% if page.content != blank %}
+  {% case section.settings.layout %}
+    {% when 'right' or 'left' %}
+      {% assign description_width = 'large--one-half wow fadeInUp' %}
+      {% assign form_width = 'large--one-half wow fadeInUp' %}
+  {% endcase %}
+{% endif %}
+
+{% capture contact_info %}
+  <div class="grid__item {{ description_width }} contact-description mb-4 text-gray-600">
+    {% comment %}
+      Regular page content goes here.
+    {% endcomment %}
+    <div class="rte">
+      {{ page.content }}
+    </div>
+  </div>
+{% endcapture %}
+<div
+  class="contact-page"
+  data-wetheme-section-type="template--page-contact"
+  data-wetheme-section-id="{{ section.id }}"
+>
+
+{% if section.settings.banner_image != blank %}
+
+    {% capture contact_alt %}{{ section.settings.banner_image.alt | default: page.title }}{% endcapture %}
+
+		{% if section.settings.banner-image-size == 'original' %}
+
+		  {% render 'responsive-image' with section.settings.banner_image, alt: contact_alt | escape, class: 'contact-page--feature-image' %}
+
+		{% else %}
+
+      <style>
+        {% if section.settings.banner_image != blank %}
+          {% capture selector %}.banner-image .img{% endcapture %}
+          {% render 'responsive-background-image' with section.settings.banner_image, selector: selector %}
+
+          .banner-image .img {
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+          }
+        {% endif %}
+
+        .banner-image .img {
+          height: {{ section.settings.banner-image-size }};
+        }
+
+        @media only screen and (min-width: 768px) {
+          .banner-image .rellax.img {
+            height: {{ section.settings.banner-image-size | remove:'vw' | times:1.5 | append:'vw' }};
+            margin-top: {{ section.settings.banner-image-size | remove:'vw' | times:-0.6 | append:'vw' }};
+          }
+        }
+
+        .parallax.banner-image-parallax {
+          height: {{ section.settings.banner-image-size }};
+        }
+      </style>
+
+      {% capture image_layout %}
+        <div class="banner-image">
+            <div class="contact-page--feature-image {% if section.settings.parallax %} parallax banner-image-parallax{% endif %}">
+              <div id="rellax--banner-image" class="img{% if section.settings.parallax %} rellax{% endif %}" data-rellax-percentage="0.5" data-rellax-speed="-4" role="img" aria-label="{{ contact_alt | escape }}"></div>
+            </div>
+        </div>
+      {% endcapture %}
+
+      {{ image_layout }}
+
+		{% endif %}
+	{% else %}
+		<div class="no-contact-img"></div>
+{% endif %}
+
+<div class="wrapper-padded px-4 py-4">
+	<div class="page-main--wrapper contact-us">
+      <div class="content">
+    	<h1 class="page--title text-brown-zin text-4xl font-normal mb-4">{{ page.title }}</h1>
+    	{% if page.content != blank %}
+      		{% if section.settings.layout == 'right' or section.settings.layout == 'below' %}
+        		{{ contact_info }}
+      		{% endif %}
+    	{% endif %}
+      </div><div class="separator"></div>
+    	<div class="{{ form_width }} contact-form max-w-3xl">
+      		{% comment %}
+        		Contact form starts here
+      		{% endcomment %}
+            <p>Jot us a note and we’ll get back to you as quickly as possible.</p>
+      		<div class="form-vertical grid grid-cols-1 gap-4">
+        		{% form 'contact' %}
+          			{% comment %}
+            			Successful message
+          			{% endcomment %}
+          			{% if form.posted_successfully? %}
+            			<p class="note form-success">
+              				{{ 'contact.form.post_success' | t }}
+            			</p>
+          			{% endif %}
+          			{{ form.errors | default_errors }}
+          			{% if section.blocks.size == 0 %}
+    					<div class="placeholder-noblocks">
+    				  		{{ 'general.onboarding.no_content' | t }}
+    					</div>
+    				{% endif %}
+          			{% for block in section.blocks %}
+            			{% case block.settings.field-type %}
+              				{% when 'text' %}
+                				{% if block.settings.form-field-label != blank %}
+                  					{% assign form-field-label = block.settings.form-field-label %}
+                				{% else %}
+                  					{% assign form-field-label = 'contact.form.name' | t %}
+			  					{% endif %}
+			  					<div class="block mb-4">
+                					<label for="ContactForm{{ form-field-label | replace: " ", "-" | capitalize }}" class="hidden-label">{% if block.settings.form-field-label != blank %}{{ form-field-label }}{% else %}{{ 'contact.form.name' | t }}{% endif %}</label>
+                					<input type="text" id="ContactForm{{ form-field-label | replace: " ", "" | upcase }}" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="contact[{{ form-field-label | replace: " ", "-" | downcase }}]" placeholder="{{ form-field-label }}{% if block.settings.required %}*{% endif %}" autocapitalize="words" value="{{ form[form-field-label] }}"{% if block.settings.required %} required{% endif %}>
+								</div>
+              				{% when 'email' %}
+                				{% if block.settings.form-field-label != blank %}
+                  					{% assign form-field-label = block.settings.form-field-label %}
+                				{% else %}
+                  					{% assign form-field-label = 'contact.form.email' | t %}
+			  					{% endif %}
+			  					<div class="block mb-4">
+                					<label for="ContactForm{{ form-field-label | replace: " ", "-" | capitalize }}" class="hidden-label">{% if block.settings.form-field-label != blank %}{{ form-field-label }}{% else %}{{ 'contact.form.email' | t }}{% endif %}</label>
+									<input type="email" id="ContactForm{{ form-field-label | replace: " ", "" | upcase }}" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="contact[email]" placeholder="{{ form-field-label }}{% if block.settings.required %}*{% endif %}" autocorrect="off" autocapitalize="off" value="{% if customer %}{{ customer.email }}{% else %}{{ form[form-field-label] }}{% endif %}"{% if block.settings.required %} required{% endif %}>
+								</div>
+              				{% when 'phone' %}
+                				{% if block.settings.form-field-label != blank %}
+                  					{% assign form-field-label = block.settings.form-field-label %}
+                				{% else %}
+                  					{% assign form-field-label = 'contact.form.phone' | t %}
+								{% endif %}
+								<div class="block mb-4">
+                					<label for="ContactForm{{ form-field-label | replace: " ", "-" | capitalize }}" class="hidden-label">{% if block.settings.form-field-label != blank %}{{ form-field-label }}{% else %}{{ 'contact.form.phone' | t }}{% endif %}</label>
+                					<input type="tel" id="ContactForm{{ form-field-label | replace: " ", "" | upcase }}" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="contact[{{ form-field-label | replace: " ", "-" | downcase }}]" placeholder="{{ form-field-label }}{% if block.settings.required %}*{% endif %}" pattern="[0-9\-]*" value="{% if customer %}{{ customer.phone }}{% else %}{{ form[form-field-label] }}{% endif %}"{% if block.settings.required %} required{% endif %}>
+								</div>	
+              				{% when 'textbox' %}
+                				{% if block.settings.form-field-label != blank %}
+                  					{% assign form-field-label = block.settings.form-field-label %}
+                				{% else %}
+                  					{% assign form-field-label = 'contact.form.message' | t %}
+								{% endif %}
+								<div class="block mb-4">
+                					<label for="ContactForm{{ form-field-label | replace: " ", "-" | capitalize }}" class="hidden-label">{% if block.settings.form-field-label != blank %}{{ form-field-label }}{% else %}{{ 'contact.form.message' | t }}{% endif %}</label>
+                					<textarea rows="10" id="ContactForm{{ form-field-label | replace: " ", "" | upcase }}" class="input-full block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="contact[{{ form-field-label | replace: " ", "-" | downcase }}]" placeholder="{{ form-field-label }}{% if block.settings.required %}*{% endif %}"{% if block.settings.required %} required{% endif %}>{{ form[form-field-label] }}</textarea>
+								</div>
+            			{% endcase %}
+          			{% endfor %}
+
+          			{% if section.blocks.size > 0 %}
+            			{{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+            			<div class="contact-form--submit-button">
+                 	 		<input type="submit" class="btn cursor-pointer hover:text-green-mist mt-1 py-3 px-4 bg-orange-dark text-sm uppercase text-white" value="{{ 'contact.form.send' | t }}">
+            			</div>
+          			{% endif %}
+        		{% endform %}
+      		</div>
+    	</div>
+    	{% if section.settings.layout == 'left' and page.content != blank %}
+     		{{ contact_info }}
+    	{% endif %}
+  	</div>
+</div>
+</div>
+
+{% schema %}
+{
+    "name": "Contact form",
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Feature image",
+                "de": "Hervorgehobenes Bild",
+                "es": "Destacar imagen",
+                "fr": "Image en vedette",
+                "pt-PT": "Imagem em destaque"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "banner_image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "info": {
+                "en": "Recommended 2000px x 600px",
+                "de": "2000 px x 600 px empfohlen",
+                "es": "Recomendado: 2000px x 600px",
+                "fr": "2000 x 600 px recommandé",
+                "pt-PT": "2000px x 600px (recomendado)"
+            }
+        },
+        {
+            "type": "select",
+            "id": "banner-image-size",
+            "label": {
+                "en": "Image size",
+                "de": "Bildgröße",
+                "es": "Tamaño de la imagen",
+                "fr": "Taille de l'image",
+                "pt-PT": "Tamanho da imagem"
+            },
+            "options": [
+                {
+                    "value": "20vh",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "30vh",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "40vh",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "original",
+                    "label": {
+                        "en": "Original",
+                        "de": "Original",
+                        "es": "Original",
+                        "fr": "D'origine",
+                        "pt-PT": "Original"
+                    }
+                }
+            ],
+            "default": "20vh"
+        },
+        {
+            "type": "checkbox",
+            "id": "parallax",
+            "label": {
+                "en": "Enable parallax effect",
+                "de": "Parallaxeneffekt aktivieren",
+                "es": "Habilitar efecto de paralaje",
+                "fr": "Activer l'effet parallaxe",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": true,
+            "info": {
+                "en": "Parallax won't be visible when the 'Image size' is set to 'Original'",
+                "de": "Parallax wird nicht angezeigt, wenn die 'Bildgröße' auf 'Original' eingestellt ist",
+                "es": "Parallax no estará visible cuando el 'Tamaño de la imagen' esté establecido como 'Original'",
+                "fr": "La parallaxe ne sera pas visible lorsque la 'Taille de l'image' sera réglée sur 'D'origine'.",
+                "pt-PT": "A paralaxe não será visível quando o \"Tamanho da imagem\" estiver definido como \"Original\""
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Layout",
+                "de": "Layout",
+                "es": "Diseño",
+                "fr": "Mise en page",
+                "pt-PT": "Apresentação"
+            }
+        },
+        {
+            "type": "select",
+            "id": "layout",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "below",
+                    "label": {
+                        "en": "Below",
+                        "de": "Unterhalb",
+                        "es": "Abajo",
+                        "fr": "Ci-dessous",
+                        "pt-PT": "Abaixo"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Right",
+                        "de": "Rechts",
+                        "es": "Derecha",
+                        "fr": "Droite",
+                        "pt-PT": "Direita"
+                    }
+                }
+            ],
+            "label": {
+                "en": "Form position",
+                "de": "Formularposition",
+                "es": "Posición del formulario",
+                "fr": "Position du formulaire",
+                "pt-PT": "Posição do formulário"
+            }
+        }
+    ],
+    "blocks": [
+        {
+          "type": "text",
+          "name": {
+              "en": "Form field",
+              "de": "Formularfeld",
+              "es": "Campo del formulario",
+              "fr": "Champ du formulaire",
+              "pt-PT": "Campo do formulário"
+          },
+          "settings": [
+              {
+                  "type": "select",
+                  "id": "field-type",
+                  "options": [
+                      {
+                          "value": "text",
+                          "label": {
+                              "en": "Text",
+                              "de": "Text",
+                              "es": "Texto",
+                              "fr": "Texte",
+                              "pt-PT": "Texto"
+                          }
+                      },
+                      {
+                          "value": "email",
+                          "label": {
+                              "en": "Email",
+                              "de": "E-Mail-Adresse",
+                              "es": "Correo electrónico",
+                              "fr": "Courriel",
+                              "pt-PT": "Email"
+                          }
+                      },
+                      {
+                          "value": "phone",
+                          "label": {
+                              "en": "Phone",
+                              "de": "Telefon",
+                              "es": "Teléfono",
+                              "fr": "Téléphone",
+                              "pt-PT": "Telemóvel"
+                          }
+                      },
+                      {
+                          "value": "textbox",
+                          "label": {
+                              "en": "Textbox",
+                              "de": "Textbox",
+                              "es": "Cuadro de texto",
+                              "fr": "Zone de texte",
+                              "pt-PT": "Caixa de texto"
+                          }
+                      }
+                  ],
+                  "label": {
+                      "en": "Field type",
+                      "de": "Feldtyp",
+                      "es": "Tipo de campo",
+                      "fr": "Type de champ",
+                      "pt-PT": "Tipo de campo"
+                  }
+              },
+              {
+                  "type": "text",
+                  "id": "form-field-label",
+                  "label": {
+                      "en": "Label",
+                      "de": "Beschriftung",
+                      "es": "Etiqueta",
+                      "fr": "Étiquette",
+                      "pt-PT": "Etiqueta"
+                  }
+              },
+              {
+                  "type": "checkbox",
+                  "id": "required",
+                  "label": {
+                      "en": "Required",
+                      "de": "Pflichtfeld",
+                      "es": "Obligatorio",
+                      "fr": "Requis",
+                      "pt-PT": "Obrigatório"
+                  }
+              }
+          ]
+        }
+    ]
+}
+{% endschema %}

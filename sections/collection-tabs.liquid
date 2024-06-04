@@ -1,0 +1,204 @@
+<style>
+  div.grid-view-item {
+    position: relative;
+  }
+  div.grid-view-item div.py-2 {
+      margin-bottom: 40px;
+  }
+  div.grid-view-item div.quick-add-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 80%;
+      transform: translateX(-50%);
+  }
+</style>
+<div class="show-on-scroll">
+	<ul class="nav nav-tabs collection-tabs grid grid-cols-2 md:grid-cols-4 list-none border-b border-b-blue-light pl-0 mb-4" id="collection-tabs-{{ section.id }}" role="tablist">
+		{% for i in (1..4) %}
+			{% liquid
+			case i
+			when 1
+				assign key = section.settings.collection-1
+			when 2
+				assign key = section.settings.collection-2
+			when 3
+				assign key = section.settings.collection-3
+			when 4
+				assign key = section.settings.collection-4
+			endcase %}
+			{%- assign collection = collections[key] -%}
+			<li class="nav-item flex-auto text-center m-1 md:m-2" role="presentation">
+				<a href="#collection-tabs-{{i}}-{{ section.id }}" class="block font-bold text-base md:text-lg leading-tight rounded border {% if i == 1 %}border-green-mist text-green-mist{%else%}border-orange-dark text-orange-dark{% endif %} hover:border-green-mist hover:text-green-mist px-6 py-4" id="collection-tabs-{{i}}-{{ section.id }}-tab" data-bs-toggle="pill" data-bs-target="#collection-tabs-{{i}}-{{ section.id }}" role="tab" aria-controls="collection-tabs-{{i}}-{{ section.id }}" aria-selected="true">
+					{{collection.title}}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+	<div class="tab-content grid-uniform" id="collection-tabs-{{ section.id }}-tab-content">
+		{% for i in (1..4) %}
+			{% liquid
+			case i
+			when 1
+				assign key = section.settings.collection-1
+			when 2
+				assign key = section.settings.collection-2
+			when 3
+				assign key = section.settings.collection-3
+			when 4
+				assign key = section.settings.collection-4
+			endcase %}
+			{%- assign collection = collections[key] -%}
+			<div data-wetheme-section-type="collection--featured-collection"
+			 class="tab-pane relative {% if i > 1 %}hidden{% endif %}" 
+			 id="collection-tabs-{{i}}-{{section.id}}" role="tabpanel" aria-labelledby="collection-tabs-{{i}}-{{section.id}}-tab">
+				<div class="collection-carousel flex flex-nowrap overflow-hidden" id="collection-carousel-{{i}}-{{ section.id }}">
+					{% for product in collection.products limit: 12 %}
+						{%- assign grid_image_width = '236x240' -%}
+						{% comment %}
+							Set the default grid_item_width if no variable is set
+						{% endcomment %}
+						{% comment %}
+							Check if the product is on sale and set a variable to be used below.
+						{% endcomment %}
+						{% assign on_sale = false %}
+						{% if product.compare_at_price > product.price %}
+							{% assign on_sale = true %}
+						{% endif %}
+
+						{% comment %}
+							Check if the product is sold out and set a variable to be used below.
+						{% endcomment %}
+						{% assign sold_out = true %}
+						{% if product.available %}
+							{% assign sold_out = false %}
+						{% endif %}
+						<div class="grid-view-item text-center flex-none w-1/5">
+							<div class="h-[240px]">
+								<a href="{{ product.url | within: collection }}" title="{{product.title}}" class="grid__image grid__image__match" tabindex="-1">
+								  {% assign image = product.media[0].preview_image %}
+								  {% capture classs %}object-contain h-[240px]{% endcapture %}
+								  {% render 'responsive-image' with image, alt: image.alt, allow_stretch: true, class: classs %}
+								</a>
+							</div>
+							<div class="py-2">
+								<div class="font-bold text-blue-dark">{{ product.vendor }}</div>
+								<h3 class="py-2">
+									<a href="{{ product.url | within: collection }}" class="text-blue-dark">{{ product.title }}</a>
+								</h3>
+								<div class="pb-2">
+									{% render 'product-grid-item-price', product: product, collection: collection %}
+								</div>
+							</div>
+							<div class="quick-add-wrapper{% if product.variants.size == 1 %} is-singular{% endif %}">
+							{% if product.variants.size > 1 and product.available %}
+								<a class="quick-add-button-variants" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.view_options' | t }}</a>
+							{% elsif product.available %}
+							  {% form 'product', product, id: "CollectionAddToCartForm" %}
+								<input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+								<button class="quick-add-button bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3" type="submit">{{ 'products.product.add_to_cart' | t }}</button>
+							  {% endform %}
+							{% endif %}
+							</div>
+							{% if product.compare_at_price_max > product.price and product.available %}
+								<div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+							{% endif %}
+							  {% unless product.available %}
+								<div class="text-center font-bold text-red-strong">{{ 'products.product.sold_out' | t }}</div>
+							  {% endunless %}
+						</div>
+					{% endfor %}
+				</div>
+				<div class="">
+					<a href="javascript:void(0);" class="nav-prev absolute rotate-180 top-1/2 text-gray-dark z-10 left-0">
+						<svg xmlns="http://www.w3.org/2000/svg" width="33" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+							<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  		</svg>
+					</a>
+					<a href="javascript:void(0);" class="nav-next absolute top-1/2 text-gray-dark z-10 right-0">
+						<svg xmlns="http://www.w3.org/2000/svg" width="33" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+							<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  		</svg>
+					</a>
+				</div>
+			</div>
+		{% endfor %}		
+	</div>
+</div>
+{% schema %}
+{
+    "name": {
+        "en": "Collection Tabs",
+        "de": "Collection Tabs",
+        "es": "Collection Tabs",
+        "fr": "Collection Tabs",
+        "pt-PT": "Collection Tabs"
+	},
+	"class":"container",
+	"settings": [
+	  	{
+			"id": "collection-1",
+			"type": "collection",
+			"label": {
+				"en": "Collection 1",
+				"de": "Kollektion 1",
+				"es": "Colecci√≥n 1",
+				"fr": "Collection 1",
+				"pt-PT": "Cole√ß√£o 1"
+			}
+    	},
+	  	{
+			"id": "collection-2",
+			"type": "collection",
+			"label": {
+				"en": "Collection 2",
+				"de": "Kollektion 2",
+				"es": "Colecci√≥n 2",
+				"fr": "Collection 2",
+				"pt-PT": "Cole√ß√£o 2"
+			}
+    	},
+	  	{
+			"id": "collection-3",
+			"type": "collection",
+			"label": {
+				"en": "Collection 3",
+				"de": "Kollektion 3",
+				"es": "Colecci√≥n 3",
+				"fr": "Collection 3",
+				"pt-PT": "Cole√ß√£o 3"
+			}
+    	},
+	  	{
+			"id": "collection-4",
+			"type": "collection",
+			"label": {
+				"en": "Collection 4",
+				"de": "Kollektion 4",
+				"es": "Colecci√≥n 4",
+				"fr": "Collection 4",
+				"pt-PT": "Cole√ß√£o 4"
+			}
+    	}
+	],
+	"presets": [
+        {
+            "name": {
+                "en": "Collection tabs",
+                "de": "Collection tabs",
+                "es": "Collection tab",
+                "fr": "Collection tabs",
+                "pt-PT": "Collection tabs"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colecci√≥n",
+                "fr": "Collection",
+                "pt-PT": "Cole√ß√£o"
+            }
+        }
+    ]
+
+}
+{% endschema %}

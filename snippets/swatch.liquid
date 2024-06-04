@@ -1,0 +1,131 @@
+{% comment %}
+  Set the extension of your color files below. Use 'png', 'jpeg', 'jpg' or 'gif'.
+{% endcomment %}
+
+{% assign file_extension = 'png' %}
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+{% if swatch == blank %}
+<div class="swatch error">
+  <p>You must include the snippet swatch.liquid with the name of a product option.</p>
+  <p>Use: <code>{% raw %}{% render 'swatch' with 'name of your product option here' %}{% endraw %}</code></p>
+  <p>Example: <code>{% raw %}{% render 'swatch' with 'Color' %}{% endraw %}</code></p>
+</div>
+{% else %}
+
+{% assign found_option = false %}
+{% assign is_color = false %}
+{% assign option_index = 0 %}
+{% assign color_langs = 'color,colour,couleur,colore,farbe,색,色,färg,farve' | split: ',' %}
+
+{% for option in product.options %}
+  {% if option == swatch %}
+    {% assign found_option = true %}
+    {% assign option_index = forloop.index0 %}
+    {% assign downcased_option = swatch | downcase %}
+    {% if color_langs contains downcased_option %}
+      {% assign is_color = true %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% unless found_option %}
+  <div class="swatch error">
+    <p>You included the snippet swatch.liquid with the name of a product option — <code>'{{ swatch }}'</code> — that does not belong to your product.</p>
+    <p>Use <code>{% raw %}{% render 'swatch' with 'name of your product option here' %}{% endraw %}</code></p>
+    <p>Example: <code>{% raw %}{% render 'swatch' with 'Color' %}{% endraw %}</code></p>
+    <p><strong>This is case-sensitive!</strong> Do not put in <code>'color'</code> if your product option name is <code>'Color'</code>.</p>
+  </div>
+{% else %}
+
+  {% assign hasAnyAvailableVariant = true %}
+
+  {% if hide_soldout_variants %}
+    {% comment %} Does this option set have ANY available variants? {% endcomment %}
+    {% assign hasAnyAvailableVariant = false %}
+
+    {% for variant in product.variants %}
+      {% assign value = variant.options[option_index] %}
+      {% assign available = variant.available %}
+
+      {% for v in product.variants %}
+        {% if v.id != variant.id and v.options[option_index] == value and v.available %}
+          {% assign hasAnyAvailableVariant = true %}
+        {% elsif variant.options.size > 0 and v.options[option_index] == value and v.available %}
+          {% assign hasAnyAvailableVariant = true %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+
+  {% if hasAnyAvailableVariant %}
+    <div class="swatch clear-both mt-4" data-option-index="{{ option_index }}">
+      {% if product.options_with_values.size > 0 or is_color == true %}
+        <div class="header text-brown-zin uppercase text-sm mb-2">{{ swatch }}</div>
+      {% endif %}
+      <div class="swatch-items-wrapper pb-4 clear-both">
+        {% assign values = '' %}
+        {% for variant in product.variants %}
+          {% assign value = variant.options[option_index] %}
+
+          {% comment %}Check if another variant with same value for given option is available{% endcomment %}
+          {% assign available = variant.available %}
+          {% for v in product.variants %}
+            {% if v.id != variant.id and v.options[option_index] == value and v.available %}
+              {% assign available = true %}
+            {% endif %}
+          {% endfor %}
+
+          {% assign hide = false %}
+          {% if hide_soldout_variants %}
+            {% if available == false %}
+              {% assign hide = true %}
+            {% endif %}
+            {% if product.options_with_values.size == 1 and available == false %}
+              {% assign hide = true %}
+            {% endif %}
+          {% endif %}
+
+          {% unless values contains value or hide %}
+
+            {% if values.size > 0 %}
+              {% assign values = values | join: '|' %}
+            {% endif %}
+            {% assign values = values | append: '|' | append: value %}
+            {% assign values = values | split: '|' %}
+
+            <div data-value="{{ value | escape }}" class="swatch-element {% if is_color %}color {% endif %}{{ value | handle }} {% if available %}available{% else %}soldout{% endif %}">
+              {% if is_color %}
+                <div class="tooltip">{{ value }}</div>
+              {% endif %}
+              <input
+                id="{{ section.id }}-swatch-{{ option_index }}-{{ value | escape }}"
+                class="visually-hidden"
+                type="radio"
+                name="option-{{ option_index | plus: 1 }}"
+                value="{{ value | escape }}"
+                {% if current_variant.options[option_index] == value %} checked{% endif %}
+                v-model="option{{ option_index | plus: 1 }}"
+              />
+              {% if is_color %}
+                <label
+                  for="{{ section.id }}-swatch-{{ option_index }}-{{ value | escape }}" style="background-color: {{ value | split: ' ' | last | handle }}; background-image: url({{ value | handle | append: '.' | append: file_extension | asset_url }})"
+                >
+                </label>
+              {% else %}
+                <label
+                  for="{{ section.id }}-swatch-{{ option_index }}-{{ value | escape }}"
+                >
+                  {{ value }}
+                </label>
+              {% endif %}
+            </div>
+          {% endunless %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+{% endunless %}
+
+{% endif %}

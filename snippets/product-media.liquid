@@ -1,0 +1,174 @@
+
+{% comment %}
+Media for product page and featured product sections
+Parameters:
+* style: 'full_width' | 'left' | 'right' | 'bottom'
+* enable_image_zoom: boolean
+{% endcomment %}
+
+<div class="product-images-container">
+  <div class="product-medias{% if style != 'full_width' %} product-medias__with-thumbnails product-medias__with-thumbnails--{{ style }}{% else %} product-medias__fullsize{% endif %}">
+    <div class="product-medias__main">
+      {% comment %}Full size medias will go here{% endcomment %}
+      <div class="swiper-container">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide" v-for="media in product.media" ref="mediaTargets" {% if style != 'full_width' %}v-bind:class="{ 'product-medias__primary': media === activeMedia }"{% endif %}>
+            <div v-if="media.media_type !== 'image'" style="position: relative">
+              <img
+                src="#"
+                v-responsive="media.preview_image.src"
+                v-bind:alt="media.alt"
+              />
+              <button
+                type="button"
+                class="product-medias__icon"
+                tabindex="0"
+                v-if="media.media_type !== 'image'"
+                v-on:click="onMediaActivate"
+                v-bind:data-media-id="media.id"
+                aria-label="product-media-button"
+              >
+                <svg viewBox="0 0 61 61" v-if="media.media_type === 'video' || media.media_type === 'external_video'">
+                  <rect x="0.5" y="0.5" width="60" height="60" fill="none" stroke="currentColor" stroke-opacity="0.05" stroke-miterlimit="10"></rect>
+                  <path d="M25,21.39a1,1,0,0,0-1.51.86V38.64a1,1,0,0,0,1.55.83l13.11-8.67a1,1,0,0,0,0-1.7Z" fill="currentColor"></path>
+                </svg>
+                <svg viewBox="0 0 61 61" v-if="media.media_type === 'model'">
+                  <rect x="0.5" y="0.5" width="60" height="60" fill="none" stroke="currentColor" stroke-opacity="0.05" stroke-miterlimit="10"></rect>
+                  <path d="M40.9,23.07l-8.8-5.14a3.19,3.19,0,0,0-3.21,0l-8.8,5.14a3.24,3.24,0,0,0-1.59,2.79V36.14a3.23,3.23,0,0,0,1.6,2.79l8.8,5.14a3.2,3.2,0,0,0,3.21,0l8.8-5.14a3.23,3.23,0,0,0,1.59-2.79V25.86A3.24,3.24,0,0,0,40.9,23.07ZM21.1,37.2a1.23,1.23,0,0,1-.6-1.06V25.86a1.23,1.23,0,0,1,.6-1.06l8.8-5.14a1.19,1.19,0,0,1,1.19,0l8.8,5.14a1.2,1.2,0,0,1,.36.34L30.74,30a2.23,2.23,0,0,0-1.25,2V42.1Z" fill="currentColor"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="media.media_type === 'image'">
+              <div
+                class="product-medias__media"
+                data-media-type="image"
+                v-bind:data-media-id="media.id"
+              >
+                <img
+                  src="#"
+                  v-responsive="media.src"
+				  v-bind:alt="media.alt ? media.alt : product.title"
+				  class="object-contain max-h-[400px]"
+                  {%- if enable_image_zoom %}v-bind:data-image-zoom="media.src"{% endif -%}
+                  v-bind:width="media.width"
+                  v-bind:height="media.height"
+                  sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+                />
+                {% if enable_image_zoom %}
+                  <div class="hidden featured-image-loader">
+                    <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">{{ 'collections.paginate.load_more' | t }}</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="button-wrap" v-if="firstOrActiveModel">
+              <button
+                  type="button"
+                  aria-label="{{ 'products.product.view_in_space_label' | t }}"
+                  class="btn product-medias__view-in-space"
+                  data-shopify-xr
+                  v-bind:data-shopify-model3d-id="firstOrActiveModel ? firstOrActiveModel.id : ''"
+                  data-shopify-title="{{ product.title | escape }}"
+                  data-shopify-xr-hidden
+              >
+                  <i class="fa fa-cube" aria-hidden="true"></i>
+                  {{ 'products.product.view_in_space' | t }}
+              </button>
+          </div>
+          </div>
+        </div>
+		{% if product.media.size > 1 %}
+	          <div class="swiper-pagination"></div>
+        {% endif %}
+      </div>
+      <noscript>
+        {% comment %}Big image when JS is not there to show media{% endcomment %}
+        {% if product.media.size > 0 %}
+          <img src="{{ product.media[0].preview_image | img_url: '1000x' }}" alt="{{ product.media[0].alt }}" loading="lazy" />
+        {% else %}
+          {{ 'product-1' | append: current | placeholder_svg_tag: 'icon icon--placeholder' }}
+        {% endif %}
+      </noscript>
+    </div>
+    {% if product.media.size > 1 %}
+      <div
+        v-show="!isMobile"
+        class="product-medias__thumbnails"
+      >
+        {% for media in product.media %}
+            {% comment %}
+            If this media is assigned to any variant that is available, keep showing the thumbnail.
+            EVERY variant with this media needs to be unavailable for it to be hidden.
+            {% endcomment %}
+            {% assign hideThumb = false %}
+            {% assign mediaHasVariant = false %}
+
+            {% if hide_soldout_variants %}
+              {% assign hideThumb = true %}
+              {% for variant in product.variants %}
+                {% if variant.featured_media.id == media.id %}
+                  {% assign mediaHasVariant = true %}
+                  {% if variant.available %}
+                    {% assign hideThumb = false %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+
+            {% unless hideThumb and mediaHasVariant %}
+              <a
+                href="#"
+                v-on:click="onMediaActivate"
+                v-on:keydown="onMediaActivate"
+                class="product-medias__thumbnail"
+                data-media-id="{{ media.id }}"
+                {%- assign found = false -%}
+                {%- for variant in product.variants -%}
+                  {%- if found == false and variant.featured_media.id == media.id -%}
+                    data-variant-id="{{ variant.id }}"
+                    {%- assign found = true -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              >
+                {% if media.media_type == 'model' %}
+                  <div class="product-medias__emblem">
+                    <svg viewBox="0 0 26 26">
+                      <path d="M.5,25v.5h25V.5H.5Z" fill="none" stroke="currentColor" stroke-opacity="0.05"/>
+                      <path d="M19.13,8.28,14,5.32a2,2,0,0,0-2,0l-5.12,3a2,2,0,0,0-1,1.76V16a2,2,0,0,0,1,1.76l5.12,3a2,2,0,0,0,2,0l5.12-3a2,2,0,0,0,1-1.76V10A2,2,0,0,0,19.13,8.28Zm-6.4,11.1-5.12-3A.53.53,0,0,1,7.35,16V10a.53.53,0,0,1,.27-.46l5.12-3a.53.53,0,0,1,.53,0l5.12,3-4.72,2.68a1.33,1.33,0,0,0-.67,1.2v6a.53.53,0,0,1-.26,0Z" fill="currentColor" opacity="0.6" style="isolation:isolate"/>
+                    </svg>
+                  </div>
+                {% elsif media.media_type == 'video' or media.media_type == 'external_video' %}
+                  <div class="product-medias__emblem">
+                    <svg viewBox="0 0 26 26" fill="none">
+                      <path d="M0.5 25V25.5H1H25H25.5V25V1V0.5H25H1H0.5V1V25Z" stroke="currentColor" stroke-opacity="0.05"/>
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M9.71814 6.71984C9.0517 6.31605 8.19995 6.79588 8.19995 7.5751V18.311C8.19995 19.1138 9.09826 19.5893 9.76217 19.1379L18.1123 13.4612C18.7146 13.0518 18.6912 12.1564 18.0682 11.779L9.71814 6.71984Z" fill="currentColor" fill-opacity="0.6"/>
+                    </svg>
+                  </div>
+                {% endif %}
+
+                {% capture props %}
+                  data-image-id="{{ media.id }}"
+                  data-max-width="{{ media.preview_image.width }}"
+                {% endcapture %}
+                {% capture styles %}max-width: {{ media.preview_image.width }}px{% endcapture %}
+                {% capture class %}
+                  product-medias__thumbnail__image product-medias__thumbnail--{{ media.media_type }} fadeIn wow w-full max-h-[200px] object-contain
+                {% endcapture %}
+                {% capture thumbalt %}
+                  {% if media.media_type == 'video' or media.media_type == 'external_video' %}
+                    {{ 'products.product.video_thumbnail_alt' | t: imageAlt: media.alt | escape }}
+                  {% elsif media.media_type == 'model' %}
+                    {{ 'products.product.model_thumbnail_alt' | t: imageAlt: media.alt | escape }}
+                  {% else %}
+                    {{ media.alt }}
+                  {% endif %}
+                {% endcapture %}
+                {% render 'responsive-image' with media.preview_image, class: class, alt: thumbalt | escape, default_size: '300x', props: props, blur: false, styles: styles %}
+              </a>
+            {% endunless %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>

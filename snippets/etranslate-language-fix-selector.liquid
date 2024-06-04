@@ -1,0 +1,71 @@
+<style>.embed-etranslate-LanguageList{display:inline-block;cursor:pointer;font-size:14px;direction:ltr;position:relative;}.etranslate-language-float-link{border:1px solid rgb(224,226,228);background-color:white;}.rectangle_flag:before{content:"\00a0";}.select-dropdown-flag-icon-link{font-size:20px;box-sizing:content-box;background-size:contain;background-position:50%;background-repeat:no-repeat;background-size:contain;background-position:50%;background-repeat:no-repeat;position:relative;display:inline-block;width:1.33333333em;line-height:1em;}.select-dropdown-flag-icon-link:before{content:"\00a0";}#etranslate-language-embedded-selector ul{margin:0px;-webkit-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-moz-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-ms-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-o-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;transition:all 0.2s;scrollbar-width:thin;}.embed-etranslate-flag-wrapper{display:flex;align-items:center;width:28px;height:28px;font-size:20px;margin-right:3px;}.embed-etranslate-language-list-button{padding:8px 10px 8px 10px;display:flex;align-items:center;justify-content:space-between;-webkit-transition:max-height 0.2s,visibility 0.2s,opacity 0.2s;-moz-transition:max-height 0.2s,visibility 0.2s,opacity 0.2s;-ms-transition:max-height 0.2s,visibility 0.2s,opacity 0.2s;-o-transition:max-height 0.2s,visibility 0.2s,opacity 0.2s;transition:all 0.2s;}.embed-etranslate-language-list-button-centent{display:flex;align-items:center;}.embed-etranslate-language-arrow{display:block !important;width:12px;height:8px;transition:all 0.2s;position:relative;user-select:none;margin-left:5px;}#embed-etranslate-language-arrow-new-img{width:100%;height:100%;position:absolute;}.etranslate-language-arrow-up{transform:rotate(-45deg) !important;}.etranslate-language-arrow-down{transform:rotate(135deg) !important;}.embed-etranslate-language-list-button:hover{opacity:0.8}.embed-etranslate-language-list-dropdown{overflow:auto;width:auto;background:white;user-select:none;z-index:500;flex-direction:row;justify-content:flex-start;align-items:center;margin:0px;transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-webkit-overflow-scrolling:touch;overflow:-moz-scrollbars-none;display:block;padding-left:0;}.embed-etranslate-language-list-dropdown::-webkit-scrollbar{width:4px;}.embed-etranslate-language-list-dropdown::-webkit-scrollbar-thumb{background:rgba(18,17,39,0.1);border-radius:15px;}.embed-etranslate-language-list-dropdown::-webkit-scrollbar-track{box-shadow:inset 0 0 5px transparent;border-radius:15px;}.embed-etranslate-language-list-dropdown > li{margin:0px !important;padding:8px 10px 8px 10px;cursor:pointer;color:inherit !important;line-height:inherit !important;}.embed-etranslate-language-list-dropdown > li:before{margin:0px !important;background-color:inherit !important;}.embed-etranslate-lo-select-dropdown-item{display:flex !important;align-items:center;-webkit-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-moz-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-ms-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;-o-transition:max-height 0.3s,visibility 0.2s,opacity 0.2s;transition:all 0.2s;}.embed-etranslate-language-name{padding-top:1px;margin-right:5px;}.embed-etranslate-lo-select-dropdown-item:hover{opacity:0.8}.lo-select-up{position:absolute;bottom:100%;}.lo-select-selection-item-top{border-bottom:0px;}.lo-select-selection-item-bottom{border-top:0px;}.rectangle_flag:before{content:"\00a0";}.flag-icon{background-size:contain;background-position:50%;background-repeat:no-repeat;position:relative;display:inline-block;width:1.33333333em;line-height:1em;border-radius:4px;}.circle_flag{border-radius:50%;box-sizing:content-box !important;width:1em;}.embed-etranslate-language-list-dropdown-box{position:absolute;border-radius:12px;overflow:hidden;top:calc(100% + 5px);-webkit-mask-image:-webkit-radial-gradient(white,black);}.embed-etranslate-language-list-dropdown-logo{height:44px;padding-right:18px;padding-left:14px;}.embed-etranslate-language-list-dropdown-logo-content{width:100%;height:100%;border-top:1px solid rgba(18,17,39,0.1);display:flex;align-items:center;justify-content:center;user-select:none;text-decoration:none;}.embed-etranslate-language-list-dropdown-logo-img{width:16px;height:16px;}.embed-etranslate-language-list-dropdown-logo-img img{width:100%;height:100%;transform:translateY(-3px);}.embed-etranslate-language-list-dropdown-logo-title{font-family:'SeoulHangang';font-style:normal;font-weight:400;font-size:12px;color:#D1D1DB;margin-left:6px;}</style>
+<div id='etranslate-language-embedded-selector' class='embed-etranslate-LanguageList' style='display:none'>
+  {% form 'localization' %}
+    <span class='language-button'>
+    <div class='embed-etranslate-language-list-button' id='etranslate-language-button'>
+      <div class='embed-etranslate-language-list-button-centent'>
+        <div class='embed-etranslate-flag-wrapper'>
+          <span class="rectangle_flag select-dropdown-flag-icon flag-icon"/>
+        </div>
+
+        <div class="embed-etranslate-language-name"
+             data-name="{{ request.locale.endonym_name | split: '-' | first | strip }}">
+          {{ request.locale.name | split: '-' | first | strip }}
+        </div>
+
+      </div>
+      <div class='embed-etranslate-language-arrow'>
+           <img src="" id="etranslate-language-arrow-new-img" style="display: none">
+      </div>
+    </div>
+  </span>
+    <div id='embed-etranslate-language-list-dropdown-box'
+         class='embed-etranslate-language-list-dropdown-box'
+         style="opacity: 0">
+      <ul id='embed-etranslate-language-list-dropdown' class='embed-etranslate-language-list-dropdown'
+          style='max-height:0px;opacity:0;'>
+        {%- for locale in shop.published_locales -%}
+          <li class='embed-etranslate-lo-select-dropdown-item' data-code="{{ locale.iso_code }}"
+              data-name="{{ locale.endonym_name }}">
+            <div class="embed-etranslate-flag-wrapper">
+              <span class="rectangle_flag select-dropdown-flag-icon flag-icon"/>
+            </div>
+
+            <div class="embed-etranslate-language-name">
+              {{ locale.name }}
+            </div>
+          </li>
+        {%- endfor %}
+      </ul>
+      <div id='embed-etranslate-language-list-dropdown-logo'
+           class='embed-etranslate-language-list-dropdown-logo'
+           style="display: none;max-height:0px;opacity:0;"
+      >
+        <a id='embed-etranslate-language-list-dropdown-logo-content'
+           class='embed-etranslate-language-list-dropdown-logo-content'
+           href='https://www.etranslate.io/?from=switcher'
+           target='_blank'
+        >
+          <div class='embed-etranslate-language-list-dropdown-logo-img'>
+            <img src='https://res.etranslate.io/etweb/assets/logoY.png'/>
+          </div>
+          <div class='embed-etranslate-language-list-dropdown-logo-title'>
+            ETranslate
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+    <input type="hidden" name="language_code" value="{{ localization.language.iso_code }}">
+  {% endform %}
+</div>
+<script>
+function setLanguageEmbeddedSelectorWidth(f,b,e){var a;var d;if(e){a=b.mobile_flags_type;d=b.mobile_labels_type}else{a=b.flags_type;d=b.labels_type}var c=f&&f[0]?f.length:0;var g=flag_min_width[a]+language_min_width[d]+arrow_padding_width+"px";return g};
+function setLanguageEmbeddedSelectorStyle(a,c){var d;if(c){d=a.mobile_font_color}else{d=a.font_color}var b;if((a.background_color==undefined&&a.background_opacity==undefined)||(a.mobile_background_color==undefined&&a.mobile_background_opacity==undefined)){b="rgba(255,255,255,1)"}else{if(c){b=transformationRgb(a.mobile_background_color,a.mobile_background_opacity)}else{b=transformationRgb(a.background_color,a.background_opacity)}}var e="background-color:"+b+";color:"+d+";";return e};
+function createLanguageFixSelector(u,D,L,K,z){document.addEventListener("click",function(i){if(!i.target.closest(".embed-etranslate-language-list-button")&&!i.target.closest(".embed-etranslate-language-list-dropdown-logo")){s();changeArrow(x,d)}});var q;var y;var h;var e;var f;var r;var k;var x;var j;var a;if(z){q=K.mobile_flags_type;y=K.mobile_labels_type;k=transformationRgb(K.mobile_background_color,K.mobile_background_opacity);x=K.mobile_arrow;switch(K.mobile_border[0]){case"SQUARE":a=0;break;case"ROUNDED":a="12px";break;case"CUSTOM":a=(K.mobile_border[1]||0)+"px";break;default:break}}else{q=K.flags_type;y=K.labels_type;k=transformationRgb(K.background_color,K.background_opacity);x=K.arrow;switch(K.border[0]){case"SQUARE":a=0;break;case"ROUNDED":a="12px";break;case"CUSTOM":a=(K.border[1]||0)+"px";break;default:break}}h=q!=="rectangle_flag"?"1x1":"4x3";var w="https://my.parcelpanel.com/assets/other/flags/"+h;e=q==="no_flag"||q==="without_flag"?true:false;f=y==="no_labels"?true:false;r=y==="language_name"?true:false;j=K.rm_logo;var A=L.getElementsByClassName("embed-etranslate-language-list-button")[0];var n=L.getElementsByClassName("embed-etranslate-language-list-dropdown")[0];var G=L.getElementsByClassName("embed-etranslate-language-list-dropdown-box")[0];var B=L.getElementsByClassName("embed-etranslate-language-list-dropdown-logo")[0];var v=setLanguageEmbeddedSelectorStyle(K,z);var p=K.language_flags;var J=findLanguageFlags(p,D);L.setAttribute("style",v);var o=A.getElementsByClassName("select-dropdown-flag-icon")[0];o.style.backgroundImage="url("+w+"/"+J.toLowerCase()+".svg)";q==="circle_flag"?o.classList.add("circle_flag"):"";n.setAttribute("style","background-color:"+k+";max-height:0px;opacity:0;");B.style.backgroundColor=k;var M=setLanguageEmbeddedSelectorWidth(u,K,z);if(j==="0"){B.style.display="block"}else{B.remove()}L.style.borderRadius=a;G.style.borderRadius=a;G.style.border="1px solid rgba(224,224,224,1)";A.style.width="auto";A.style.whiteSpace="nowrap";n.style.width="auto";n.style.whiteSpace="nowrap";changeArrow(x,d);var b=j==="0"?120:0;G.style.minWidth=Math.max(A.getBoundingClientRect().width,b)+"px";var l=n.children;for(var F=0;F<l.length;F++){var c=l[F];var H=c.getElementsByClassName("select-dropdown-flag-icon")[0];var m=c.dataset.code;var C=l[F].dataset.name;var J=findLanguageFlags(p,m);H.style.backgroundImage="url("+w+"/"+J.toLowerCase()+".svg)";q==="circle_flag"?H.classList.add("circle_flag"):"";c.onclick=t(u.find(function(i){return i.iso_code.toLowerCase()===m.toLowerCase()}));var I=c.getElementsByClassName("embed-etranslate-language-name")[0];if(y==="language_name"){I.innerHTML=langCodeToLangArray[m]?langCodeToLangArray[m]:I.textContent}else{if(y==="native_language_name"){C=C=="français"?"Français":C;I.innerHTML=C?C:langCodeToLangArray[m]}else{I.innerHTML=m?m.toLocaleUpperCase():m}}}if(e){var g=L.getElementsByClassName("embed-etranslate-flag-wrapper");for(var F=0;F<g.length;F++){g[F].style.display="none"}}if(f){var g=L.getElementsByClassName("embed-etranslate-language-name");for(var F=0;F<g.length;F++){g[F].style.display="none"}}else{var E=A.getElementsByClassName("embed-etranslate-language-name")[0];if(y==="language_name"){E.innerHTML=langCodeToLangArray[D]?langCodeToLangArray[D]:E.textContent}else{if(y==="native_language_name"){var C=E.dataset.name;C=C=="français"?"Français":C;E.innerHTML=C?C:E.textContent}else{E.innerHTML=D?D.toLocaleUpperCase():D}}}if(q==="rectangle_flag"){var g=L.getElementsByClassName("embed-etranslate-flag-wrapper");for(var F=0;F<g.length;F++){g[F].style.marginRight="8px"}}var d=false;A.addEventListener("click",function(i){G.style.minWidth=Math.max(A.getBoundingClientRect().width,b)+"px";d=!d;if(d){N()}else{s()}changeArrow(x,d)});function N(){n.style.maxHeight=5*46+"px";n.style.opacity="1";if(j==="0"){B.style.maxHeight=44+"px";B.style.opacity="1"}G.style.opacity="1";d=true}function s(){n.style.maxHeight="0px";n.style.opacity="0";if(j==="0"){B.style.maxHeight="0px";B.style.opacity="0"}G.style.opacity="0";d=false}function t(i){return function(){localStorage.setItem("lan_code",i.iso_code.toLowerCase());const P=L.querySelector("form");const O=L.querySelector('input[name="language_code"]');if(window.location.search.indexOf("?preview_key")!=-1){const Q=L.querySelector('input[name="return_to"]');Q.value=window.location.pathname+window.location.search}O.value=i.iso_code;P.submit()}}return L};
+function setLanguageEmbeddedSelector(){var e=getLanguageList();var d="{{ localization.language.iso_code }}";var a={{ shop.metafields.etranslate.selector_config | json}};var c=document.getElementById("etranslate-language-embedded-selector");var b=etrIsMobile();if(Number(a.status)===1&&a.selector_type==="language"){if(b){if(a.mobile_choose_language_selector==="embedded_selector"){applyPriviewCssCode(a.mobile_css_code);createLanguageFixSelector(e,d,c,a,b);Etranslate.setEmbeddedSelectorPosition(c,b)}else{c.remove()}}else{if(a.choose_language_selector==="embedded_selector"){applyPriviewCssCode(a.css_code);createLanguageFixSelector(e,d,c,a,b);Etranslate.setEmbeddedSelectorPosition(c,b)}else{c.remove()}}}else{c.remove()}};
+documentReady(setLanguageEmbeddedSelector);
+document.write('<script type="text/javascript" src="https://res.etranslate.io/etweb/etanslate.min.js?v='+ Date.parse(new Date()) +'"><\/script>');
+function documentReady(fu){if(document.readyState==="complete"||document.readyState==="interactive"){setTimeout(documentReady(setLanguageEmbeddedSelector),1)}else{document.addEventListener("DOMContentLoaded",fu)}};
+</script>

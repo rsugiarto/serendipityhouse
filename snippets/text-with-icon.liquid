@@ -1,0 +1,16 @@
+<div class="text-with-icon {% if link %}is-link-wrapper{% endif %}">
+    <div {% if link %}class="is-link"{% endif %}>
+
+    {% if link %}
+        <a href={{ link }} class="link">
+    {% endif %}
+
+    {% assign iconSize = settings.typography-body-font-size | remove: "px" | plus: 2 %}
+    {% render 'icons', icon: icon, iconSize: iconSize %} {{ text }}
+
+    {% if link %}
+        </a>
+    {% endif %}
+
+    </div>
+</div>

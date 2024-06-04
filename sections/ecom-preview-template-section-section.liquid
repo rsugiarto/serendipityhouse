@@ -1,0 +1,98 @@
+{% comment %}
+ EComposer (https://ecomposer.io)
+ You SHOULD NOT modify source code in this page because
+ It is automatically generated from EComposer
+ {% endcomment %} 
+ 
+            {% assign ecom_root_url = routes.root_url %}
+            {% if ecom_root_url != '/'%}
+                {% assign ecom_root_url = routes.root_url | append: '/' %}
+            {% endif %}
+        <link rel="stylesheet" media="all" id="ecom-vendors-css_ecomposer_base" href="https://cdn.ecomposer.app/vendors/css/ecom-base.css?v=1.2" /><noscript><link rel="stylesheet" media="all" id="ecom-vendors-css_ecomposer_base" href="https://cdn.ecomposer.app/vendors/css/ecom-base.css?v=1.2" /></noscript>
+{%- assign headless = true -%}{%- render "ecom_theme_helper" -%}{%capture section_id %}ecom-preview-template-section-section{% endcapture%}{% if section and section_id == section.id and headless == true %}
+{{ content_for_header }}
+{% render 'ecom_header', ECOM_THEME: true %}{% endif %}<link href="https://fonts.googleapis.com/css?family=Inter:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Cairo:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet"/>
+{{'ecom-preview-template-section.css'  | asset_url | stylesheet_tag }}
+<script src="{{'ecom-preview-template-section.js'  | asset_url }}" defer="defer"></script>
+<script type="text/javascript" id="ecom-page-info">
+                    window.EComposer = window.EComposer || {};
+                    window.EComposer.TEMPLATE_ID="preview-template-section";
+                    window.EComposer.SECTION = {"template_id":"preview-template-section","title":"Supplement newsletter","type":"section","slug":"ecom-preview-template-section","plan_id":1};
+            </script>
+<div class="ecom-builder" id="ecom-preview-template-section"><div class="ecom-sections"><section class="ecom-row ecom-core ecom-section ecom-vcai7854cub" data-id="ecom-vcai7854cub" style="z-index: inherit;"><div data-deep="1" class="core__row--columns"><div class="ecom-column ecom-core core__column--first core__column--last ecom-zh0z8ps3jah"><div class="core__column--wrapper"><div class="core__blocks" index="0"><div class="core__blocks--body"><!----><div class="ecom-block ecom-core core__block ecom-9mxhk8wtnio" data-core-is="block"><div class="ecom__element ecom-element element__text" data-stopdrag="" deep="1"><div class="text-content ecom-html has-drop-cap-view-default">{{ 'sections.ecom-preview-template-section-section.textcontent_9mxhk8wtnio_html' | t }}</div></div><!----><!----></div><!----><!----><div class="ecom-block ecom-core core__block ecom-pr336lcvxp" data-core-is="block"><div class="ecom__element ecom-element element__text" data-stopdrag="" deep="1"><div class="text-content ecom-html has-drop-cap-view-default">{{ 'sections.ecom-preview-template-section-section.textcontent_pr336lcvxp_html' | t }}</div></div><!----><!----></div><!----><!----><div class="ecom-block ecom-core core__block ecom-03y55tiptmwn" data-core-is="block"><div class="ecom-element ecom-shopify-elements ecom-shopify__newsletter-form" deep="1"><div class="ecom-shopify__newsletter-form-wrapper ecom-w__full"><div class="ecom-shopify__newsletter-form-container"><div>
+                    {% form 'customer', class: 'ecom-shopify__newsletter-form',id:'newsletter-form-ecom-03y55tiptmwn' %}
+                        <input type="hidden" name="contact[tags]" value="newsletter" />
+                        <div class="ecom-newsletter-form-content">
+                            <input
+                            id="ECom-NewsletterForm-ecom-03y55tiptmwn"
+                            type="email"
+                            name="contact[email]"
+                            class="ecom-shopify__newsletter-form-field--input"
+                            value="{{ form.email }}"
+                            aria-required="true"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            autocomplete="email"
+                            {% if form.errors  %}
+                                autofocus
+                                aria-invalid="true"
+                            {% endif %}
+                            placeholder="Enter your email"
+                            required
+                            >
+                        <button type="submit" class="ecome-shopify__newsletter__button" name="commit">
+                        <span> Subscribe </span>
+                        <span class="ecom-shopify__newsletter__button-icon"> </span>
+                        </button>
+                        </div>
+
+
+
+                        {%- if form.posted_successfully? or EComBuilderMode == true  and false  -%}
+                        <div class="ecom-shopify__newsletter-form-success" {% unless EComBuilderMode %}tabindex="-1"  autofocus{% endunless %}>
+                            Subscribed successfully!
+                        </div>
+                        {%- endif -%}
+                        {%- if form.errors or EComBuilderMode == true   and false   -%}
+                        <div class="ecom-shopify__newsletter-form-message">
+                            <h2 class="ecom-shopify__newsletter-form-status-error" role="alert" {% unless EComBuilderMode %}tabindex="-1"  autofocus{% endunless %}>
+                              Opps!. An error has occurred
+                            </h2>
+                            <p class="ecom-shopify__newsletter-form-detail-error">
+                                {% if EComBuilderMode %}
+                                    This is example error text when missing email field
+                                {% endif %}
+                                {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
+                            </p>
+                        </div>
+                        {%- endif -%}
+                    {% endform %}
+
+                    </div></div></div></div><!----><!----></div><!----></div></div></div></div></div><div class="ecom-section__overlay"><!----><!----><div class="ecom-overlay"></div></div><!----></section><!----><!---This page has been built by EComposer Builder (www.ecomposer.io)--->
+</div></div>
+{% schema %}
+{
+    "name": "Supplement newsletter",
+    "locales": {
+        "en": {
+            "textcontent_9mxhk8wtnio_html": "Subscribe For The Daily Update<br>",
+            "textcontent_pr336lcvxp_html": "Egestas sit posuere sed nunc nunc lectus neque ultrices ornare. Tristique amet, mi purus cras sed bibendum mi eu dignissim.<br>",
+            "submit_title_03y55tiptmwn_html": "Subscribe",
+            "success_message_03y55tiptmwn_html": "Subscribed successfully!",
+            "error_title_03y55tiptmwn_html": "Opps!. An error has occurred"
+        }
+    },
+    "settings": [
+        {
+            "type": "header",
+            "content": "The section was generated by [Ecomposer](https:\/\/ecomposer.io).",
+            "info": "\n                    EComposer is a Visual Page Builder app on Shopify AppStore.\n                    It provides 100+ pre-built templates in library,\n                    so you can build unlimited pages that you can imagine with it.\n                    "
+        },
+        {
+            "type": "header",
+            "content": "[EDIT WITH EComposer APP \u2192](https:\/\/ecomposer.app\/shop\/builder?page=section&id=preview-template-section&utm_source=theme-customize)",
+            "info": "(*You must install the app to start editing this section [Learn more](https:\/\/help.ecomposer.io\/docs\/getting-started\/installation\/))"
+        }
+    ]
+}
+{% endschema %}

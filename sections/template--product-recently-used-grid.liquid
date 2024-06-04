@@ -1,0 +1,20 @@
+
+{% comment %} Extract 'blocks' string from querystring  {% endcomment %}
+
+{%- capture content -%}{{ content_for_header }}{%- endcapture -%}
+
+{%- assign page_url = content | split: '"pageurl":"' | last | split: '"' | first | split: '.myshopify.com' | last | replace: '\/','/' | replace: '%20',' ' | replace: '\u0026','&' | replace: '%2C',',' -%}
+
+{%- assign blocks = page_url | split: '?' | last | replace: 'view=recently-used-grid&blocks=', '' | split: '&oseid=' | first -%}
+
+<div class="grid__item">
+  {% render 'grid-view-item', product: product, collection: collection, blocks: blocks %}
+</div>
+
+{% schema %}
+{
+    "name": "Recently viewed",
+    "settings": [],
+    "blocks": []
+}
+{% endschema %}

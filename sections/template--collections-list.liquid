@@ -1,0 +1,525 @@
+<div class="collection-main-body main-page-container">
+
+  {% if section.settings.banner_image %}
+    <div class="list-collections--banner-image">
+
+      {% if section.settings.banner_image.alt != empty %}
+        {% capture collection_alt %}{{ section.settings.banner_image.alt | escape }}{% endcapture %}
+      {% else %}
+        {% capture collection_alt %}{{ shop.name | append: " - Collection list page." | escape }}{% endcapture %}
+      {% endif %}
+
+      {% if section.settings.banner-image-size == 'original' %}
+
+        {% render 'responsive-image' with section.settings.banner_image, alt: collection_alt, class: 'collection-page--feature-image' %}
+
+      {% else %}
+
+        <style>
+          {% if section.settings.banner_image != blank %}
+            {% capture selector %}.banner-image .img{% endcapture %}
+            {% render 'responsive-background-image' with section.settings.banner_image, selector: selector %}
+
+            .banner-image .img {
+              background-position: center;
+              background-repeat: no-repeat;
+              background-size: cover;
+            }
+          {% endif %}
+
+          .banner-image .img {
+            height: {{ section.settings.banner-image-size }};
+          }
+
+          @media only screen and (min-width: 768px) {
+            .banner-image .rellax.img {
+              height: {{ section.settings.banner-image-size | remove:'vw' | times:1.5 | append:'vw' }};
+              margin-top: {{ section.settings.banner-image-size | remove:'vw' | times:-0.6 | append:'vw' }};
+            }
+          }
+
+          .parallax.banner-image-parallax {
+            height: {{ section.settings.banner-image-size }};
+          }
+        </style>
+
+        {% capture image_layout %}
+          <div class="banner-image">
+              <div class="collection-page--feature-image {% if section.settings.parallax %} parallax banner-image-parallax{% endif %}">
+                <div id="rellax--banner-image" class="img{% if section.settings.parallax %} rellax{% endif %}" data-rellax-percentage="0.5" data-rellax-speed="-4" role="img" aria-label="{{ collection_alt }}" ></div>
+              </div>
+          </div>
+        {% endcapture %}
+
+        {{ image_layout }}
+
+      {% endif %}
+
+    </div>
+  {% endif %}
+
+  <div
+    class="wrapper-padded main-content page-main--wrapper"
+    data-wetheme-section-type="template--collection"
+    data-wetheme-section-id="{{ section.id }}"
+  >
+
+    {% if section.settings.show_title %}
+      <div class="sitewide--title-wrapper">
+        <h1 class="homepage-sections--title">{{ 'collections.general.product_collections' | t }}</h1>
+      </div>
+    {% endif %}
+
+    {% case section.settings.items_per_row %}
+      {% when 2 %}
+      	{% capture grid_item_width %}large--one-half medium--one-half small--one-half{% endcapture %}
+      {% when 3 %}
+      	{% capture grid_item_width %}large--one-third medium--one-half small--one-whole{% endcapture %}
+      {% when 4 %}
+      	{% capture grid_item_width %}large--one-quarter medium--one-half small--one-half{% endcapture %}
+      {% when 5 %}
+        {% capture grid_item_width %}large--one-fifth medium--one-half small--one-half{% endcapture %}
+    {% endcase %}
+
+    {% case section.settings.layout %}
+      {% when 'preview' %}
+
+        {% if section.settings.show_options != 'selected' %}
+
+          {% for collection in collections %}
+
+            {% unless collection.handle == 'frontpage' or collection.products.size == 0 %}
+
+              {% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+
+              <div class="section-header sitewide--title-wrapper">
+                <h2 class="list-collections--title">{{ collection_title }}</h2>
+              </div>
+
+              <div class="grid-uniform collection-main-body-inner">
+                {% for product in collection.products limit:section.settings.items_per_row %}
+                  {% render 'product-grid-item', product: product, collection: collection, enable_badges: section.settings.enable_badges %}
+                {% endfor %}
+              </div>
+
+              <div class="list-collections--more-link">
+                <a href="{{ collection.url }}" title="{{ 'collections.general.link_title' | t: title: collection_title }}">{{ 'collections.general.see_more' | t }} {{ collection_title }} &rsaquo;</a>
+              </div>
+
+              {% unless forloop.last %}
+                  <hr>
+              {% endunless %}
+
+            {% endunless %}
+
+          {% endfor %}
+
+        {% else %}
+
+          {% for block in section.blocks %}
+
+            {%- assign collection = collections[block.settings.collection] -%}
+
+            {% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+
+            <div class="section-header sitewide--title-wrapper">
+              <h2 class="list-collections--title">{{ collection_title }}</h2>
+            </div>
+
+            <div class="grid-uniform collection-main-body-inner">
+              {% for product in collection.products limit:section.settings.items_per_row %}
+
+                {% render 'product-grid-item', product: product, collection: collection, enable_badges: section.settings.enable_badges %}
+              {% else %}
+                {% for i in (1..section.settings.items_per_row) %}
+                  <div class="grid__item {{ grid_item_width }}">
+                    <div class="grid-view-item">
+                      <a href="/admin/products" class="grid-view-item__link">
+                        <div class="grid-view-item__image">
+                          {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                          {{ 'product-' | append: current | placeholder_svg_tag: 'icon icon--placeholder grid__image' }}
+                        </div>
+                        <div class="grid-view-item--desc-wrapper">
+                            <div class="product-grid--title">{{ 'homepage.onboarding.product_title' | t }}</div>
+                            <div class="product-grid--price"><span class="money">{{ 1999 | money }}</span></div>
+                        </div>
+                      </a>
+
+                      <div class="quick-add-wrapper">
+                        <button class="quick-add-button-onboarding" tabindex="0">{{ 'products.product.add_to_cart' | t }}</button>
+                      </div>
+
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endfor %}
+            </div>
+
+            {% if collection.products != empty %}
+            <div class="list-collections--more-link">
+              <a href="{{ collection.url }}" title="{{ 'collections.general.link_title' | t: title: collection_title }}">{{ 'collections.general.see_more' | t }} {{ collection_title }} &rsaquo;</a>
+            </div>
+            {% endif %}
+
+            {% unless forloop.last %}<hr>{% endunless %}
+
+          {% endfor %}
+
+        {% endif %}
+
+      {% when 'grid' %}
+
+      {% if section.settings.show_options != 'selected' %}
+
+        <div class="grid-uniform">
+
+          {% for collection in collections %}
+
+            {% unless collection.handle == 'frontpage' %}
+
+              {% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+              {% capture collection_item_alt %}{{ collection.image.alt | default: collection.title }}{% endcapture %}
+
+              <div class="grid__item {{ grid_item_width }}">
+                <div class="grid-view-item">
+                  <a href="{{ collection.url }}" class="grid__image" title="{{ 'collections.general.link_title' | t: title: collection_title }}">
+                    <img src="{{ collection.image | img_url: 'large' }}" alt="{{ collection_item_alt | escape }}" class="list-collections--indiv-banner-image" loading="lazy" />
+                  </a>
+                  <h3 class="list-collections--indiv-collection-title">{{ collection_title }}</h3>
+                </div>
+              </div>
+
+            {% endunless %}
+
+          {% endfor %}
+
+        </div>
+
+      {% else %}
+
+        <div class="grid-uniform">
+
+          {% for block in section.blocks %}
+
+              {%- assign collection = collections[block.settings.collection] -%}
+
+              {% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+              {% capture collection_img_alt %}{{ collection.image.alt | default: collection.title | escape }}{% endcapture %}
+
+              <div class="grid__item {{ grid_item_width }}">
+                <div class="grid-view-item">
+                  <a href="{{ collection.url }}" class="grid__image" title="{{ 'collections.general.link_title' | t: title: collection_title }}">
+                    <img src="{{ collection.image | img_url: 'large' }}" alt="{{ collection_img_alt }}" class="list-collections--indiv-banner-image" loading="lazy" />
+                  </a>
+                  <h3 class="list-collections--indiv-collection-title">{{ collection_title }}</h3>
+                </div>
+              </div>
+
+          {% endfor %}
+
+        </div>
+
+      {% endif %}
+
+    {% endcase %}
+  </div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "All collections",
+        "de": "Alle Kollektionen",
+        "es": "Todas las colecciones",
+        "fr": "Toutes les collections",
+        "pt-PT": "Todas as coleções"
+    },
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Featured image",
+                "de": "Hervorgehobenes Bild",
+                "es": "Imagen destacada",
+                "fr": "Image en vedette",
+                "pt-PT": "Imagem em destaque"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "banner_image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "info": {
+                "en": "Recommended 2000px x 300px",
+                "de": "2000 px x 300 px empfohlen",
+                "es": "Recomendado: 2000px x 300px",
+                "fr": "2000 x 300 px recommandé",
+                "pt-PT": "2000px x 300px (recomendado)"
+            }
+        },
+        {
+            "type": "select",
+            "id": "banner-image-size",
+            "label": {
+                "en": "Image size",
+                "de": "Bildgröße",
+                "es": "Tamaño de la imagen",
+                "fr": "Taille de l'image",
+                "pt-PT": "Tamanho da imagem"
+            },
+            "options": [
+                {
+                    "value": "20vh",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "30vh",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "40vh",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "original",
+                    "label": {
+                        "en": "Original",
+                        "de": "Original",
+                        "es": "Original",
+                        "fr": "D'origine",
+                        "pt-PT": "Original"
+                    }
+                }
+            ],
+            "default": "20vh"
+        },
+        {
+            "type": "checkbox",
+            "id": "parallax",
+            "label": {
+                "en": "Enable parallax effect",
+                "de": "Parallaxeneffekt aktivieren",
+                "es": "Habilitar efecto de paralaje",
+                "fr": "Activer l'effet parallaxe",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": true,
+            "info": {
+                "en": "Parallax won't be visible when the 'Image size' is set to 'Original'",
+                "de": "Parallax wird nicht angezeigt, wenn die 'Bildgröße' auf 'Original' eingestellt ist",
+                "es": "Parallax no estará visible cuando el 'Tamaño de la imagen' esté establecido como 'Original'",
+                "fr": "La parallaxe ne sera pas visible lorsque la 'Taille de l'image' sera réglée sur 'D'origine'.",
+                "pt-PT": "A paralaxe não será visível quando o \"Tamanho da imagem\" estiver definido como \"Original\""
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Layout options",
+                "de": "Layout-Optionen",
+                "es": "Opciones de diseño",
+                "fr": "Options de mise en page",
+                "pt-PT": "Opções de layout"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_title",
+            "label": {
+                "en": "Show page title",
+                "de": "Seitentitel anzeigen",
+                "es": "Mostrar título de la página",
+                "fr": "Afficher le titre de la page",
+                "pt-PT": "Mostrar título da página"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "hover-effect",
+            "label": {
+                "en": "Enable hover effect",
+                "de": "Hover-Effekt aktivieren",
+                "es": "Habilitar efecto hover",
+                "fr": "Activer l'effet survol",
+                "pt-PT": "Ativar efeito ao passar o rato"
+            },
+            "default": false,
+            "info": {
+                "en": "Show second product image on hover",
+                "de": "Zweites Produktbild beim Hover anzeigen",
+                "es": "Mostar la segunda imagen del producto al pasar el ratón sobre la imagen",
+                "fr": "Afficher l'image du second produit survolé",
+                "pt-PT": "Mostrar imagem do segundo produto ao passar o rato"
+            }
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_badges",
+          "label": "Enable badges",
+          "default": true,
+          "info": "Sold out and Sale badges"
+        },
+        {
+            "type": "radio",
+            "id": "layout",
+            "label": {
+                "en": "Layout style",
+                "de": "Layout-Stil",
+                "es": "Estilo del diseño",
+                "fr": "Style de mise en page",
+                "pt-PT": "Estilo do layout"
+            },
+            "default": "preview",
+            "options": [
+                {
+                    "value": "preview",
+                    "label": {
+                        "en": "Preview",
+                        "de": "Vorschau",
+                        "es": "Vista previa",
+                        "fr": "Aperçu",
+                        "pt-PT": "Visualização"
+                    }
+                },
+                {
+                    "value": "grid",
+                    "label": {
+                        "en": "Grid",
+                        "de": "Raster",
+                        "es": "Cuadrícula",
+                        "fr": "Grille",
+                        "pt-PT": "Grelha"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "items_per_row",
+            "min": 2,
+            "max": 5,
+            "step": 1,
+            "label": {
+                "en": "Items per row",
+                "de": "Elemente pro Zeile",
+                "es": "Artículos por fila",
+                "fr": "Articles par ligne",
+                "pt-PT": "Itens por linha"
+            },
+            "info": {
+              "en": "Only applicable to desktop",
+              "de": "Gilt nur für den Desktop",
+              "es": "Solo aplicable a escritorio",
+              "fr": "Ne s'applique qu'aux ordinateurs de bureau",
+              "pt-PT": "Apenas aplicável no ambiente de trabalho"
+            },
+            "default": 4
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Choose collections",
+                "de": "Sammlungen auswählen",
+                "es": "Elegir colecciones",
+                "fr": "Choisir les collections",
+                "pt-PT": "Escolher coleções"
+            }
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "en": "All of your collections are listed by default. To customize your list, choose 'Selected' and add collections.",
+                "de": "Standardmäßig sind alle Ihre Kollektionen aufgelistet. Um Ihre Liste anzupassen, wählen Sie 'Ausgewählte' und fügen Sie Kollektionen hinzu.",
+                "es": "Todas sus colecciones están listadas por defecto. Para personalizar su lista, seleccione 'Seleccionada' y añada colecciones.",
+                "fr": "Toutes vos collections sont listées par défaut. Afin de personnaliser votre liste, choisissez 'Sélectionnées' et ajoutez des collections.",
+                "pt-PT": "Todas as suas coleções estão listadas por predefinição. Para personalizar a sua lista, escolha \"Selecionado\" e adicione coleções."
+            }
+        },
+        {
+            "type": "radio",
+            "id": "show_options",
+            "label": {
+                "en": "Select collections to show",
+                "de": "Kollektionen auswählen, die angezeigt werden sollen",
+                "es": "Seleccione colecciones para mostrar",
+                "fr": "Sélectionner les collections à afficher",
+                "pt-PT": "Selecione coleções para exibir"
+            },
+            "default": "all",
+            "options": [
+                {
+                    "value": "all",
+                    "label": {
+                        "en": "All",
+                        "de": "Alle",
+                        "es": "Todas",
+                        "fr": "Toutes",
+                        "pt-PT": "Todas"
+                    }
+                },
+                {
+                    "value": "selected",
+                    "label": {
+                        "en": "Selected",
+                        "de": "Ausgewählte",
+                        "es": "Seleccionada",
+                        "fr": "Sélectionnées",
+                        "pt-PT": "Selecionada"
+                    }
+                }
+            ]
+        }
+    ],
+    "blocks": [
+        {
+            "type": "collection",
+            "name": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            },
+            "settings": [
+                {
+                    "label": {
+                        "en": "Collection",
+                        "de": "Kollektion",
+                        "es": "Colección",
+                        "fr": "Collection",
+                        "pt-PT": "Coleção"
+                    },
+                    "id": "collection",
+                    "type": "collection"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

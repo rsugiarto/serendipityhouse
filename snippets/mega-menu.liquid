@@ -1,0 +1,135 @@
+{% assign block = mega-menu %}
+<ul class="w-full grid grid-cols-5 gap-5" data-mega-menu-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+  {% assign mega = block.settings.mega-menu %}
+  {% assign mega_nav_column_count = 5 %}
+  {% assign mega_column_width = link.links.size %}
+  {% if block.settings.mega_image_1 %}
+    {% assign mega_nav_column_count = mega_nav_column_count | minus: 1 %}
+    {% assign mega_column_width = mega_column_width | plus: 1 %}
+  {% endif %}
+  {% if block.settings.mega_image_2 %}
+    {% assign mega_nav_column_count = mega_nav_column_count | minus: 1 %}
+    {% assign mega_column_width = mega_column_width | plus: 1 %}
+  {% endif %}
+  {% assign mega_column_width = mega_column_width | limit: 5 %}
+  {% for sub_link in link.links %}
+	{% if mega_column_width <= 3 %}
+      {% assign grid_item_width = 'grid__item large--one-third medium--one-third'  %}
+    {% elsif mega_column_width == 4 %}
+      {% assign grid_item_width = 'grid__item large--one-quarter medium--one-quarter'  %}
+    {% else %}
+      {% assign grid_item_width = 'grid__item large--one-fifth medium--one-fifth'  %}
+    {% endif %}
+    <li class="dropdown-submenu" aria-haspopup="true">
+      <div class="inner">
+		<h4 class="text-lg"><a href="{{ sub_link.url }}" class="text-green-mist hover:text-white">{{ sub_link.title | escape }}</a></h4>
+		{% if sub_link.links != blank %}
+			<ul class="menu-link">
+			  {% for sub_sub_link in sub_link.links %}
+				<li>
+				  <a href="{{ sub_sub_link.url }}" class="text-white hover:text-green-mist text-sm pl-2">{{ sub_sub_link.title | escape }}</a>
+				</li>
+			  {% endfor %}
+			</ul>
+		{% endif %}
+      </div>
+    </li>
+  {% endfor %}
+  {% if block.settings.mega_image_1 %}
+    <li class="dropdown-submenu {{ grid_item_width }}" aria-haspopup="true">
+      <div class="inner mega-menu--image-wrapper">
+        <div class="mega-menu--image">
+          {% if block.settings.mega_image_link_1 %}
+            <a href="{{ block.settings.mega_image_link_1 }}">
+          {% endif %}
+          {% capture img_props %}style="max-width: {{ block.settings.mega_image_1.width }}px"{% endcapture %}
+
+          {% if block.settings.mega_image_1.alt != empty %}
+              {% capture img_alt %}{{ block.settings.mega_image_1.alt }}{% endcapture %}
+          {% else %} 
+              {% if block.settings.mega_image_header_1 != empty %}
+                  {% capture img_alt %}{{ block.settings.mega_image_header_1 }}{% endcapture %}
+              {% else %}
+                  {% capture img_alt %}{{ shop.name }}{% endcapture %}
+              {% endif %}
+          {% endif %}
+          {% render 'responsive-image' with block.settings.mega_image_1, alt: img_alt | escape, props: img_props  %}
+          {% if block.settings.mega_image_link_1 %}
+            </a>
+          {% endif %}
+          {% if block.settings.mega_image_header_1 %}
+            <h4 class="h4 mega-menu--image-title">
+              {% if block.settings.mega_image_link_1 %}
+                <a href="{{ block.settings.mega_image_link_1 }}">
+              {% endif %}
+              {{ block.settings.mega_image_header_1 }}
+              {% if block.settings.mega_image_link_1 %}
+                </a>
+              {% endif %}
+            </h4>
+          {% endif %}
+          {% if block.settings.mega_image_subheader_1 %}
+            <h5 class="h5">
+              {% if block.settings.mega_image_link_1 %}
+                <a href="{{ block.settings.mega_image_link_1 }}">
+              {% endif %}
+              {{ block.settings.mega_image_subheader_1 }}
+              {% if block.settings.mega_image_link_1 %}
+                </a>
+              {% endif %}
+            </h5>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+  {% endif %}
+  {% if block.settings.mega_image_2 %}
+    <li class="dropdown-submenu {{ grid_item_width }}" aria-haspopup="true">
+      <div class="inner mega-menu--image-wrapper">
+        <div class="mega-menu--image">
+          {% if block.settings.mega_image_link_2 %}
+            <a href="{{ block.settings.mega_image_link_2 }}">
+          {% endif %}
+          {% capture img_props %}style="max-width: {{ block.settings.mega_image_2.width }}px"{% endcapture %}
+
+          {% if block.settings.mega_image_2.alt != empty %}
+              {% capture img_alt %}{{ block.settings.mega_image_2.alt }}{% endcapture %}
+          {% else %} 
+              {% if block.settings.mega_image_header_2 != empty %}
+                  {% capture img_alt %}{{ block.settings.mega_image_header_2 }}{% endcapture %}
+              {% else %}
+                  {% capture img_alt %}{{ shop.name }}{% endcapture %}
+              {% endif %}
+          {% endif %}
+
+          {% render 'responsive-image' with block.settings.mega_image_2, alt: img_alt | escape, props: img_props %}
+          {% if block.settings.mega_image_link_2 %}
+            </a>
+          {% endif %}
+          {% if block.settings.mega_image_header_2 %}
+            <h4 class="h4 mega-menu--image-title">
+              {% if block.settings.mega_image_link_2 %}
+                <a href="{{ block.settings.mega_image_link_2 }}">
+              {% endif %}
+              {{ block.settings.mega_image_header_2 }}
+              {% if block.settings.mega_image_link_2 %}
+                </a>
+              {% endif %}
+            </h4>
+          {% endif %}
+          {% if block.settings.mega_image_subheader_2 %}
+            <h5 class="h5">
+              {% if block.settings.mega_image_link_2 %}
+                <a href="{{ block.settings.mega_image_link_2 }}">
+              {% endif %}
+              {{ block.settings.mega_image_subheader_2 }}
+              {% if block.settings.mega_image_link_2 %}
+                </a>
+              {% endif %}
+            </h5>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+  {% endif %}
+</ul>

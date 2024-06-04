@@ -1,0 +1,19 @@
+
+<div class="cross-sells-wrapper border-t border-gray-dark py-4 mt-4">
+  {% if block_settings.title != blank %}
+    <h4 class="label custom-font product-description-header text-center font-bold text-2xl pb-4 mb-4 leading-tight text-orange-dark">{{ block_settings.title }}</h4>
+  {% endif %}
+  {% assign subheading_font = settings.subheading--font %}
+  {% assign base_font = settings.type_base_font %}
+  {% if block_settings.cross_sell_product_1 != blank %}
+    {% render 'product-cross-sell', product_id: block_settings.cross_sell_product_1 %}
+  {% endif %}
+  {% if block_settings.cross_sell_product_2 != blank %}
+    {% render 'product-cross-sell', product_id: block_settings.cross_sell_product_2 %}
+  {% endif %}
+  {% if block_settings.cross_sell_product_3 != blank %}
+    {% render 'product-cross-sell', product_id: block_settings.cross_sell_product_3 %}
+  {% endif %}
+</div>
+
+<script src="{{ 'component-cross-sells.js' | asset_url }}" type="module" defer="defer"></script>

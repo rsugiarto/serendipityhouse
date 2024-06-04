@@ -1,0 +1,470 @@
+{% capture plus_icon %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x plus-icon" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+{% endcapture %}
+
+{% capture minus_icon %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x minus-icon" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+{% endcapture %}
+
+{% capture chevron_down %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+{% endcapture %}
+
+{% capture chevron_up %}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down chevron-up"><polyline points="6 9 12 15 18 9"></polyline></svg>
+{% endcapture %}
+
+<div class="accordion-with-image-container accordion-with-image--{{ section.id }}" data-wetheme-section-type="collection--featured-collection" data-wetheme-section-id="{{ section.id }}">
+  {% if section.blocks.size > 0 %}
+    <div class="main-content-wrapper wrapper-padded homepage-sections-wrapper--{{ section.settings.colors }}">
+      <div class="accordion-wrapper">
+        {% if section.settings.section_title != blank %}
+          <div class="title-bar custom-font">
+            <h2 class="wow">{{ section.settings.section_title | escape }}</h2>
+          </div>
+        {% endif %}
+        {% for block in section.blocks %}
+          <details>
+            <summary class="accordion__header" role="button" aria-expanded="false" tabindex="0">
+              {{ block.settings.accordion_header }}
+              {% if section.settings.faq_icon == "plus_minus" %}{{ plus_icon }}{{ minus_icon }}{% elsif section.settings.faq_icon == "caret" %}{{ chevron_down }}{{ chevron_up }}{% endif %}
+            </summary>
+            <div class="rte">
+              {{ block.settings.accordion_content }}
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+  
+      {% if section.settings.accordion_image %}
+        <div class="image-wrapper">
+          <div class="content-wrapper">
+            {% unless section.settings.link == blank %}
+              <a href="{{ section.settings.link }}">
+            {% endunless %}
+              <div class="image--container">
+                {% render 'responsive-image' with section.settings.accordion_image, alt: section.settings.accordion_image.alt %}
+              </div>
+              {% unless section.settings.title == blank %}<h2>{{ section.settings.title | strip }}</h2>{% endunless %}
+              {% unless section.settings.text == blank %}<p>{{ section.settings.text | strip }}</p>{% endunless %}
+              {% unless section.settings.button_text == blank %}
+                <button class="btn accordion--button" aria-label="{{ section.settings.button_text }}">
+                  {{ section.settings.button_text }}
+                </button>
+              {% endunless %}
+            {% unless section.settings.link == blank %}
+            </a>
+          {% endunless %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% style %}
+  .main-content-wrapper {
+    margin: 0 auto;
+    padding: 15px 30px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .accordion-with-image-container .title-bar {
+    text-align: left;
+    margin: 0 auto;
+    padding-bottom: 15px;
+  }
+
+  .accordion-with-image-container .title-bar h2 {
+    padding: 0;
+    font-size: 1.2rem;
+    margin-bottom: 0;
+  }
+
+  .accordion-wrapper,
+  .image-wrapper {
+    max-width: 100%;
+  }
+
+  .accordion-wrapper {
+    width: 100%;
+  }
+
+  .accordion-wrapper details {
+    border-bottom: 1px solid;
+    margin-bottom: 1rem;
+  }
+
+  .accordion-wrapper p {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .accordion-wrapper summary {
+    font-weight: 700;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .accordion-with-image--{{ section.id }} .feather-x {
+    transform: rotate(45deg);
+  }
+
+  .accordion-with-image--{{ section.id }} .chevron-up {
+    transform: rotate(180deg);
+  }
+
+  .accordion-with-image--{{ section.id }} .feather-x,
+  .accordion-with-image--{{ section.id }} .feather-chevron-down {
+    width: var(--base-font-size);
+    height: var(--base-font-size);
+  }
+
+  .accordion-with-image--{{ section.id }} details summary .minus-icon,
+  .accordion-with-image--{{ section.id }} details summary .chevron-up {
+    display: none;
+  }
+
+  .accordion-with-image--{{ section.id }} details[open] summary .plus-icon,
+  .accordion-with-image--{{ section.id }} details[open] summary .chevron-down {
+    display: none;
+  }
+
+  .accordion-with-image--{{ section.id }} details[open] summary .minus-icon,
+  .accordion-with-image--{{ section.id }} details[open] summary .chevron-up {
+    display: block;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 350px;
+    overflow: hidden;
+  }
+
+  .image-wrapper img {
+    object-fit: cover;
+    max-width: 350px;
+    height: 200px;
+  }
+
+  .accordion-with-image--{{ section.id }} .content-wrapper {
+    padding: 16px;
+    background-color: {{ section.settings.image--background-color }};
+  }
+
+  .content-wrapper a {
+    text-decoration: none;
+  }
+
+  .content-wrapper h2,
+  .content-wrapper p {
+    margin-top: 15px;
+    color: {{ section.settings.image--text-color }}
+  }
+
+  .content-wrapper h2 {
+    text-transform: none;
+    font-size: 1.2em;
+  }
+
+  .image--container {
+    height: 200px;
+    max-width: 350px;
+    overflow: hidden;
+  }
+
+  .accordion-with-image--{{ section.id }} .accordion--button {
+    display: block;
+    margin-left: auto;
+    min-width: 150px;
+    max-width: 100%;
+    align-self: flex-end;
+    margin-top: 20px;
+    background-color: {{ section.settings.image--text-color }};
+    color: {{ section.settings.image--background-color }};
+    border: 1px solid transparent;
+  }
+
+  .accordion-with-image--{{ section.id }} .accordion--button:hover,
+  .accordion-with-image--{{ section.id }} .accordion--button:active {
+    background-color: {{ section.settings.image--background-color }};
+    color: {{ section.settings.image--text-color }};
+    border: 1px solid {{ section.settings.image--text-color }};
+  }
+
+  @media (max-width: 768px) {
+    .main-content-wrapper {
+      padding: 16px;
+    }
+
+    .main-content-wrapper, .accordion-with-image-container .title-bar {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .image-wrapper {
+      margin: 30px 0;
+      padding: 0;
+    }
+  }
+
+  {% unless section.settings.section_title == blank %}
+    @media (min-width: 769px) {
+      .accordion-with-image--{{ section.id }} .image-wrapper {
+        padding: 15px 0;
+      }
+    }
+  {% endunless %}
+
+  {% if section.settings.section_title == blank %}
+    @media (min-width: 769px) {
+      .accordion-with-image--{{ section.id }} .main-content-wrapper {
+        padding: 30px;
+      }
+    }
+  {% endif %}
+
+  @media (min-width: 769px) {
+    .accordion-wrapper {
+      {% if section.settings.accordion_image %}
+        padding: 0 16px 0 0;
+      {% else %}
+        padding: 0;
+      {% endif %}
+    }
+  }
+
+  @media (min-width: 480px) and (max-width: 768px) {
+    .main-content-wrapper {
+      padding: 16px 30px;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Accordion with image"
+    },
+    "class": "product-template--accordion-with-image wow",
+    "max_blocks": 12,
+    "settings": [
+      {
+        "type": "select",
+        "id": "colors",
+        "label": {
+            "en": "Color scheme",
+            "de": "Farbschema",
+            "es": "Esquema de colores",
+            "fr": "Palette de couleurs",
+            "pt-PT": "Esquema de cores"
+        },
+        "default": "light",
+        "options": [
+            {
+                "value": "white",
+                "label": {
+                    "en": "Minimal",
+                    "fr": "Minimal",
+                    "de": "Minimal",
+                    "es": "Mínimo",
+                    "pt-PT": "Mínimo"
+                }
+            },
+            {
+                "value": "light",
+                "label": {
+                    "en": "Light",
+                    "de": "Licht",
+                    "es": "Luz",
+                    "fr": "Clair",
+                    "pt-PT": "Claro"
+                }
+            },
+            {
+                "value": "accent",
+                "label": {
+                    "en": "Feature",
+                    "de": "Eigenschaft",
+                    "es": "Destacado",
+                    "fr": "Caractéristique",
+                    "pt-PT": "Funcionalidade"
+                }
+            },
+            {
+                "value": "dark",
+                "label": {
+                    "en": "Dark",
+                    "de": "Dunkel",
+                    "es": "Oscuro",
+                    "fr": "Foncé",
+                    "pt-PT": "Escuro"
+                }
+            }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "section_title",
+        "label": {
+            "en": "Heading",
+            "de": "Überschrift",
+            "es": "Encabezado",
+            "fr": "Rubrique",
+            "pt-PT": "Título"
+        },
+        "default": {
+          "en": "Share your story",
+          "de": "Teilen Sie Ihre Geschichte",
+          "es": "Comparte tu historia",
+          "fr": "Partagez votre histoire",
+          "pt-PT": "Partilhe a sua história"
+        }
+      },
+      {
+        "type": "radio",
+        "id": "faq_icon",
+        "label": {
+            "en": "Icon style"
+        },
+        "options": [
+            {
+                "value": "plus_minus",
+                "label": {
+                    "en": "Plus/minus"
+                }
+            },
+            {
+                "value": "caret",
+                "label": {
+                    "en": "Caret"
+                }
+            }
+        ],
+        "default": "plus_minus"
+      },
+      {
+        "type": "image_picker",
+        "id": "accordion_image",
+        "label": {
+            "en": "Image (optional)",
+            "de": "Bild (optional)",
+            "es": "Imagen (opcional)",
+            "fr": "Image (en option)",
+            "pt-PT": "Imagem (Opcional)"
+        },
+        "info": {
+            "en": "1400 x 1400px recommended",
+            "de": "1400 x 1400 px empfohlen",
+            "es": "Recomendado 1400 x 1400 px",
+            "fr": "1400 x 1400 px recommandé",
+            "pt-PT": "1400 x 1400px, recomendado"
+        }
+      },
+      {
+        "type": "color",
+        "id": "image--background-color",
+        "label": {
+            "en": "Image background color"
+        },
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "image--text-color",
+        "label": {
+            "en": "Image text color"
+        },
+        "default": "#333333"
+      },
+      {
+          "type": "text",
+          "id": "title",
+          "label": {
+              "en": "Heading",
+              "de": "Überschrift",
+              "es": "Encabezado",
+              "fr": "Rubrique",
+              "pt-PT": "Título"
+          }
+      },
+      {
+        "type": "text",
+        "id": "text",
+        "label": {
+            "en": "Description"
+        }
+      },
+      {
+        "type": "url",
+        "id": "link",
+        "label": {
+            "en": "Image link"
+        }
+      },
+      {
+        "type": "text",
+        "id": "button_text",
+        "label": {
+            "en": "Button label",
+            "de": "Buttontext",
+            "es": "Texto del botón",
+            "fr": "Texte des boutons",
+            "pt-PT": "Texto do botão"
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accordion",
+        "name": "Accordion item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "accordion_header",
+            "label": "Accordion heading",
+            "default": "About us"
+          },
+          {
+            "type": "richtext",
+            "id": "accordion_content",
+            "label": "Accordion content",
+            "default": "<p>Place some content here to describe this topic.</p>"
+          }
+        ]
+      }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Accordion with image"
+            },
+            "category": {
+                "en": "Text"
+            },
+            "blocks": [
+                {
+                    "type": "accordion"
+                },
+                {
+                    "type": "accordion"
+                },
+                {
+                  "type": "accordion"
+              }
+            ]
+        }
+    ],
+    "templates": [
+      "product"
+    ]
+}
+{% endschema %}

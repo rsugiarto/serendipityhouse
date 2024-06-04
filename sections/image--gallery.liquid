@@ -1,0 +1,481 @@
+<link rel="preload" href="{{ 'section-gallery.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-gallery.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+{% if section.settings.remove-spacing %}
+  {% assign no-spacing = ' no-spacing' %}
+{% else %}
+  {% assign no-spacing = '' %}
+{% endif %}
+
+<div
+  class="homepage-sections-wrapper homepage-sections-wrapper--{{ section.settings.colors }}{{ no-spacing }}"
+  data-wetheme-section-type="image--gallery" data-wetheme-section-id="{{ section.id }}"
+>
+  {% assign no_images = true %}
+  {% for block in section.blocks %}
+    {% if block.settings.image != blank %}
+      {% assign no_images = false %}
+    {% endif %}
+  {% endfor %}
+  {% if section.settings.remove-spacing == false %}
+    <div class="wrapper-padded">
+  {% endif %}
+      <div class="homepage-gallery-background{% if section.settings.section-width == 'content' %} content-width{% endif %}">
+        {% if section.settings.title != blank or section.settings.richtext != blank %}
+          <div class="wrapper-padded">
+            {% if section.settings.title != blank %}
+              <div class="sitewide--title-wrapper">
+                <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+              </div>
+            {% endif %}
+
+            {% if section.settings.richtext != blank %}
+              <div class="grid">
+                <div class="grid__item large--one-half push--large--one-quarter">
+                  <div class="homepage-sections--description">{{ section.settings.richtext }}</div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if section.settings.section-width == 'content' %}
+          <div class="wrapper content-width"><div class="grid--full"><div class="grid__item">
+        {% endif %}
+          <div class="gallery-grid gallery-grid--items-{{ section.blocks.size }} expand-grid{% if section.settings.remove-spacing %} remove-spacing{% else %} keep-spacing{% endif %}{% if no_images %} no-user-images{% endif %} content-position-{{ section.settings.content-position }}{% if section.settings.full-width %} gallery-full-width{% endif %}">
+            {% for block in section.blocks %}
+
+              <div class="homepage-gallery-grid-item homepage-gallery-grid-item--{{ section.settings.content-position }} block-section--{{ block.id }}{% if block.settings.image %} align-imgs-vertically{% endif %}" {{ block.shopify_attributes }}>
+                <style>
+                  .block-section--{{ block.id }} .grid-item-details--background-gradient,
+                  .block-section--{{ block.id }} .hover-outer .hover-inner::before {
+                    background: -webkit-linear-gradient(top, {{ block.settings.overlay_color | color_modify: 'alpha', 0.3 }} 0%, {{ block.settings.overlay_color | color_modify: 'alpha', 0.8 }} 75%);
+                    background: linear-gradient(to bottom, {{ block.settings.overlay_color | color_modify: 'alpha', 0.3 }} 0%, {{ block.settings.overlay_color | color_modify: 'alpha', 0.8 }} 75%);
+                  }
+
+                  {% unless section.settings.content-position == 'below-image' %}
+                    .block-section--{{ block.id }} .grid-item__subheading,
+                    .block-section--{{ block.id }} .grid-item__title {
+                      color: {{ block.settings.overlay_font_color }}
+                    }
+                  {% endunless %}
+                </style>
+
+                <div class="homepage-gallery-grid-inner{% if section.settings.content-position == 'below-image' %} info-below-image{% endif %}">
+                  <div class="overflow">
+                    <div class="grid-image{% if settings.ken_burns_enabled %} kb-enabled{% endif %}">
+                      {% if block.settings.link != blank %}
+                        <a href="{{ block.settings.link }}" class="grid-image--centered">
+                      {% endif %}
+
+                        {% if block.settings.image == blank %}
+                          <div class="placeholder-wrap">
+                            {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+                          </div>
+                        {% else %}
+                          {% render 'responsive-image' with block.settings.image, alt: block.settings.image.alt, class: class %}
+                        {% endif %}
+
+                      {% if block.settings.link != blank %}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% unless section.settings.content-position == 'hide' %}
+                    <div class="grid-item-details--{{ section.settings.content-position }}{% if block.settings.show-gradient-overlay and section.settings.content-position != 'below-image' %} grid-item-details--background-gradient{% endif %} full-height">
+                      {% assign is_link = false %}
+                      {% if block.settings.link != blank %}
+                        {% if block.settings.overlay-btn-text == blank %}
+                          <a href="{{ block.settings.link }}">
+                        {% endif %}
+                        {% assign is_link = true %}
+                      {% endif %}
+
+                      {% if block.settings.subheading != blank or block.settings.overlay-btn-text != blank or block.settings.title != blank %}
+                        <div class="grid-item__content">
+                          {% if block.settings.subheading != blank %}
+                            <div class="grid-item__subheading">{{ block.settings.subheading }}</div>
+                          {% endif %}
+
+                          <div class="grid-item__title">
+                            <h2>{{ block.settings.title }}</h2>
+                          </div>
+
+                          {% if block.settings.overlay-btn-text != blank and is_link == true %}
+                            <a href="{{ block.settings.link }}" class="homepage-featured-box-btn">{{ block.settings.overlay-btn-text }}</a>
+                          {% elsif block.settings.overlay-btn-text != blank %}
+                            <div class="homepage-featured-box-btn">{{ block.settings.overlay-btn-text }}</div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+
+                      {% if block.settings.link != blank and block.settings.overlay-btn-text == blank %}
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endunless %}
+                </div>
+              </div>
+            {% endfor %}
+
+            {% if section.blocks.size == 0 %}
+              <div class="placeholder-noblocks">
+                {{ 'homepage.onboarding.no_content' | t }}
+              </div>
+            {% endif %}
+          </div>
+
+        {% if section.settings.section-width == 'content' %}
+          </div></div></div>
+        {% endif %}
+      </div>
+  {% if section.settings.remove-spacing == false %}
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Gallery",
+        "de": "Galerie",
+        "es": "Galería",
+        "fr": "Galerie",
+        "pt-PT": "Galeria"
+    },
+    "class": "image-gallery-wrapper show-on-scroll",
+    "max_blocks": 4,
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+              "en": "Heading",
+              "de": "Überschrift",
+              "es": "Encabezado",
+              "fr": "Rubrique",
+              "pt-PT": "Título"
+          }
+        },
+        {
+          "type": "richtext",
+          "id": "richtext",
+          "label": {
+              "en": "Description",
+              "de": "Beschreibung",
+              "es": "Descripción",
+              "fr": "Description",
+              "pt-PT": "Descrição"
+          }
+        },
+        {
+             "type": "checkbox",
+             "id": "remove-spacing",
+             "default": true,
+             "label": {
+                "en": "Remove spacing",
+                "de":"Abstände entfernen",
+                "es": "Eliminar espacio",
+                "fr": "Supprimer l'espacement",
+                "pt-PT": "Remover o espaçamento"
+             }
+        },
+        {
+          "type": "checkbox",
+          "id": "full-width",
+          "default": false,
+          "label": {
+             "en": "One image per row on mobile",
+             "de":"Ein Foto pro Zeile auf Mobilgerät",
+             "es": "Una imagen por fila en el móvil",
+             "fr": "Une image par ligne sur mobile",
+             "pt-PT": "Uma imagem por linha no telemóvel"
+          }
+        },
+        {
+            "type": "select",
+            "id": "section-width",
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "default": "full",
+            "options": [
+                {
+                    "value": "full",
+                    "label": {
+                        "en": "Full width",
+                        "de": "Volle Breite",
+                        "es": "Ancho completo",
+                        "fr": "Pleine largeur",
+                        "pt-PT": "Largura total"
+                    }
+                },
+                {
+                    "value": "content",
+                    "label": {
+                        "en": "Content width",
+                        "de": "Abstände entfernen",
+                        "es": "Eliminar espacio",
+                        "fr": "Supprimer l'espacement ",
+                        "pt-PT": "Remover o espaçamento"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "content-position",
+            "label": {
+                "en": "Content position",
+                "de": "Position der Inhalte",
+                "es": "Posición de contenido",
+                "fr": "Position du contenu",
+                "pt-PT": "Posição do conteúdo"
+            },
+            "default": "hide",
+            "options": [
+                {
+                    "value": "hover",
+                    "label": {
+                        "en": "On hover",
+                        "fr": "Beim Drüberfahren",
+                        "de": "Flotante",
+                        "es": "En survol",
+                        "pt-PT": "A pairar"
+                    }
+                },
+                {
+                    "value": "overlay",
+                    "label": {
+                        "en": "Overlay",
+                        "de": "Überlagerung",
+                        "es": "Superposición",
+                        "fr": "Superposé",
+                        "pt-PT": "Sobreposição"
+                    }
+                },
+                {
+                    "value": "below-image",
+                    "label": {
+                        "en": "Below image",
+                        "de": "Unteres Bild",
+                        "es": "Debajo de la imagen",
+                        "fr": "Image ci-dessous",
+                        "pt-PT": "Abaixo da imagem"
+                    }
+                },
+                {
+                    "value": "hide",
+                    "label": {
+                        "en": "Hide",
+                        "de": "Verbergen",
+                        "es": "Ocultar",
+                        "fr": "Cacher",
+                        "pt-PT": "Ocultar"
+                    }
+                }
+            ]
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "name": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    },
+                    "info": {
+                        "en": "We recommend images be cropped to the same size",
+                        "de": "Wir empfehlen, Bilder auf die gleiche Größe zuzuschneiden",
+                        "es": "Recomendamos que las imágenes se recorten al mismo tamaño",
+                        "fr": "Nous recommandons de recadrer les images aux mêmes dimensions",
+                        "pt-PT": "Recomendamos que as imagens sejam recortadas com o mesmo tamanho"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "link",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "subheading",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subtítulo",
+                        "fr": "Sous-titre",
+                        "pt-PT": "Subtítulo"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                   "type": "text",
+                    "id": "overlay-btn-text",
+                    "label": {
+                        "en": "Button text",
+                        "de": "Buttontext",
+                        "es": "Texto del botón",
+                        "fr": "Texte des boutons",
+                        "pt-PT": "Texto do botão"
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "id": "show-gradient-overlay",
+                    "default": true,
+                    "label": {
+                        "en": "Enable overlay gradient",
+                        "de": "Überlagerungsgradienten aktivieren",
+                        "es": "Activar el gradiente de superposición",
+                        "fr": "Activer le dégradé de superposition",
+                        "pt-PT": "Ativar sobreposição de gradiente"
+                    }
+                },
+                {
+                     "type": "color",
+                     "id": "overlay_font_color",
+                     "label": {
+                        "en": "Overlay text color",
+                        "de": "Überlagerungstext-Farbe",
+                        "es": "Color del texto de superposición",
+                        "fr": "Couleur du texte de superposition",
+                        "pt-PT": "Cor da sobreposição de texto"
+                     },
+                     "default": "#ffffff"
+                },
+                {
+                     "type": "color",
+                     "id": "overlay_color",
+                     "label": {
+                        "en": "Overlay color",
+                        "de": "Überlagerungsfarbe",
+                        "es": "Color de superposición",
+                        "fr": "Couleur de superposition",
+                        "pt-PT": "Cora da sobreposição"
+                     },
+                     "default": "#323232"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Gallery",
+                "de": "Galerie",
+                "es": "Galería",
+                "fr": "Galerie",
+                "pt-PT": "Galeria"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "blocks": [
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

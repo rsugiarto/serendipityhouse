@@ -1,0 +1,189 @@
+{% if section.settings.enable_product_recommendations %}
+  <link rel="preload" href="{{ 'section-product-recommendations.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+  <noscript>{{ 'section-product-recommendations.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+  {% comment %} Construct product card layout {% endcomment %}
+  {%- capture product_card_blocks -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type contains "product_card_" -%}
+        {{ block.type }},
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {% assign image_block = section.blocks | where: "type", "product_card_image" | first %}
+
+  <div
+    class="product-recommendations"
+    data-product-id="{{ product.id }}"
+    data-limit="8"
+    data-recommendations-url="{{ routes.product_recommendations_url }}"
+    data-wetheme-section-type="template--product--recommendations"
+    data-wetheme-section-id="{{ section.id }}"
+  >
+
+    {%- if recommendations.products_count > 0 -%}
+      <div class="product-page-related-products product-sticker-stop">
+        <div class="wrapper-padded">
+
+          {% unless section.settings.product_recommendations_heading == blank %}
+            <div class="sitewide--title-wrapper">
+              <h2 class="page--title text-center font-bold text-4xl pb-4 leading-tight text-orange-dark">{{ section.settings.product_recommendations_heading }}</h2>
+            </div>
+          {% endunless %}
+
+          <div class="swiper-container product-recommendations__slideshow">
+              <div class="swiper-wrapper">
+                  {%- for product in recommendations.products -%}
+                      {% comment %}
+                          Check if the product is on sale and set a variable to be used below.
+                      {% endcomment %}
+                      {% assign on_sale = false %}
+                      {% if product.compare_at_price > product.price %}
+                          {% assign on_sale = true %}
+                      {% endif %}
+
+                      {% comment %}
+                          Check if the product is sold out and set a variable to be used below.
+                      {% endcomment %}
+                      {% assign sold_out = true %}
+                      {% if product.available %}
+                          {% assign sold_out = false %}
+                      {% endif %}
+
+                      <div class="grid__item swiper-slide">
+                          <div class="grid-view-item">
+                            {% render 'grid-view-item', product: product, collection: null, hover_effect: image_block.settings.hover-effect, blocks: product_card_blocks, enable_badges: image_block.settings.enable_badges %}
+                          </div>
+                      </div>
+                  {%- endfor -%}
+              </div>
+          </div>
+          <div class="swiper-button--prev">
+            <i class="fa icon-angle-left"></i>
+          </div>
+          <div class="swiper-button--next">
+            <i class="fa icon-angle-right"></i>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Product recommendations",
+        "de": "Produktempfehlungen",
+        "es": "Recomendaciones de productos",
+        "fr": "Recommandations de produits",
+        "pt-PT": "Recomendações de produtos"
+    },
+    "settings": [
+        {
+          "type": "checkbox",
+          "id": "enable_product_recommendations",
+          "label": "Enable product recommendations",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "product_recommendations_heading",
+          "label": {
+            "en": "Heading",
+            "de": "Überschrift",
+            "es": "Encabezado",
+            "fr": "Rubrique",
+            "pt-PT": "Título"
+          },
+          "default": {
+            "en": "You may also like",
+            "de": "Ihnen könnte auch gefallen",
+            "es": "También podría gustarle",
+            "fr": "Vous aimerez peut-être aussi",
+            "pt-PT": "Também poderá gostar de"
+          }
+        }
+    ],
+    "blocks": [
+      {
+        "type": "product_card_image",
+        "name": "Product image",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "hover-effect",
+            "label": {
+                "en": "Enable hover effect",
+                "de": "Hover-Effekt aktivieren",
+                "es": "Habilitar efecto hover",
+                "fr": "Activer l'effet survol",
+                "pt-PT": "Ativar efeito ao passar o rato"
+            },
+            "default": false,
+            "info": {
+                "en": "Show second product image on hover",
+                "de": "Zweites Produktbild beim Hover anzeigen",
+                "es": "Mostar la segunda imagen del producto al pasar el ratón sobre la imagen",
+                "fr": "Afficher l'image du second produit survolé",
+                "pt-PT": "Mostrar imagem do segundo produto ao passar o rato"
+            }
+          },
+          {
+            "type": "checkbox",
+            "id": "enable_badges",
+            "label": "Enable badges",
+            "default": true,
+            "info": "Sold out and Sale badges"
+          }
+        ]
+      },
+      {
+        "type": "product_card_title",
+        "name": "Product title",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product title within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_vendor",
+        "name": "Product vendor",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product vendor within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_price",
+        "name": "Product price",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the product price within the product cards in your collection product list."
+          }
+        ]
+      },
+      {
+        "type": "product_card_button",
+        "name": "Quick shop button",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This is used to set the order and placement of the 'Add to cart' or 'View options' button within the product cards in your collection product list."
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}

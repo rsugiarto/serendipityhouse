@@ -1,0 +1,542 @@
+<link rel="preload" href="{{ 'section-blog-blog-posts.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-blog-blog-posts.min.css' | asset_url | stylesheet_tag }}</noscript>
+<div
+  class="homepage-sections-wrapper container homepage-sections-wrapper--{{ section.settings.colors }}"
+  data-wetheme-section-type="image--slideshow" data-wetheme-section-id="{{ section.id }}"
+>
+  <div class="wrapper-padded show-on-scroll">
+    <div class="homepage-indiv-section-wrapper">
+    	{% if section.settings.title != '' %}
+          <h2 class="text-center font-bold text-4xl pb-4 leading-tight text-orange-dark">{{ section.settings.title | escape }}</h2>
+        {% endif %}
+      {% if section.settings.richtext != '' %}
+        <div class="grid">
+          <div class="grid__item large--one-half push--large--one-quarter">
+            <div class="homepage-sections--description">{{ section.settings.richtext }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% case section.settings.post_limit %}
+        {% when 1 %}
+          {% assign size = "large--one-half push--large--one-quarter" %}
+        {% when 2 %}
+          {% assign size = "large--one-half" %}
+        {% when 3 %}
+          {% assign size = "large--one-third" %}
+        {% when 4 %}
+          {% assign size = "large--one-quarter" %}
+      {% endcase %}
+
+      {% comment %} vvvvv START PLACEHOLDER vvvvv {% endcomment %}
+      {% unless section.blocks.first %}
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            {% for i in (1..section.settings.post_limit) limit: section.settings.post_limit %}
+              <div class="swiper-slide">
+                <div class="grid__item">
+                  <div class="article-image">
+                    {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+                  </div>
+
+                  <div class="blog-title-wrapper{% if article.image %} article-image-in-header{% endif %}">
+                    {% if section.settings.blog_show_date %}
+                      <time class="homepage-blog--date" datetime="{{ "2016-12-25" | date: '%Y-%m-%d' }}">{{ "2016-12-25" | time_tag: format: 'date' }}</time>
+                    {% endif %}
+                    <div class="blog-title--divider"></div>
+                    <h3 class="homepage-blog--title">{{ 'general.onboarding.blog_title' | t }}</h3>
+                  </div>
+
+                  <div class="rte home-blog-excerpt">
+                    {{ 'general.onboarding.blog_excerpt' | t }}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      {% endunless %}
+      {% comment %} ^^^^^ END PLACEHOLDER ^^^^^ {% endcomment %}
+      {% assign block = section.blocks.first %}
+        {% case block.type %}
+          {% when "article" %}
+              <div class="grid medium--hide small--hide">
+                  <div class="row">
+                    {% for i in (1..section.settings.post_limit) limit: section.settings.post_limit %}
+                      {% assign blog_post = 'blog_post_' | append: i %}
+                      {% assign current_post = articles[block.settings[blog_post]] %}
+
+                        <div class="grid__item {{ size }}">
+
+                          {% unless current_post == empty %}
+
+                            {% if current_post.image %}
+                              <div class="article-image-wrap">
+                                <div class="article-image">
+                                  <a href="{{ current_post.url }}" class="{% if settings.ken_burns_enabled %} kb-enabled{% endif %}" tabindex="-1">
+                                    {% capture post_alt %}{{ current_post.image.alt | default: current_post.title }}{% endcapture %}
+                                    {% render 'responsive-image' with current_post.image, alt: post_alt | escape, crop: 'center', force_height: 400, blur: false %}{% comment %}FIXME: add section height option{% endcomment %}
+                                  </a>
+                                </div>
+                              </div>
+                            {% endif %}
+
+                            {% if section.settings.blog_show_date %}
+                              <time class="homepage-blog--date" datetime="{{ current_post.published_at | date: '%Y-%m-%d' }}">{{ current_post.published_at | time_tag: format: 'date' }}</time>
+                            {% endif %}
+
+                            <h3 class="homepage-blog--title"><a href="{{ current_post.url }}">{{ current_post.title }}</a></h3>
+
+                            <div class="rte">
+                              {% if current_post.excerpt.size > 0 %}
+                                {{ current_post.excerpt }}
+                              {% else %}
+                                <p>{{ current_post.content | strip_html | truncatewords: 20 }}</p>
+                              {% endif %}
+                            </div>
+
+                          {% else %}
+
+                            <div class="article-image">
+                              {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+                            </div>
+
+                            <div class="blog-title-wrapper{% if article.image %} article-image-in-header{% endif %}">
+                              {% if section.settings.blog_show_date %}
+                                <time class="homepage-blog--date" datetime="{{ "2016-12-25" | date: '%Y-%m-%d' }}">{{ "2016-12-25" | time_tag: format: 'date' }}</time>
+                              {% endif %}
+                              <div class="blog-title--divider"></div>
+                              <h3 class="homepage-blog--title">{{ 'general.onboarding.blog_title' | t }}</h3>
+                            </div>
+
+                            <div class="rte home-blog-excerpt">
+                              {{ 'general.onboarding.blog_excerpt' | t }}
+                            </div>
+
+                          {% endunless %}
+
+                        </div>
+
+                    {% endfor %}
+
+                  </div>
+              </div>
+
+              <div class="homepage-blog-mobile swiper-container large--hide">
+                <div class="swiper-wrapper">
+                    {% for i in (1..section.settings.post_limit) limit: section.settings.post_limit %}
+                      {% assign mobile_blog_post = 'blog_post_' | append: i %}
+                      {% assign mobile_current_post = articles[block.settings[mobile_blog_post]] %}
+                          {% unless mobile_current_post == empty %}
+                              <div class="swiper-slide">
+                                <div class="grid__item grid grid-cols-1 md:grid-cols-2">
+                                  {% if mobile_current_post.image %}
+                                    <div class="article-image">
+                                      <a href="{{ mobile_current_post.url }}" tabindex="-1">
+                                        {% capture post_alt %}{{ mobile_current_post.image.alt | default: mobile_current_post.title }}{% endcapture %}
+                                        {% render 'responsive-image' with mobile_current_post.image, alt: post_alt | escape, blur: false %}
+                                      </a>
+                                    </div>
+                                  {% endif %}
+									<div>
+									  {% if section.settings.blog_show_date %}
+										<time class="homepage-blog--date" datetime="{{ mobile_current_post.published_at | date: '%Y-%m-%d' }}">{{ mobile_current_post.published_at | time_tag: format: 'date' }}</time>
+									  {% endif %}
+
+									  <h3 class="homepage-blog--title"><a href="{{ mobile_current_post.url }}">{{ mobile_current_post.title }}</a></h3>
+
+									  <div class="rte">
+										{% if mobile_current_post.excerpt.size > 0 %}
+										  {{ mobile_current_post.excerpt }}
+										{% else %}
+										  <p>{{ mobile_current_post.content | strip_html | truncatewords: 20 }}</p>
+										{% endif %}
+									  </div>
+									</div>
+                                </div>
+                              </div>
+                          {% else %}
+                              <div class="swiper-slide">
+                                <div class="grid__item grid grid-cols-1 md:grid-cols-2">
+                                  	<div class="article-image">
+                                    	{{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+                                  	</div>
+									<div>	
+										<div class="blog-title-wrapper{% if article.image %} article-image-in-header{% endif %}">
+											{% if section.settings.blog_show_date %}
+										  		<time class="homepage-blog--date" datetime="{{ "2016-12-25" | date: '%Y-%m-%d' }}">{{ "2016-12-25" | time_tag: format: 'date' }}</time>
+											{% endif %}
+											<div class="blog-title--divider"></div>
+											<h3 class="homepage-blog--title">{{ 'general.onboarding.blog_title' | t }}</h3>
+									  	</div>
+									  	<div class="rte home-blog-excerpt">
+											{{ 'general.onboarding.blog_excerpt' | t }}
+									  	</div>
+									</div>
+                                </div>
+                              </div>
+                          {% endunless %}
+                    {% endfor %}
+				</div>	
+		  	</div>
+          {% when "blog" %}
+        	{% assign selected_blog = blogs[block.settings.blog] %}
+            <div class="swiper-container">
+              	<div class="swiper-wrapper">
+                {% unless selected_blog == empty %}
+                	{% for article in selected_blog.articles limit: section.settings.post_limit %}
+                		<div class="swiper-slide">
+							<div class="grid__item grid grid-cols-1 md:grid-cols-2 gap-4">
+								{% if article.image %}
+								  <div class="article-image">
+									  <a href="{{ article.url }}">
+										  {% capture classs %}object-contain{% endcapture %}
+									  {% capture post_alt %}{{ article.image.alt | default: article.title }}{% endcapture %}
+									  {% render 'responsive-image' with article.image, alt: post_alt | escape, blur: false, class: classs %}
+									</a>
+								  </div>
+								{% endif %}
+								<div>
+									<h3 class="font-bold text-2xl pb-2"><a href="{{ article.url }}" class=" text-grey-davy hover:text-black">{{ article.title }}</a></h3>
+									{% if section.settings.blog_show_date %}
+									  <time class="text-silver-chalice py-4" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | time_tag: format: 'date' }}</time>
+									{% endif %}
+									<div class="pt-4 text-black">
+									  {% if article.excerpt.size > 0 %}
+										{{ article.excerpt | strip_html | truncate: 200  }}
+									  {% else %}
+										<p>{{ article.content | strip_html | truncate: 200 }}</p>
+									{% endif %}
+										<p class="pt-4"><a href="{{ article.url }}" class="px-6 py-3 border border-brown-zin text-brown-zin underline underline-offset-4">Read more</a></p>
+									</div>
+								</div>
+						  </div>
+                    	</div>
+                  	{% endfor %}
+                {% else %}
+                  {% for i in (1..section.settings.post_limit) limit: section.settings.post_limit %}
+                    <div class="swiper-slide">
+						<div class="grid__item grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="article-image">
+							  {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+							</div>
+							<div>
+								<h3 class="font-bold text-2xl text-grey-davy pb-2">{{ 'general.onboarding.blog_title' | t }}</h3>
+								{% if section.settings.blog_show_date %}
+									<time class="text-silver-chalice py-2" datetime="{{ "2016-12-25" | date: '%Y-%m-%d' }}">{{ "2016-12-25" | time_tag: format: 'date' }}</time>
+								{% endif %}
+								<div class="blog-title--divider"></div>
+								<div class="rte home-blog-excerpt">
+								  	{{ 'general.onboarding.blog_excerpt' | t }}
+								</div>
+							</div>
+						</div>
+                    </div>
+                  {% endfor %}
+			{% endunless %}
+			</div>
+			<div class="image--slideshow__navigation swiper-navigation">
+				<a href="javascript:void(0);" class="flex-prev">
+				  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  </svg>
+				</a>
+				<a href="javascript:void(0);" class="flex-next">
+				  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  </svg>
+				</a>
+		  	</div>
+        </div>
+        {% endcase %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Blog posts",
+        "de": "Blogposts",
+        "es": "Publicaciones del blog",
+        "fr": "Articles de blog",
+        "pt-PT": "Publicações no blog"
+    },
+    "class": "blog-posts-wrapper",
+    "max_blocks": 1,
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "From the blog",
+                "de": "Aus dem Blog",
+                "es": "Del blog",
+                "fr": "Du blog",
+                "pt-PT": "Do blog"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "blog_show_date",
+            "label": {
+                "en": "Show dates",
+                "de": "Daten anzeigen",
+                "es": "Mostrar fechas",
+                "fr": "Afficher les dates",
+                "pt-PT": "Mostrar datas"
+            },
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "post_limit",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "label": {
+              "en": "Posts to show",
+              "de": "Anzuzeigende Beiträge",
+              "es": "Publicaciones para mostrar",
+              "fr": "Articles à montrer",
+              "pt-PT": "Publicações a apresentar"
+            },
+            "default": 3
+        }
+    ],
+    "blocks": [
+      {
+        "type": "article",
+        "name": {
+          "en": "Selected blog posts",
+          "de": "Ausgewählte Blogbeiträge",
+          "es": "Publicaciones de blog seleccionadas",
+          "fr": "Articles du blog sélectionnés",
+          "pt-PT": "Publicações do blogue selecionadas"
+        },
+        "settings": [
+          {
+            "type": "header",
+            "content": {
+              "en": "Selected blog posts",
+              "de": "Ausgewählte Blogbeiträge",
+              "es": "Publicaciones de blog seleccionadas",
+              "fr": "Articles du blog sélectionnés",
+              "pt-PT": "Publicações do blogue selecionadas"
+            },
+            "info": {
+              "en": "Choose the blog posts you want to feature",
+              "de": "Wählen Sie die Blogbeiträge, die Sie präsentieren möchten",
+              "es": "Elige las publicaciones del blog que quieres destacar",
+              "fr": "Choisissez les articles du blog que vous souhaitez mettre en avant",
+              "pt-PT": "Escolha as publicações do blogue que pretende apresentar"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_1",
+            "label": {
+              "en": "First blog post",
+              "de": "Erster Blogbeitrag",
+              "es": "Primera publicación del blog",
+              "fr": "Premier article du blog",
+              "pt-PT": "Primeira publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_2",
+            "label": {
+              "en": "Second blog post",
+              "de": "Zweiter Blogbeitrag",
+              "es": "Segunda publicación del blog",
+              "fr": "Deuxième article du blog",
+              "pt-PT": "Segunda publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_3",
+            "label": {
+              "en": "Third blog post",
+              "de": "Dritter Blogbeitrag",
+              "es": "Tercera publicación del blog",
+              "fr": "Troisième article du blog",
+              "pt-PT": "Terceira publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_4",
+            "label": {
+              "en": "Fourth blog post",
+              "de": "Vierter Blogbeitrag",
+              "es": "Cuarta publicación del blog",
+              "fr": "Quatrième article du blog",
+              "pt-PT": "Quarta publicação do blogue"
+            }
+          }
+        ]
+      },
+      {
+        "type": "blog",
+        "name": {
+          "en": "Selected blog",
+          "de": "Ausgewählter Blog",
+          "es": "Blog seleccionado",
+          "fr": "Blog sélectionné",
+          "pt-PT": "Blogue selecionado"
+        },
+        "settings": [
+          {
+            "type": "header",
+            "content": {
+              "en": "Selected blog",
+              "de": "Ausgewählter Blog",
+              "es": "Blog seleccionado",
+              "fr": "Blog sélectionné",
+              "pt-PT": "Blogue selecionado"
+            },
+            "info": {
+              "en": "Choose the blog you want to feature",
+              "de": "Wählen Sie den Blog, den Sie präsentieren möchten",
+              "es": "Elige el blog que quieres destacar",
+              "fr": "Choisissez le blog que vous souhaitez mettre en avant",
+              "pt-PT": "Escolha o blogue que pretende apresentar"
+            }
+          },
+          {
+            "type": "blog",
+            "id": "blog",
+            "label": {
+                "en": "Blog",
+                "de": "Blog",
+                "es": "Blog",
+                "fr": "Blog",
+                "pt-PT": "Blog"
+            }
+          }
+        ]
+      }
+    ],
+    "templates": [
+      "404",
+      "article",
+      "cart",
+      "collection",
+      "list-collections",
+      "index",
+      "page",
+      "password",
+      "product",
+      "search"
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Blog posts",
+                "de": "Blogposts",
+                "es": "Publicaciones del blog",
+                "fr": "Articles de blog",
+                "pt-PT": "Publicações no blog"
+            },
+            "category": {
+                "en": "Blog",
+                "de": "Blog",
+                "es": "Blog",
+                "fr": "Blog",
+                "pt-PT": "Blog"
+            },
+            "settings": {},
+            "blocks": [
+              {
+                "type": "blog",
+                "settings": {
+                  "blog": "Blog"
+                }
+              }
+            ]
+        }
+    ]
+}
+{% endschema %}

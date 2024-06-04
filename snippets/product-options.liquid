@@ -1,0 +1,72 @@
+{% comment %}
+Dropdowns or swatches for product
+
+Parameters:
+* section_id: id of a section
+* variant_style: 'dropdowns' | 'swatches'
+{% endcomment %}
+
+{% assign hide_default_title = false %}
+{% if product.variants.size == 1 and product.variants.first.title contains 'Default' %}
+  {% assign hide_default_title = true %}
+{% endif %}
+
+{% if product.variants.size > 0  %}
+  {% if variant_style == 'dropdowns' %}
+
+    {% for option in product.options_with_values %}
+
+      {% assign option_index = forloop.index0 %}
+
+      <div class="selector-wrapper js{% if hide_default_title == true %} hide{% endif %}">
+        <wetheme-dropdown name="{{ forloop.index }}" v-on:change="setVariantOption" v-bind:value="option{{ forloop.index }}">
+          <label for="SingleOptionSelector-{{ forloop.index0 }}">{{ option.name }}</label>
+          <select class="form-control" id="SingleOptionSelector-{{ forloop.index0 }}" autocomplete="off">
+            {% for value in option.values %}
+
+              {% if hide_soldout_variants %}
+                {% assign show_option = false %}
+                {% comment %}
+                Is there ANY variant with this option text that is available? If ALL are not available, the option is sold out.
+                {% endcomment %}
+                {% for v in product.variants %}
+                  {% if v.options[option_index] == value and v.available %}
+                    {% assign show_option = true %}
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% assign show_option = true %}
+              {% endif %}
+
+              {% if show_option %}
+                <option {% if option.selected_value == value %}selected{% endif %} value="{{ value | escape }}">{{ value }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </wetheme-dropdown>
+      </div>
+    {% endfor %}
+
+  {% else %}
+
+    {% if hide_default_title == false %}
+      {% for option in product.options %}
+        {% render 'swatch' with option, product: product, hide_soldout_variants: hide_soldout_variants %}
+      {% endfor %}
+    {% endif %}
+
+  {% endif %}
+{% endif %}
+
+
+<select name="id" id="productSelect-{{ section.id }}" data-section="{{ section.id }}" class="product-single__variants original-select no-js" autocomplete="off" v-model="variant && variant.id">
+  {% for variant in product.variants %}
+    {% if variant.available %}
+      <option {% if variant.id == current_variant.id %} selected {% endif %} value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money_with_currency }}</option>
+    {% else %}
+      <option value="{{ variant.id }}" disabled>
+        {{ variant.title }} - {{ 'products.product.sold_out' | t }}
+      </option>
+    {% endif %}
+  {% endfor %}
+</select>

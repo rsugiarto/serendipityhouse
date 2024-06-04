@@ -1,0 +1,49 @@
+{%- if product_id -%}
+  {% assign product = all_products[product_id] %}
+  {% assign options_block = section.blocks | where: "type", "options" | first %}
+  {%- if product -%}
+    <cross-sell
+      product="{{ product | json | escape }}"
+      money-format="{{ shop.money_format }}"
+    >
+      <div aria-hidden="true">
+        {% comment %} Fallback html when JS is disabled. {% endcomment %}
+        {% form 'product', product, id: {{product.id}} %}
+          {%- assign variant = product.selected_or_first_available_variant -%}
+
+          <div class="thumbnail">
+            <img src="{{ product.featured_image | img_url: '200x200', scale: 2  }}" loading="lazy" alt="{{ product.featured_image.alt }}" width="200" height="{{ 200 | divided_by: product.featured_image.aspect_ratio | round: 2 }}">
+          </div>
+          <div class="title">
+            {{ product.title }}
+          </div>
+          <div class="price">
+            <ul class="product-page--pricing">
+              {% render 'product-pricing', current_variant: variant %}
+              {% render 'unit-price-measurement-variant', current_variant: variant %}
+            </ul>
+          </div>
+          <div class="options">
+            {% render 'product-options', product: product, variant_style: options_block.settings.product_variant_style, section_id: section.id, current_variant: current_variant, hide_soldout_variants: options_block.settings.hide_soldout_variants %}
+          </div>
+          <div class="buttons">
+            <button
+              type="submit"
+              name="add"
+              id="purchase"
+              class="btn bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3{% if block.settings.show_smart_checkout and product.selling_plan_groups.size == 0 %} {% endif %}"{% if disabled %}
+              disabled{% endif %}
+            >
+              {% if variant.available %}
+                {{ 'products.product.add_to_cart' | t }}
+              {% else %}
+                {{ 'products.product.sold_out' | t }}
+              {% endif %}
+            </button>
+          </div>
+        {% endform %}
+      </div>
+    </cross-sell>
+
+  {%- endif -%}
+{%- endif -%}

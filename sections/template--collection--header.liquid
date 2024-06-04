@@ -1,0 +1,135 @@
+{% assign image_block = section.blocks | where: "type", "collection_image" | first %}
+<header class="section-header collection py-4 px-4 md:px-0">
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when '@app' -%}
+        {% render block %}
+      {%- when 'title' -%}
+        <div class="sitewide--title-wrapper wrapper-padded">
+          <h1 class="page--title text-brown-zin text-2xl font-normal">{{ collection.title }}</h1>
+        </div>
+      {%- when 'description' -%}
+        {% if collection.description != blank %}
+          <div class="rte rte--header collection-header__description wrapper-padded">
+            {{ collection.description }}
+          </div>
+        {% endif %}
+
+      {%- when 'collection_image' -%}
+        {% if collection.image != blank %}
+          {% capture collection_alt %}{{ collection.image.alt | default: collection.title }}{% endcapture %}
+          {% if image_block.settings.collection-image-size == 'original' %}
+            {% render 'responsive-image' with collection.image, alt: collection_alt | escape, class: 'collection-page--feature-image' %}
+          {% else %}
+            {% capture image_layout %}
+              <div class="collection-image">
+                  <div class="collection-page--feature-image">
+                    <div id="rellax--collection-image" class="img" role="img" aria-label="{{ collection_alt | escape }}" ></div>
+                  </div>
+              </div>
+            {% endcapture %}
+            {{ image_layout }}
+          {% endif %}
+        {% endif %}
+    {%- endcase -%}
+  {%- endfor -%}
+</header>
+{% schema %}
+{
+	"name": "Collection header",
+	"class": "w-full",
+    "settings": [],
+    "blocks": [
+      {
+        "type": "@app"
+      },
+      {
+        "type": "collection_image",
+        "name": "Collection image",
+        "limit": 1,
+        "settings": [
+            {
+              "type": "paragraph",
+              "content": "The title of the collection."
+            },
+            {
+                "type": "select",
+                "id": "collection-image-size",
+                "label": {
+                  "en": "Collection image size",
+                  "de": "Größe des Kollektionsbilds",
+                  "es": "Tamaño de la imagen de la colección",
+                  "fr": "Taille de l'image de la collection",
+                  "pt-PT": "Tamanho da imagem da coleção"
+                },
+                "options": [
+                    {
+                      "value": "20vh",
+                      "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                      }
+                    },
+                    {
+                      "value": "30vh",
+                      "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                      }
+                    },
+                    {
+                      "value": "40vh",
+                      "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                      }
+                    },
+                    {
+                      "value": "original",
+                      "label": {
+                        "en": "Original",
+                        "de": "Original",
+                        "es": "Original",
+                        "fr": "D'origine",
+                        "pt-PT": "Original"
+                      }
+                    }
+                ],
+                "default": "20vh"
+            }
+        ]
+      },
+      {
+        "type": "title",
+        "name": "Collection title",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "The title of the collection."
+          }
+        ]
+      },
+      {
+        "type": "description",
+        "name": "Collection description",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "The description of the collection, if one exists."
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}

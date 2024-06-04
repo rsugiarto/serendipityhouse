@@ -1,0 +1,37 @@
+<transition name="fade">
+  <div class="out-of-stock-form out-of-stock-form--active" v-if="variant && !variant.available">
+    {% form 'contact' %}
+      {% if form.posted_successfully? %}
+          <div class="accent-text posted-successfully">{{ 'products.product.out_of_stock_success' | t }}</div>
+      {% else %}
+          <div id="notify-me" v-on:click="onShowOutOfStockForm">{{ 'products.product.out_of_stock_html' | t: product: product.title }}</div>
+      {% endif %}
+      {% if form.errors %}
+        <div class="error feedback accent-text">
+          <div class="accent-text">{{ 'products.product.wrong_email' | t }}</div>
+        </div>
+      {% endif %}
+      {% unless form.posted_successfully? %}
+      <div id="notify-me-wrapper" class="clearfix show-form" v-if="showOutOfStockForm">
+        {% if customer %}
+          <input type="hidden" class="logged-in" value="0">
+          <input type="hidden" name="contact[email]" value="{{ customer.email }}" />
+        {% else %}
+          <input
+            required="required"
+            type="email"
+            name="contact[email]"
+            placeholder="your@email.com"
+            class="form-input px-4 py-3 border border-orange-dark focus:ring-0 styled-input{% if form.errors contains 'email' %} error{% endif %}" value="{{ contact.fields.email }}"
+          />
+        {% endif %}
+        <div>
+          <input type="hidden" name="contact[body]" v-bind:value="`Please notify me when ${variant.name} becomes available.`" />
+        </div>
+        <input class="btn py-3 px-4 bg-orange-dark text-sm uppercase text-white" type="submit" value="{{ 'contact.form.send' | t }}" />
+        {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+      </div>
+      {% endunless %}
+    {% endform %}
+  </div>
+</transition>

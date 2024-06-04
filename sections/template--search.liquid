@@ -1,0 +1,1631 @@
+{% capture icon_caret %}
+  <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
+  </svg>
+{% endcapture %}
+
+{% capture icon_close %}
+  <svg  aria-hidden="true" focusable="false" role="presentation" width="12" height="13" class="icon icon-close-small" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8.48627 9.32917L2.82849 3.67098" stroke="#333030" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M2.88539 9.38504L8.42932 3.61524" stroke="#333030" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+{% endcapture %}
+
+{% if settings.predictive_search_articles %}
+  {% assign article_search = "article," %}
+{% else %}
+  {% assign article_search = "" %}
+{% endif %}
+{% if settings.predictive_search_products %}
+  {% assign product_search = "product," %}
+{% else %}
+  {% assign product_search = "" %}
+{% endif %}
+{% if settings.predictive_search_pages %}
+  {% assign page_search = "page," %}
+{% else %}
+  {% assign page_search = "" %}
+{% endif %}
+
+
+<style>
+  .collection-wrapper {
+    --filter-border-color: var(--border-color);
+    --filter-text-color: var(--text-color);
+    --filter-font-family: var(--body-font-stack);
+    --filter-font-style: var(--body-font-style);
+    --filter-font-weight: var(--body-font-weight);
+    --filter-body-font-size: var(--body-font-size);
+    --filter-base-font-size: var(--base-font-size);
+    --filter-body-font-size-12-em: var(--body-font-size-12-to-em);
+    --filter-background-color: var(--color-primary-background);
+    --filter-color-background-rgb: var(--color-primary-background-rgb);
+  }
+
+    /* Select */
+  summary .icon-caret,
+  .select .icon-caret,
+    .customer select + svg {
+      height: 0.4rem;
+      pointer-events: none;
+      position: absolute;
+      top: calc(50% - 0.2rem);
+      right: 1rem;
+    }
+
+    .select__select,
+    .customer select {
+      cursor: pointer;
+      padding: 0 4rem 0 1.5rem;
+      padding: 0 2.5rem 0 0.8rem
+    }
+
+    .field {
+      position: relative;
+      width: 100%;
+      display: flex;
+    }
+
+    .field__input,
+    .select__select {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      letter-spacing: 0.04rem;
+    }
+
+    .field__label,
+    .customer .field label {
+      font-size: .8rem;
+      left: 1.5rem;
+      top: 1rem;
+      margin-bottom: 0;
+      pointer-events: none;
+      position: absolute;
+      transition: top 100ms ease,
+      font-size 100ms ease;
+      letter-spacing: 0.1rem;
+      line-height: 1.5;
+    }
+
+    .field__input:focus,
+    .field__input:not(:placeholder-shown),
+    .field__input:-webkit-autofill,
+    .customer .field input:focus,
+    .customer .field input:not(:placeholder-shown),
+    .customer .field input:-webkit-autofill {
+      padding: 2.2rem 1.5rem 0.8rem;
+    }
+
+    .field__input::-webkit-search-cancel-button,
+    .customer .field input::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    .field__input::placeholder,
+    .customer .field input::placeholder {
+      opacity: 0;
+    }
+
+    /* component-form */
+    .field__input,
+    .select__select,
+    .customer .field input,
+    .customer select {
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: transparent;
+      border: 0;
+      border-radius: 0;
+      color: var(--filter-text-color);
+      font-size: 1.2rem;
+      width: 100%;
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color);
+      height: 2.7rem;
+      box-sizing: border-box;
+      transition: box-shadow 100ms ease;
+    }
+
+    .field__input,
+    .customer .field input {
+      flex-grow: 1;
+      text-align: left;
+      padding: 1.5rem;
+    }
+
+    .field__input:hover,
+    .select__select:hover,
+    .customer .field input:hover,
+    .customer select:hover,
+    .localization-form__select:hover {
+      box-shadow: 0 0 0 0.2rem var(--filter-border-color);
+    }
+
+    .field__input:focus-visible,
+    .select__select:focus-visible,
+    .field input:focus-visible {
+      box-shadow: 0 0 0 0.1rem -webkit-focus-ring-color,
+      0 0 0 0.3rem var(--filter-border-color),
+      0 0 0.5rem 0.4rem -webkit-focus-ring-color;
+    }
+
+    .field__input:focus,
+    .select__select:focus,
+    .field input:focus {
+      box-shadow: 0 0 0 0.1rem -webkit-focus-ring-color,
+      0 0 0 0.3rem var(--filter-border-color),
+      0 0 0.5rem 0.4rem -webkit-focus-ring-color;
+    }
+
+    .facets__summary:focus-visible,
+    .facets__summary:focus {
+      border: solid var(--filter-border-color) 1px;
+    }
+
+  .field__input:focus ~ .field__label,
+  .field__input:not(:placeholder-shown) ~ .field__label,
+  .field__input:-webkit-autofill ~ .field__label,
+  .customer .field input:focus ~ label,
+  .customer .field input:not(:placeholder-shown) ~ label,
+  .customer .field input:-webkit-autofill ~ label {
+    font-size: .7rem;
+    top: 0.3em;
+    letter-spacing: 0.04rem;
+  }
+
+  price-range-selector .field__input:not(:placeholder-shown) ~ .field__label {
+    top: 0;
+  }
+
+  .field__input:focus,
+  .field__input:not(:placeholder-shown),
+  .field__input:-webkit-autofill,
+  .customer .field input:focus,
+  .customer .field input:not(:placeholder-shown),
+  .customer .field input:-webkit-autofill {
+    padding: 1.5rem 1rem 0.8rem !important;
+  }
+
+  .field__input::-webkit-search-cancel-button,
+  .customer .field input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+    .field__input::placeholder,
+    .customer .field input::placeholder {
+      opacity: 0;
+    }
+
+    .select__select {
+      box-shadow: 0 0 0 0.07rem var(--filter-border-color);
+      font-family: var(--filter-font-family);
+      font-style: var(--filter-font-style);
+      font-weight: var(--filter-font-weight);
+      font-size: var(--filter-body-font-size-12-em-12-to-em);
+      color: var(--filter-text-color);
+    }
+
+    .text-area,
+    .select {
+      display: inline-block;
+      position: relative;
+      width: 100%;
+    }
+
+    /* base-details-summary */
+    summary {
+      cursor: pointer;
+      list-style: none;
+      position: relative;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .disclosure-has-popup {
+      position: relative;
+    }
+
+    @media screen and (min-width: 769px) {
+      .disclosure-has-popup[open] > summary::before {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        display: block;
+        cursor: default;
+        content: ' ';
+        background: transparent;
+      }
+    }
+
+    .disclosure-has-popup > summary::before {
+      display: none;
+    }
+
+    .disclosure-has-popup[open] > summary + * {
+      z-index: 101;
+    }
+
+    .collection {
+      position: relative;
+    }
+
+    @media screen and (max-width: 768px) {
+      .collection .title:not(.title--no-heading) {
+        margin-top: -1rem;
+      }
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection .title-wrapper-with-link--no-heading {
+        margin-top: 6rem;
+      }
+    }
+
+    .collection-product-count {
+      margin-top: 0;
+      font-size: var(--filter-base-font-size);
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection-product-count {
+        margin-top: 1.5rem;
+      }
+    }
+
+    .template-search .grid__item--small {
+      padding-bottom: 0.5rem;
+    }
+
+    .collection.loading .collection-product-count {
+      visibility: hidden;
+    }
+
+    @media screen and (max-width: 768px) {
+      .collection .grid__item:only-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+
+    @media screen and (min-width: 769px) {
+      .template-search .grid__item--small {
+        padding-bottom: 1rem;
+      }
+    }
+
+    .collection .negative-margin,
+    .template-search .negative-margin {
+      margin-bottom: -2rem;
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection .negative-margin,
+      .template-search .negative-margin {
+        margin-bottom: -5rem;
+      }
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection .negative-margin--small {
+        margin-bottom: -1rem;
+      }
+    }
+
+    .collection .loading-overlay {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: none;
+      width: 100%;
+      padding: 0 5rem;
+      background-color: rgba(var(--filter-color-background-rgb), 0.7);
+    }
+
+    .collection.loading .loading-overlay {
+      display: block;
+    }
+
+    .collection--empty .title-wrapper {
+      margin-top: 10rem;
+      margin-bottom: 15rem;
+    }
+
+    .collection-filters {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media screen and (max-width: 768px) {
+      .collection-info__description {
+        text-align: center;
+      }
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection-filters {
+        display: block;
+      }
+
+      .collection-info__sidebar {
+        padding-top: 2rem;
+      }
+
+      .collection-info__sidebar .page--title {
+        text-align: left;
+      }
+
+      .collection-info__topbar .collection-info__description.rte {
+        text-align: center;
+      } 
+
+      .collection-filters > * + * {
+        margin-top: 0;
+        margin-left: 2rem;
+        margin-right: 2rem;
+      }
+    }
+
+    .collection-filters__label {
+      display: block;
+      color: var(--filter-text-color);
+      font-size: var(--filter-base-font-size);
+      line-height: 1;
+      margin: 0 0 1rem;
+      width: 100%;
+    }
+
+    .collection-filters__summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: var(--filter-base-font-size);
+      cursor: pointer;
+      height: 4.5rem;
+      padding: 0 1.5rem;
+      min-width: 25rem;
+      margin-top: 2.4rem;
+      border: 0.1rem solid var(--filter-border-color);
+    }
+
+    .collection-filters__summary::after {
+      position: static;
+    }
+
+    .collection-filters__item {
+      display: flex;
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .collection-filters__field {
+      flex-grow: 1;
+      max-width: 100%;
+    }
+
+    .collection-filters__item button {
+      padding: var(--filter-font-size 2.6rem);
+      margin-left: 1rem;
+    }
+
+    .collection-filters__disclosure {
+      min-width: 25rem;
+    }
+
+    .collection-filters__disclosure summary::after {
+      top: 0;
+    }
+
+    .collection-filters__disclosure a {
+      color: var(--filter-text-color);
+      cursor: pointer;
+      display: block;
+      padding: 1.2rem;
+      text-transform: capitalize;
+      text-decoration: none;
+    }
+
+    @media screen and (min-width: 769px) {
+      .collection-filters__sidebar .facets__form-inner > *:not(.active-facets-desktop) {
+        padding-top: 2rem;
+      }
+
+      .collection-filters .collection-filters__sort {
+        width: 25rem;
+        max-width: 100%;
+      }
+    }
+
+    .facets {
+      display: block;
+    }
+
+    .facets__form-inner {
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-template-rows: auto auto;
+      column-gap: 2rem;
+    }
+
+    @media screen and (max-width: 768px) {
+      .facets__form-inner {
+        margin-top: 50px;
+      }
+    }
+
+    .js .facets__form-inner {
+      grid-template-columns: calc(100% - 27rem) 25rem;
+    }
+
+    .facets__wrapper {
+      grid-column: 1;
+      grid-row: 1;
+      display: flex;
+      flex-wrap: wrap;
+      margin-left: -0.5rem;
+    }
+
+    .facets__heading {
+      display: block;
+      color: black;
+      font-size: var(--filter-base-font-size);
+      line-height: 1;
+      margin: 0 0 1rem 0.5rem;
+      width: 100%;
+    }
+
+    .facets__reset {
+      margin-left: auto;
+    }
+
+    .facets__disclosure {
+      border: 1px solid var(--filter-border-color);
+      margin: 0 0 0.5rem 0.5rem;
+      transition: box-shadow 100ms ease;
+    }
+
+    .facets__disclosure:hover {
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color);
+    }
+
+    .facets__summary {
+      padding: .6rem 2.5rem .6rem 0.8rem;
+      font-size: var(--filter-body-font-size);
+      color: var(--filter-text-color);
+    }
+
+    .facets__summary > span {
+      line-height: 1.3;
+    }
+
+    .facets__display {
+      background-color: var(--filter-background-color);
+      border-top: 1px solid var(--filter-border-color);
+      overflow-y: auto;
+    }
+
+    @media screen and (min-width: 769px) {
+      .facets__display {
+        border: 1px solid var(--filter-border-color);
+        max-height: 55rem;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: -0.1rem;
+        width: 35rem;
+      }
+    }
+
+    .facets__header {
+      border-bottom: 1px solid var(--filter-border-color);
+      padding: 1rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--filter-base-font-size);
+      position: sticky;
+      top: 0;
+      background-color: var(--filter-background-color);
+      z-index: 1;
+    }
+
+    .facets__list {
+      padding: 1rem 0;
+      margin-bottom: 0;
+    }
+
+    .facets__item {
+      display: flex;
+      align-items: center;
+    }
+
+    .facets__item label,
+    .facets__item input[type='checkbox'] {
+      cursor: pointer;
+    }
+
+    .facet-checkbox {
+      padding: .5rem 1rem .5rem .6rem;
+      flex-grow: 1;
+      position: relative;
+      font-size: var(--filter-base-font-size);
+      display: flex;
+      word-break: break-word;
+    }
+
+    .facet-checkbox input[type='checkbox'] {
+      position: absolute;
+      opacity: 1;
+      width: 1.2rem;
+      height: 1.2rem;
+      top: 0.4rem;
+      left: 0.5rem;
+      z-index: -1;
+      appearance: none;
+      -webkit-appearance: none;
+      border-bottom: none;
+    }
+
+    .facet-checkbox > svg {
+      background-color: var(--filter-background-color);
+      margin-right: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .facet-checkbox .icon-checkmark {
+      visibility: hidden;
+      position: absolute;
+      left: .8rem;
+      z-index: 5;
+      top: .7rem;
+    }
+
+    .facet-checkbox > input[type='checkbox']:checked ~ .icon-checkmark {
+      visibility: visible;
+    }
+
+    .facet-checkbox--disabled {
+      color: var(--filter-border-color);
+    }
+
+    .facets__price {
+      display: flex;
+      padding: 2rem;
+    }
+
+    .facets__price > * + * {
+      margin-left: 2rem;
+    }
+
+    .facets__price .field {
+      align-items: center;
+    }
+
+    .facets__price .field .field__currency {
+      margin-right: 0.6rem;
+    }
+
+    .facets__price .field__label {
+      left: 2.1rem;
+      top: unset;
+    }
+
+    button.facets__button {
+      min-height: 0;
+      margin: 0 0 0 0.5rem;
+      box-shadow: none;
+      padding-top: var(--filter-base-font-size);
+      padding-bottom: var(--filter-base-font-size);
+    }
+
+    .active-facets {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      margin-left: -1rem;
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      margin-top: 2rem;
+    }
+
+    .active-facets-desktop {
+      order: -1;
+    }
+
+    .active-facets-mobile {
+      margin-top: 2rem;
+    }
+
+    .collection-filters__topbar .active-facets-desktop {
+      margin-top: 2rem;
+    }
+
+    @media all and (min-width: 769px) {
+      .active-facets-mobile {
+        display: none;
+      }
+    }
+
+    a.active-facets__button {
+      color: var(--filter-text-color);
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color);
+      border-radius: 2.6rem;
+      font-size: var(--filter-body-font-size-12-em);
+      min-height: 0;
+      min-width: 0;
+      padding: 0.5rem 1rem;
+      margin: 0 0 1rem 1rem;
+    }
+
+    a.active-facets__button {
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color);
+    }
+
+    a.active-facets__button:hover {
+      box-shadow: 0 0 0 0.2rem var(--filter-border-color);
+    }
+
+    a.active-facets__button--light {
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color);
+    }
+
+    a.active-facets__button--light:hover {
+      box-shadow: 0 0 0 0.2rem var(--filter-border-color);
+    }
+
+    a.active-facets__button:focus-visible,
+    a.active-facets__button:focus {
+      box-shadow: 0 0 0 0.1rem var(--filter-border-color),
+        0 0 0 0.2rem var(--filter-background-color), 0 0 0 0.4rem -webkit-focus-ring-color;
+      outline: none;
+    }
+
+    .active-facets__button svg {
+      width: var(--filter-base-font-size);
+      margin-left: 0.6rem;
+      pointer-events: none;
+    }
+
+    .active-facets__button:only-child {
+      display: none;
+    }
+
+    .active-facets__button.disabled {
+      pointer-events: none;
+    }
+
+    .count-bubble {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 50%;
+      background-color: var(--primary-btn-bg-color);
+      color: var(--filter-background-color);
+      margin-left: 0.5rem;
+    }
+
+    .count-bubble:empty {
+      visibility: hidden;
+    }
+
+    .count-bubble--dot:empty {
+      visibility: visible;
+    }
+
+    .count-bubble--dot::before {
+      content: '';
+      width: 0.2rem;
+      height: 0.2rem;
+      display: block;
+      background-color: var(--filter-background-color);
+      border-radius: 50%;
+    }
+
+    .facets__summary > div {
+      display: flex;
+      align-items: center;
+    }
+
+    .sorting .button {
+      margin-top: 2.4rem;
+      padding-top: 1.3rem;
+    }
+
+    .spaced-section--full-width {
+      width: 100%;
+    }
+
+    .collection-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .collection-filtering-section {
+      width: 100%;
+    }
+
+    @media screen and (min-width: 769px) {
+      .drawer-close-btn,
+      .drawer__close {
+        display: none;
+      }
+
+      .js-drawer-open .drawer-close-btn,
+      .js-drawer-open .drawer__close {
+        display: block;
+      }
+    }
+
+    .mobile-facets__open {
+      text-align: center;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    @media screen and (min-width: 769px) {
+      .mobile-facets__open {
+        display: none;
+      }
+    }
+    .mobile-facets__open > * + * {
+      margin-left: 1rem;
+    }
+
+    .mobile-facets__open svg {
+      width: 2rem;
+    }
+
+    .mobile-facets__open line,
+    .mobile-facets__open circle {
+      stroke: var(--color-button-border);
+    }
+
+    details[open] .mobile-facets__open {
+      visibility: hidden;
+    }
+
+    @media screen and (max-width: 768px) {
+      collection-filtering-form {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -90%;
+        z-index: 99999;
+        background-color: white;
+        max-width: 90%;
+        width: 100%;
+        transition: transform .6s cubic-bezier(.165,.84,.44,1) .1s;
+        padding: 15px;
+        overflow-y: auto;
+      }
+
+      collection-filtering-form.is-open {
+        transform: translateX(100%);
+      }
+
+      .facets__form {
+        opacity: 0;
+        transition: opacity .4s ease-in;
+      }
+
+      collection-filtering-form.is-open .facets__form {
+        opacity: 1;
+      }
+
+      collection-filtering-form .drawer__close button {
+        top: 0;
+        right: 0;
+      }
+    }
+
+    {%- if section.settings.desktop_position == 'sidebar' -%}
+      @media screen and (min-width: 769px) {
+        .collection-filtering-section .collection-filters {
+          width: 250px;
+        }
+
+        .collection-grid {
+          width: calc(100% - 250px);
+        }
+
+        .template-search .search--header {
+          padding: 0 !important;
+        }
+      }
+
+      .facets__form-inner {
+        display: flex !important;
+        flex-direction: column-reverse;
+      }
+
+      .facets__wrapper {
+        display: block !important;
+        padding-top: 2rem;
+      }
+    {%- endif -%}
+
+    {% if section.settings.desktop_position == "topbar" %}
+      .template-search .grid-uniform {
+        margin-left: 2rem;
+        margin-right: 2rem;
+      }
+
+      .template-search .grid-uniform .grid__item {
+        padding-left: 0;
+      }
+
+      .template-search .grid-uniform .grid__item .grid {
+        margin-left: 0;
+      }
+
+      .template-search .grid-uniform .item--content {
+        padding-left: 30px;
+      }
+    {% endif %}
+
+    .facets__heading_placeholder {
+      margin: 0 0 1rem .5rem;
+      font-size: 0.8rem;
+    }
+
+    .template-search .search--header {
+      padding: 0 2rem;
+      margin: 30px 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @media screen and (max-width: 768px) {
+      .facets__form-inner {
+        display: flex !important;
+        flex-direction: column-reverse;
+      }
+
+      .facets__wrapper {
+        display: block !important;
+        padding-top: 2rem;
+      }
+
+      .facets__heading_placeholder-mobile {
+        margin: 0;
+      }
+
+      .desktop-btn-text {
+        display: none;
+      }
+
+      .template-search .search--header {
+        padding: 0 2rem;
+        margin: 30px 0;
+      }
+
+      .template-search .grid-uniform {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+
+    @media screen and (min-width: 769px) {
+      .mobile-btn-text,
+      .facets__heading_placeholder-mobile {
+        display: none;
+      }
+
+      .template-search .input-group.search-bar {
+        width: 30%;
+      }
+    }
+
+    {%- if section.settings.desktop_position == 'sidebar' and section.settings.enable_filtering == true or section.settings.enable_sorting == true -%}
+      @media screen and (min-width: 769px) {
+        .template-search .collection-filters {
+          display: flex;
+          flex-direction: column-reverse;
+        }
+
+        a.active-facets__button {
+          margin-bottom: 15px;
+        }
+
+        .template-search collection-filtering-form,
+        .template-search .result-type-wrapper {
+          margin-left: 0;
+        }
+      }
+
+      .template-search #CollectionProductGrid {
+        flex: 1;
+      }
+
+      .facets__form-inner {
+        display: flex !important;
+        flex-direction: column-reverse;
+        gap: 0;
+      }
+      .facets__form-inner > * {
+        margin-bottom: 2.5rem;
+      }
+      
+      .facets__wrapper {
+        display: block !important;
+      }
+    {%- endif -%}
+
+    {%- if section.settings.desktop_position == 'sidebar' %}
+      .template-search .result-type-wrapper {
+        padding: 0;
+      }
+    {% endif %}
+
+    {% if section.settings.desktop_position == 'topbar' %}
+      #search_results {
+        padding-bottom: 0;
+      }
+
+      .template-search #CollectionProductGrid {
+        flex: 1;
+      }
+
+      #main #search-page-form #search_text {
+        margin: 30px 0 30px 0;
+      }
+
+      @media (min-width: 769px) {
+        .template-search .collection-filters {
+          margin: 0;
+          display: grid;
+          grid-template-columns: 3fr 1fr;
+          grid-template-rows: 1fr;
+        }
+
+        .template-search collection-filtering-form {
+          grid-column: 1;
+          grid-row: 1;
+        }
+
+        .template-search .facets__form-inner {
+          grid-template-columns: 2fr 1fr;
+        }
+
+        .template-search .active-facets {
+          padding-bottom: 20px;
+        }
+
+        .template-search .result-type-wrapper {
+          grid-column: 2;
+          grid-row: 1;
+          padding-left: 2rem;
+        }
+
+        .template-search .sorting select,
+        .template-search .sorting .select,
+        .template-search .result-type-wrapper summary {
+          width: auto;
+          min-width: 200px;
+        }
+      }
+    {% endif %}
+
+    {% if section.settings.desktop_position == 'sidebar' and section.settings.enable_filtering == true %}
+      @media (min-width: 769px) {
+        .template-search .collection-filters {
+          padding: 0 16px 0 0;
+        }
+      }
+    {% endif %}
+
+    {% if section.settings.desktop_position == 'topbar' and section.settings.enable_filtering == false %}
+      @media (min-width: 769px) {
+        .template-search .collection-filters__item.sorting {
+          grid-column: 1;
+        }
+      }
+    {% endif %}
+
+    .template-search .result-type-selector {
+      margin-left: 0;
+      margin-bottom: 30px;
+    }
+
+    .template-search .facet-checkbox input {
+      padding: 0;
+    }
+
+    .template-search .sorting select {
+      box-shadow: none;
+      border: 1px solid var(--filter-border-color);
+      transition: box-shadow .1s ease;
+    }
+
+    .facets__heading_placeholder {
+      margin: 0 0 1rem .5rem;
+      font-size: 0.8rem;
+    }
+
+    .template-search .sorting select:hover {
+      box-shadow: 0 0 0 .1rem var(--filter-border-color);
+    }
+
+    .template-search .result-type-heading {
+      margin-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      .template-search #main-collection-filters {
+        margin: 0;
+      }
+
+      #CollectionProductGrid > div:first-child {
+        margin-top: 30px;
+      }
+
+      #CollectionProductGrid > div .grid__item .grid {
+        margin-left: 0;
+      }
+
+      #CollectionProductGrid > div .grid__item .grid .grid__item.two-thirds.item--content {
+        padding-left: 30px;
+      }
+
+      #CollectionProductGrid > div .grid__item {
+        padding-left: 0;
+        margin-top: 0;
+      }
+
+      .facets__heading_placeholder-mobile {
+        margin: 0;
+      }
+
+      .template-search #main-collection-filters .btn {
+        margin: 0;
+      }
+
+      .template-search .active-facets-mobile {
+        margin-top: 30px;
+      }
+
+      .template-search .active-facets-mobile a.active-facets__button {
+        color: var(--filter-text-color);
+        box-shadow: 0 0 0 .1rem var(--filter-border-color);
+        border-radius: 2.6rem;
+        font-size: var(--filter-body-font-size-12-em);
+        min-height: 0;
+        min-width: 0;
+        padding: .5rem 1rem;
+        margin: 0 0 0 1rem;
+      }
+
+      .template-search .result-type-heading {
+        display: none;
+      }
+
+      .template-search .result-type-wrapper {
+        padding: 0;
+      }
+
+      .template-search .result-type-selector {
+        margin-top: 30px;
+        margin-bottom: 0;
+      }
+
+      .desktop-btn-text {
+        display: none;
+      }
+    }
+    
+  </style>
+
+<!-- /templates/search.json -->
+{% comment %}
+
+  To return only products or pages in results:
+    - http://docs.shopify.com/manual/configuration/store-customization/return-only-product-in-storefront-search-results
+    - Or manually add type=product or type=page to the search URL as a parameter
+
+{% endcomment %}
+
+{% comment %}
+  Set grid_results to true and set search results as a grid instead of a list.
+  This works well when your search is only for products.
+{% endcomment %}
+{% assign grid_results = false %}
+
+{% comment %}
+  Check to enforce respond.js
+{% endcomment %}
+{% assign respond_js_secret_key = shop.domain | md5 %}
+{% unless search.terms == respond_js_secret_key %}
+
+  {% comment %}
+    Avoid accessing search.results before the opening paginate tag.
+    If you do, the pagination of results will be broken.
+  {% endcomment %}
+  {% paginate search.results by search.results_count %}
+	<div class="wrapper main-content page-main--wrapper main-page-container" data-wetheme-section-type="template--search" data-wetheme-section-id="{{ section.id }}">
+    	<div class="search--header">
+        	<input type="hidden" name="type" value="{{ article_search }}{{ product_search }}{{ page_search }}" />
+        	<div class="sitewide--title-wrapper mb-4">
+          	{% if search.performed %}
+            	{% if search.results_count == 0 %}
+              		<h1 class="page--title text-brown-zin text-4xl font-normal">{{ 'general.search.no_results_html' | t: terms: search.terms }}</h1>
+            	{% else %}
+              		<h1 class="page--title text-brown-zin text-4xl font-normal">{{ 'general.search.results_for_html' | t: terms: search.terms }}</h1>
+            	{% endif %}
+          	{% else %}
+           		<h1 class="page--title text-brown-zin text-4xl font-normal">{{ 'general.search.title' | t }}</h1>
+          	{% endif %}
+        	</div>
+        	{% render 'search-bar' %}
+      	</div>
+      	<div class="search-wrapper section-search-grid px-4">
+        	<div>
+          		{%- assign sort_by = search.sort_by | default: search.default_sort_by -%}
+          		<div class="collection-filters collection-filters__{% if section.settings.desktop_position == 'sidebar' %}sidebar{% else %}topbar{% endif %}" id="main-collection-filters" data-id="{{ section.id }}">
+            		{%- unless search.filters == empty or request.design_mode -%}
+              			<button type="button" class="mobile-facets__open btn btn--large alt-focus bg-orange-dark text-white p-4" data-drawer-open-btn>
+                			{{ 'sections.collection_template.filter_and_sort' | t }}
+              			</button>
+            		{% endunless %}
+            		{% if request.design_mode %}
+              			{% if search.performed %}
+                			<button type="button" class="mobile-facets__open btn btn--large alt-focus" data-drawer-open-btn>
+                  				{{ 'sections.collection_template.filter_and_sort' | t }}
+                			</button>
+              			{% else %}
+                			<p class="facets__heading_placeholder-mobile">Perform a search or save your changes to display the filter options</p>
+              			{% endif %}
+            		{% endif %}
+            		{%- assign total_active_values = 0 -%}
+            		<collection-filtering-form class="facets" data-filter-form>
+              			<form id="CollectionFiltersForm" class="facets__form">
+                			{%- if section.settings.enable_filtering == true or section.settings.enable_sorting == true -%}
+                  				<div class="drawer__close js-drawer-close">
+                    				<button type="button" aria-label="{{ 'cart.general.close_cart' | t }}" class="mobile-menu--close-btn icon-fallback-text" data-drawer-close-btn>
+                      					<span class="fallback-text">{{ 'cart.general.close_cart' | t }}</span>
+                    				</button>
+                  				</div>
+                  				<div class="facets__form-inner">
+                    				{% if section.settings.enable_filtering == true %}
+                      					<div class="facets__wrapper">
+                        					{%- unless search.filters == empty or request.design_mode -%}
+                          						<p class="facets__heading">{{ 'sections.collection_template.filter_by_label' | t }}</p>
+                        					{%- endunless -%}
+                        					{% if request.design_mode %}
+                          						{% if search.performed %}
+                            						<p class="facets__heading">{{ 'sections.collection_template.filter_by_label' | t }}</p>
+                          						{% else %}
+                            						<p class="facets__heading">{{ 'sections.collection_template.filter_by_label' | t }}</p>
+                            						<p class="facets__heading_placeholder">Perform a search or save your changes to display the filter options</p>
+                          						{% endif %}
+                        					{% endif %}
+                        					{%- for filter in search.filters -%}
+                          						{%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
+                          						{% case filter.type %}
+                          							{% when 'list' %}
+                            							<details class="disclosure-has-popup facets__disclosure js-filter" data-index="{{ forloop.index }}">
+                              								<summary class="facets__summary">
+                                								<div>
+                                  									<span>{{ filter.label | escape }}</span>
+                                  									<span class="count-bubble">{%- if filter.active_values.size > 0 -%}{{ filter.active_values.size }}{%- endif -%}</span>
+                                  									{{ icon_caret }}
+                               	 								</div>
+                              								</summary>
+                              								<div class="facets__display">
+                                								<div class="facets__header">
+                                  									<span class="facets__selected no-js-hidden">{{ 'sections.collection_template.filters_selected' | t: count: filter.active_values.size }}</span>
+                                  										<a href="{{ filter.url_to_remove }}" class="facets__reset link underlined-link js-facet-remove" >{{ 'sections.collection_template.reset' | t }}</a>
+                                								</div>
+                                								<ul class="facets__list list-unstyled" role="list">
+                                  									{%- for value in filter.values -%}
+                                    								<li class="list-menu__item facets__item">
+                                      									<label for="Filter-{{ filter.label | escape }}-{{ forloop.index }}" class="facet-checkbox{% if value.count == 0 and value.active == false %} facet-checkbox--disabled{% endif %}">
+                                        									<input type="checkbox"
+                                          										name="{{ value.param_name }}"
+                                          										value="{{ value.value }}"
+                                          										id="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+                                          										{% if value.active %}checked{% endif %}
+                                          										{% if value.count == 0 and value.active == false %}disabled{% endif %}
+                                        									/>
+                                        									<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                          										<rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+                                        									</svg>
+                                        									<svg class="icon icon-checkmark" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 9" fill="none" width="10px" height="10px">
+                                          										<path fill-rule="evenodd" clip-rule="evenodd" d="M11.35.643a.5.5 0 01.006.707l-6.77 6.886a.5.5 0 01-.719-.006L.638 4.845a.5.5 0 11.724-.69l2.872 3.011 6.41-6.517a.5.5 0 01.707-.006h-.001z" fill="currentColor"/>
+                                        									</svg>
+                                        									{{ value.label | escape }} ({{ value.count }})
+                                      									</label>
+                                    								</li>
+                                  									{%- endfor -%}
+                                								</ul>
+                              								</div>
+                            							</details>
+                          							{% when 'price_range' %}
+                            							{% liquid
+                              								assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+                              								assign uses_comma_decimals = false
+                              								if currencies_using_comma_decimals contains cart.currency.iso_code
+                                								assign uses_comma_decimals = true
+                              								endif
+                            							%}
+                            							<details class="disclosure-has-popup facets__disclosure js-filter" data-index="{{ forloop.index }}">
+                              								<summary class="facets__summary">
+                                								<div>
+                                  									<span>{{ filter.label | escape }}</span>
+                                  									<span class="count-bubble{%- if filter.min_value.value or filter.max_value.value -%}{{ filter.active_values.size }} count-bubble--dot{% endif %}"></span>
+                                  									{{ icon_caret }}
+                                								</div>
+                              								</summary>
+                              								<div class="facets__display">
+                                								<div class="facets__header">
+                                  									{%- assign max_price_amount = filter.range_max | money | escape -%}
+                                  									<span class="facets__selected">{{ "sections.collection_template.max_price" | t: price: max_price_amount }}</span>
+                                  									<a href="{{ filter.url_to_remove }}" class="facets__reset link underlined-link js-facet-remove" >{{ 'sections.collection_template.reset' | t }}</a>
+                               							 		</div>
+                                								<price-range-selector class="facets__price">
+                                  									<div class="field">
+                                    									<span class="field__currency">{{ cart.currency.symbol }}</span>
+                                    									<input class="field__input"
+                                      										name="{{ filter.min_value.param_name }}"
+                                      										id="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+                                      										{%- if filter.min_value.value -%}
+                                        										{%- if uses_comma_decimals -%}
+                                          											value="{{ filter.min_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                                        										{%- else -%}
+                                          											value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                                        										{% endif %}
+                                      										{%- endif -%}
+                                      										type="number"
+                                      										placeholder="0"
+                                      										min="0"
+                                      										max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"/>
+                                    										<label class="field__label" for="Search-In-Modal">{{ 'sections.collection_template.from' | t }}</label>
+                                  									</div>
+                                  									<div class="field">
+                                    									<span class="field__currency">{{ cart.currency.symbol }}</span>
+																		<input class="field__input"
+										  									name="{{ filter.max_value.param_name }}"
+										  									id="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+										  									{%- if filter.max_value.value -%}
+																				{%- if uses_comma_decimals -%}
+											  										value="{{ filter.max_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+																				{%- else -%}
+											  										value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+																				{% endif %}
+										  									{%- endif -%}
+										  									type="number"
+										  									placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+										  									min="0"
+										  									max="{{ filter.range_max | money_without_currency | replace: ',', '' }}" />
+                                    									<label class="field__label" for="Search-In-Modal">{{ 'sections.collection_template.to' | t }}</label>
+                                  									</div>
+																</price-range-selector>
+															</div>
+                            							</details>
+                          						{% endcase %}
+                        					{%- endfor -%}
+                        					<noscript>
+                          						<button type="submit" class="facets__button button">{{ 'sections.collection_template.filter_button' | t }}</button>
+                        					</noscript>
+                      					</div>
+                      					<div class="active-facets active-facets-desktop">
+                        					<a href="{{ routes.search_url }}?q={{search.terms}}&sort_by={{ sort_by }}&type={{ article_search }}{{ product_search }}{{ page_search }}" class="active-facets__button button button--secondary js-facet-remove">{{ 'sections.collection_template.clear_all' | t }}</a>
+                        					{%- for filter in search.filters -%}
+                          						{%- for value in filter.active_values -%}
+                            						<a class="active-facets__button active-facets__button--light button button--tertiary js-facet-remove" href="{{ value.url_to_remove }}">
+                              							{{ value.label | escape }}
+                              							{{ icon_close }}
+                            						</a>
+                          						{%- endfor -%}
+                          						{% if filter.type == "price_range" %}
+                            						{%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                              							<a class="active-facets__button active-facets__button--light button button--tertiary js-facet-remove" href="{{ filter.url_to_remove }}">
+                                							{%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}-{%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+                                								{{ icon_close }}
+                              							</a>
+                            						{%- endif -%}
+                          						{% endif %}
+                        					{%- endfor -%}
+										          </div>
+                    				{% endif %}
+                    				<input type="hidden" name="type" id="page-type-input" value="{{ article_search }}{{ product_search }}{{ page_search }}">
+                  				</div>
+                			{% endif %}
+              			</form>
+            		</collection-filtering-form>
+            		{% if search.results_count > 0 or request.design_mode %}
+              			{% assign product_count = 0 %}
+              			{% assign article_count = 0 %}
+              			{% assign page_count = 0 %}
+              			{%- for result in search.results -%}
+                			{% assign total = total | plus: 1 %}
+                			{% case result.object_type %}
+                				{% when 'product' %}
+                  					{% assign product_count = product_count | plus: 1 %}
+               	 				{% when 'article' %}
+                  					{% assign article_count = article_count | plus: 1 %}
+                				{% when 'page' %}
+                  					{% assign page_count = page_count | plus: 1 %}
+                			{% endcase %}
+              			{%- endfor -%}
+              			{% assign types = search.types | reverse %}
+              			<div class="result-type-wrapper">
+                			<p class="facets__heading result-type-heading">Result Type</p>
+                			<details class="disclosure-has-popup facets__disclosure result-type-selector">
+                  				<summary class="facets__summary">
+                    				<div>
+                      					<span class="desktop-btn-text">Select a type</span>
+                      					<span class="mobile-btn-text">Result type</span>
+                      					{{ icon_caret }}
+                   	 				</div>
+                  				</summary>
+                  				<div class="facets__display">
+                    				<page-type-selector>
+                      					<ul class="facets__list list-unstyled" role="list" data-page-type-selector>
+                        					{% for type in types %}
+                          						{% case type %}
+                            						{% when 'product' %}
+                              							{% assign count = product_count %}
+                            						{% when 'article' %}
+                              							{% assign count = article_count %}
+                            						{% when 'page' %}
+                              							{% assign count = page_count %}
+                          						{% endcase %}
+                          						<li class="list-menu__item facets__item">
+                            						<label for="Filter-{{ type }}" class="facet-checkbox{% if count == 0 %} facet-checkbox--disabled{% endif %}">
+                              							<input type="checkbox"
+                                							name="{{ type }}"
+                                							id="Filter-{{ type }}"
+                                							value="{{ type }}"
+                                							{% if count == 0 %}disabled{% endif %}
+                              							/>
+                              							<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                							<rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+                              							</svg>
+                              							<svg class="icon-checkmark" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 9" fill="none" width="10px" height="10px">
+                                							<path fill-rule="evenodd" clip-rule="evenodd" d="M11.35.643a.5.5 0 01.006.707l-6.77 6.886a.5.5 0 01-.719-.006L.638 4.845a.5.5 0 11.724-.69l2.872 3.011 6.41-6.517a.5.5 0 01.707-.006h-.001z" fill="currentColor"/>
+                              							</svg>
+                            							{{ type | capitalize }} ({{ count }})</label>
+                          						</li>
+                        					{% endfor %}
+                      					</ul>
+                    				</page-type-selector>
+                  				</div>
+                			</details>
+              			</div>
+            		{% endif %}
+          		</div>
+          		<div>
+            		<div class="active-facets active-facets-mobile">
+                		<a href="{{ routes.search_url }}?q={{search.terms}}&sort_by={{ sort_by }}&type={{ article_search }}{{ product_search }}{{ page_search }}" class="active-facets__button button button--secondary js-facet-remove">{{ 'sections.collection_template.clear_all' | t }}</a>
+                		{%- for filter in search.filters -%}
+                    		{%- for value in filter.active_values -%}
+                        		<a class="active-facets__button active-facets__button--light button button--tertiary js-facet-remove" href="{{ value.url_to_remove }}">
+                            		{{ value.label | escape }}
+                            		{{ icon_close }}
+                        		</a>
+                    		{%- endfor -%}
+                    		{% if filter.type == "price_range" %}
+                        		{%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                        			<a class="active-facets__button active-facets__button--light button button--tertiary js-facet-remove" href="{{ filter.url_to_remove }}">
+                            			{%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}-{%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+                            			{{ icon_close }}
+                        			</a>
+                        		{%- endif -%}
+                    		{% endif %}
+                		{%- endfor -%}
+            		</div>
+          		</div>
+        	</div>
+        	{% if search.performed %}
+          		<div id="CollectionProductGrid" class="grid-uniform">
+            		<div>
+              			{% for item in search.results %}
+                			{% comment %}
+                  				Check if the product is on sale and set a variable to be used below.
+                			{% endcomment %}
+                			{% assign on_sale = false %}
+                			{% if item.compare_at_price > item.price %}
+                  				{% assign on_sale = true %}
+                			{% endif %}
+                			{% comment %}
+                  				Check if the product is sold out and set a variable to be used below.
+                			{% endcomment %}
+                			{% assign sold_out = true %}
+                			{% if item.available %}
+                  				{% assign sold_out = false %}
+                			{% endif %}
+                			{% if grid_results == false %}
+                  			<!-- begin list search results-->
+                  			<div class="grid__item mb-4">
+                    			<h2 class="search-result-type uppercase text-brown-zin text-2xl font-normal">{{ item.object_type }}</h2>
+                    			<div class="md:flex items-start">
+              						{% if item.object_type == 'article' %}
+                  						<!--
+                    						'item' is an article
+                    							All article object properties can be accessed.
+                  						-->
+                  						{% if item.image %}
+                  							<div class="grid__item md:w-1/5">
+                    							<a href="{{ item.url }}" title="{{ item.title | escape }}">
+                      								{{ item | img_url: 'large' | img_tag: item.image.alt ,'object-contain mx-auto h-[240px]'  }}
+                    							</a>
+                  							</div>
+                  						{% endif %}
+                					{% elsif item.object_type == 'page' %}
+                  						<!--
+                    						'item' is a page.
+                    							All page object properties can be accessed.
+                  						-->
+                					{% else %}
+                  						<!--
+                    						'item' is a product.
+                    							All product object properties can be accessed.
+                  							-->
+
+                						{% if item.media and item.media.size > 0 %}
+                							<div class="grid__item md:w-1/5">
+                  								<a href="{{ item.url }}" title="{{ item.title | escape }}">
+                    								{% assign preview_alt =  item.media[0].preview_image.alt | default: item.title %}
+                    								{{ item.media[0].preview_image | img_url: 'large' | img_tag: preview_alt, 'object-contain mx-auto h-[240px]' }}
+                  								</a>
+                							</div>
+                						{% elsif item.featured_image %}
+                							<div class="grid__item md:w-1/5">
+                  								<a href="{{ item.url }}" title="{{ item.title | escape }}">
+                    								{{ item.featured_image | img_url: 'large' | img_tag: item.featured_image.alt , 'object-contain mx-auto h-[240px]' }}
+                  								</a>
+                							</div>
+                						{% endif %}
+              						{% endif %}
+                      				{% comment %}
+                        				If we don't have a featured_image, add a push-- class to keep the alignment the same
+                      				{% endcomment %}
+                      				<div class="grid__item md:w-4/5 {% unless item.featured_media or item.media or item.image %}push--one-third{% endunless %} item--content">
+                        				{% if settings.predictive_search_show_vendor %}
+                          					<div class="vendor font-bold text-blue-dark mb-1">{{ item.vendor }}</div>
+                        				{% endif %}
+                        				<h3 class="py-1 font-bold">{{ item.title | link_to: item.url }}</h3>
+                        				{% if item.price and settings.predictive_search_show_price %}
+                          				<p>
+                            				{% comment %}
+                              					You can show a leading 'from' or 'up to' by checking 'product.price_varies'
+                              					if your variants have different prices.
+                            				{% endcomment %}
+                            				{% if on_sale %}
+                              					{% if item.price_varies %}
+                                					{{ 'products.general.from_text' | t }}
+                              					{% endif %}
+                              					<span class="visually-hidden hidden">{{ 'products.general.regular_price' | t }}</span>
+                              					<s><span class="money font-lg font-bold text-green-mist">{{ item.compare_at_price | money }}</span></s>
+                              					<span class="money sale-price">{{ item.price | money }}</span>
+                            				{% else %}
+                              					{% if item.price_varies %}
+                                					{{ 'products.general.from_text' | t }} <span class="money">{{ item.price | money }}</span>
+                              					{% else %}
+                                					<span class="money font-lg font-bold text-green-mist">{{ item.price | money }}</span>
+                              					{% endif %}
+                            				{% endif %}
+                            				{% assign first_variant = item.variants[0] %}
+                              				{% render 'unit-price-measurement-variant', variant: first_variant %}
+                          				</p>
+                        				{% endif %}
+                        				{% comment %}
+                          					Get a brief excerpt of raw text from the page/product
+                        				{% endcomment %}
+                        				<p>{{ item.content | strip_html | truncatewords: 50 }}</p>
+                      				</div>
+                    			</div>
+                    			{% unless forloop.last %}<hr>{% endunless %}
+                  			</div>
+                  			<!-- //list search results-->
+                			{% else %}
+                  				<!-- begin grid search results-->
+                  				<div class="grid__item search-result large--one-third medium--one-third">
+                    				{% if item.featured_image %}
+                      					<a href="{{ item.url | within: collection }}" title="{{ item.title | escape }}">
+                        					{{ item.featured_image.src | img_url: 'medium' | img_tag: item.featured_image.alt, class:'object-contain h-[240px]' }}
+                      					</a>
+                    				{% endif %}
+                    				{% if settings.predictive_search_show_vendor %}
+                      					<div class="vendor">{{ item.vendor }}</div>
+                    				{% endif %}
+                    				<h5>{{ item.title | link_to: item.url }}</h5>
+                    				{% if item.price and settings.predictive_search_show_price %}
+                      					<p>
+                        					{% if on_sale %}
+                          						{% if item.price_varies %}
+                            						{% capture sale_price %}
+                              							<span class="money">{{ item.price | money }}</span>
+                            						{% endcapture %}
+                            						{{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+                          						{% else %}
+                            						<strong>{{ 'products.product.on_sale' | t }}</strong>
+                            						<span itemprop="price"><span class="money">{{ item.price | money }}</span></span>
+                          						{% endif %}
+                        					{% else %}
+                          						{% if item.price_varies %}
+                            						{% capture price %}
+                              							<span class="money">{{ item.price | money }}</span>
+                            						{% endcapture %}
+                            						<span itemprop="price">{{ 'products.general.from_text_html' | t: price: price }}</span>
+                          						{% else %}
+                            						<span itemprop="price"><span class="money">{{ item.price | money }}</span></span>
+                          						{% endif %}
+                        					{% endif %}
+                        					{% if sold_out %}
+                          						<br><strong>{{ 'products.product.sold_out' | t }}</strong>
+                        					{% endif %}
+                        					{% if on_sale %}
+                          						<br><s><span class="money">{{ item.compare_at_price | money }}</span></s>
+                        					{% endif %}
+                        					{% assign first_variant = item.variants[0] %}
+                        						{% render 'unit-price-measurement-variant', variant: first_variant %}
+                      					</p>
+                    				{% else %}
+                      					<p>{{ item.content | strip_html | truncatewords: 50 }}</p>
+                    				{% endif %}
+                  				</div>
+                  				<!-- //grid search results-->
+                			{% endif %}
+              			{% endfor %}
+            		</div>
+          		</div>
+        {% endif %}
+      </div>
+    </div>
+  {% endpaginate %}
+{% else %}
+  {% render 'respond' %}
+  {% layout none %}
+{% endunless %}
+
+<script src="{{ 'filtering.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Search page",
+  "tag": "section",
+  "class": "collection-filtering-section spaced-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Filtering and sorting"
+    },
+    {
+      "type": "select",
+      "id": "desktop_position",
+      "options": [
+        {
+          "value": "topbar",
+          "label": "Top bar"
+        },
+        {
+          "value": "sidebar",
+          "label": "Sidebar"
+        }
+      ],
+      "default": "topbar",
+      "label": "Desktop position"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "default": true,
+      "label": "Enable filtering",
+      "info": "[Customize filters](/admin/menus)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "default": true,
+      "label": "Enable sorting"
+    }
+  ]
+}
+{% endschema %}

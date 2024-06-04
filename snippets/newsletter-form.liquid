@@ -1,0 +1,32 @@
+<div class="container py-8 show-on-scroll">
+    <div class="grid row--table">
+        <div class="grid__item large--one-half medium--one-half small--one-whole newsletter--section--grid vertical--align">
+            <div class="newsletter--section--grid_inner newsletter_title">
+                <h3 class="homepage-sections--title font-bold text-2xl leading-tight text-orange-dark">{{ section.settings.newsletter_heading }}</h3>
+                {% if section.settings.newsletter_description != empty %}
+                    <div class="rte">{{ section.settings.newsletter_description }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="grid__item large--one-half medium--one-half small--one-whole newsletter--section--grid vertical--align">
+            <div class="newsletter--section--grid_inner newsletter_form_section">
+                {% form 'customer', id: form_id %}
+                    {{ form.errors | default_errors }}
+                    {% if form.posted_successfully? %}
+                        <p class="note form-success success_section">{{ 'general.newsletter_form_section.thanks' | t }}</p>
+                    {% else %}
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        <div id="newsletter-wrapper">
+                            <input id="newsletter_text" type="email" 
+                            value="{% if customer %}{{ customer.email }}{% endif %}" 
+                            placeholder="{{ 'general.newsletter_form_section.newsletter_text' | t }}" 
+                            name="contact[email]" class="input-group-field email" 
+                            aria-label="{{ 'general.newsletter_form_section.newsletter_email' | t }}" autocorrect="off" autocapitalize="off">
+                            <input id="newsletter_submit" type="submit" class="btn btn-default" name="subscribe" value="&#xf105;">
+                        </div>
+                    {% endif %}
+                {% endform %}
+            </div>
+        </div>
+    </div>
+</div>

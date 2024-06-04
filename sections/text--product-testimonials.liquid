@@ -1,0 +1,134 @@
+{{ 'section-product-testimonials.min.css' | asset_url | stylesheet_tag }}
+<div class="wrapper-padded show-on-scroll">
+  <div class="product-testimonials__wrapper">
+    {% for block in section.blocks %}
+      <figure class="product-testimonial" {{ block.shopify_attributes }}>
+        {% if block.settings.image != blank %}
+          <div class="product-testimonial__img{% if section.settings.image_style == 'circle' %} product-testimonial__img--circle{% endif %}">
+            <img 
+              src="{{ block.settings.image | img_url: '200x200', crop: 'center' }}" 
+              alt="{{ block.settings.image.alt | default: block.settings.author }}"
+            >
+          </div>
+        {% endif %}
+        <div class="product-testimonial__text-content">
+          {% if block.settings.text != blank %}
+            <blockquote class="rte product-testimonial__blockquote">
+              <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 300 224" fill="currentColor"><path d="M235.3 13.2c-18.2 22.8-28.3 41-36.2 64.9-8.5 25.8-10.1 41.5-10.1 98.1V221h109V112h-51.2l.7-4.3c3.4-20.1 14.2-43.2 30.7-65.5l6.9-9.3-2.8-2.2C268.2 19.5 245.4 2 244.9 2c-.3 0-4.6 5.1-9.6 11.2zM55.9 7.7C32.9 38.2 18.5 66.1 11 94.4c-5.5 20.7-6 26.6-6 78.8V221h110V112H88.5c-22 0-26.5-.2-26.5-1.4 0-2.8 5-20.3 7.5-26.5 6.2-15.2 16.8-33 27.5-46.6l4.8-6.1L82 17.7C71.1 10.2 61.6 3.8 60.8 3.5c-.8-.3-2.8 1.4-4.9 4.2z"/></svg>
+              {{ block.settings.text }}
+            </blockquote>
+          {% endif %}
+          {% if block.settings.author != blank %}
+            <figcaption class="product-testimonials__author">- {{ block.settings.author }}</figcaption>
+          {% endif %}
+        </div>
+      </figure>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product testimonials",
+  "settings": [
+    {
+      "type": "select",
+      "id": "image_style",
+      "label": "Image style",
+      "options": [
+        {
+          "value": "circle",
+          "label": "Circle"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "textarea",
+      "name": "Testimonial",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": {
+              "en": "Image",
+              "de": "Bild",
+              "es": "Imagen",
+              "fr": "Image",
+              "pt-PT": "Imagem"
+          },
+          "info": {
+              "en": "200 x 200px recommended",
+              "de": "200 x 200 px empfohlen",
+              "es": "Recomendado 200 x 200 px",
+              "fr": "200 x 200 px recommandé",
+              "pt-PT": "200 x 200px, recomendado"
+          }
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+              "en": "Text",
+              "de": "Text",
+              "es": "Texto",
+              "fr": "Texte",
+              "pt-PT": "Texto"
+          },
+          "default": {
+              "en": "<p>Show off incredible feedback from your customers</p>",
+              "de": "<p>Stellen Sie das unglaubliche Feedback Ihrer Kunden zur Schau</p>",
+              "es": "<p>Muestra comentarios increíbles de tus clientes</p>",
+              "fr": "<p>Mettre en avant les retours incroyables de vos clients</p>",
+              "pt-PT": "<p>Exiba as opiniões maravilhosas dos seus clientes</p>"
+          }
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": {
+              "en": "Author",
+              "de": "Autor",
+              "es": "Autor",
+              "fr": "Auteur",
+              "pt-PT": "Autor"
+          },
+          "default": {
+              "en": "John Doe",
+              "de": "John Doe",
+              "es": "John Doe",
+              "fr": "John Doe",
+              "pt-PT": "John Doe"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product testimonials",
+      "category": "text",
+      "blocks": [
+          {
+              "type": "textarea"
+          },
+          {
+              "type": "textarea"
+          },
+          {
+              "type": "textarea"
+          }
+      ]
+    }
+  ],
+  "templates": [
+    "product"
+  ]
+}
+{% endschema %}

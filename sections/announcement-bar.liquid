@@ -1,0 +1,198 @@
+{% capture locale %}
+  {% render 'localization-form', show_locale_selector: section.settings.show_locale_selector, show_currency_selector: section.settings.show_currency_selector %}
+{% endcapture %}
+{% capture top_links %}
+	<ul class="site-header__links top-links--icon-links m-0 flex flex-wrap items-center justify-end">
+      <li>
+        <a href="{{ routes.search_url }}" class="search-button font-bold" aria-label="{{ 'layout.header.search' | t }}">
+          <i class="fa fa-search fa-lg"></i>
+          {% if section.settings.label-enable %}<span class="header--supporting-text">{{ 'layout.header.search' | t }}</span>{% endif %}
+        </a>
+      </li>
+      {% if customer %}
+        <li class="pl-4">
+			<a href="{{ routes.account_url }}" class="font-bold" title="{{ 'layout.customer.account' | t }}">
+				{% comment %}
+				<i class="fa fa-user fa-lg"></i>
+				{% endcomment %}
+            	<span>{{ 'layout.header.account' | t }}</span>
+          </a>
+        </li>
+      {% else %}
+        <li class="pl-4">
+			<a href="{{ routes.account_login_url }}" title="{{ 'layout.customer.log_in' | t }}" class="log-in-button font-bold">
+				{% comment %}
+				<i class="fa fa-user fa-lg"></i>
+				{% endcomment %}
+			{{ 'layout.header.account' | t }}</span>
+		  </a>
+        </li>
+      {% endif %}
+    <li class="pl-4">
+      <a href="{{ routes.cart_url }}" class="site-header__cart-toggle js-drawer-open-right-link text-orange-soft font-bold text-lg" aria-controls="CartDrawer" aria-expanded="false" aria-label="{{ 'layout.header.your_cart' | t }}">
+        <i class="fas fa-shopping-cart fa-lg mr-0"></i>
+		<span class="money cart-item-count-header--total">
+			{{ cart.total_price | money }}
+		</span>
+      </a>
+	</li>
+	<li class="pl-4">{{ locale }}</li>
+  </ul>
+{% endcapture %}
+
+{% assign socialIconAdded = false %}
+{% if
+  settings.sm_facebook_link != blank or
+  settings.sm_twitter_link != blank or
+  settings.sm_youtube_link != blank or
+  settings.sm_flickr_link != blank or
+  settings.sm_pinterest_link != blank or
+  settings.sm_instagram_link != blank or
+  settings.sm_tumblr_link != blank or
+  settings.sm_pinterest_link != blank or
+  settings.sm_youtube_link != blank or
+  settings.sm_vimeo_link != blank or
+  settings.sm_flickr_link != blank or
+  settings.sm_snapchat_link != blank or
+  settings.sm_houzz_link != blank or
+  settings.sm_linkedin_link != blank or
+  settings.sm_tiktok_link != blank %}
+    {% assign socialIconAdded = true %}
+  {% endif %}
+
+  {% if section.settings.enable_announcement_bar %}
+  <div class="bg-orange-dark md:bg-green-mist" data-wetheme-section-type="announcement-bar" data-wetheme-section-id="{{ section.id }}">
+	<div class="container flex items-center mx-auto justify-between">
+      {% if section.settings.enable_social_icons and socialIconAdded %}
+        <div id="sharing" class="social-sharing is-clean">
+          {% render 'social-icons' %}
+        </div>
+      {% endif %}
+      {% if section.settings.message_text != blank %}
+      	<div class="font-bold text-sm text-white md:text-black text-center md:text-left mx-2 md:px-0 py-2 md:py-0 w-full md:w-8/12">
+          {% if section.settings.message_link != blank %}
+            <a href="{{ section.settings.message_link }}" class="message__link">
+              {{ section.settings.message_text }}
+            </a>
+          {% else %}
+            {{ section.settings.message_text }}
+          {% endif %}
+      	</div>
+  	{% endif %}
+	<div class="relative md:w-4/12 hidden md:flex md:justify-end site-header">
+		{{ top_links }}
+  	</div>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Announcement Bar",
+        "de": "Ankündigungsleiste",
+        "es": "Barra de anuncios",
+        "fr": "Barre d'annonce",
+        "pt-PT": "Barra de Anúncios"
+	},
+	"class":"sticky top-0 z-20",
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_locale_selector",
+            "label": {
+              "en": "Enable language selector",
+              "de": "Sprachauswahl aktivieren",
+              "es": "Activar selector de idioma",
+              "fr": "Activer le sélecteur de langue",
+              "pt-PT": "Ativar seletor de idioma"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_announcement_bar",
+            "label": {
+                "en": "Enable",
+                "de": "Aktivieren",
+                "es": "Habilitar",
+                "fr": "Activer",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "message_text",
+            "label": {
+                "en": "Announcement text",
+                "de": "Ankündigungstext",
+                "es": "Texto del anuncio",
+                "fr": "Texte de l'annonce",
+                "pt-PT": "Texto do anúncio"
+            },
+            "default": {
+                "en": "Announce something here",
+                "de": "Kündigen Sie hier etwas an",
+                "es": "Anuncie algo aquí",
+                "fr": "Annoncez quelque chose ici",
+                "pt-PT": "Anuncie algo aqui"
+            }
+        },
+        {
+            "type": "url",
+            "id": "message_link",
+            "label": {
+                "en": "Announcement link",
+                "de": "Ankündigungslink",
+                "es": "Enlace del anuncio",
+                "fr": "Lien d'annonce",
+                "pt-PT": "Ligação do anúncio"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "type": "color",
+            "id": "announcement-bar--background-color",
+            "label": {
+                "en": "Announcement background",
+                "de": "Ankündigungshintergrund",
+                "es": "Fondo del anuncio",
+                "fr": "Contexte de l'annonce",
+                "pt-PT": "Fundo do anúncio"
+            },
+            "default": "#f1f1f1"
+        },
+        {
+            "type": "color",
+            "id": "announcement-bar--text-color",
+            "label": {
+                "en": "Announcement text",
+                "de": "Ankündigungstext",
+                "es": "Texto del anuncio",
+                "fr": "Texte de l'annonce",
+                "pt-PT": "Texto do anúncio"
+            },
+            "default": "#8e8e8e"
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_social_icons",
+            "label": {
+                "en": "Enable social icons",
+                "fr": "Activer les icônes de réseaux sociaux",
+                "de": "Aktiviere Buttons für Social Media",
+                "es": "Activar iconos de medios sociales",
+                "pt-PT": "Ativar ícones sociais"
+            },
+            "default": false
+        }
+    ]
+}
+{% endschema %}

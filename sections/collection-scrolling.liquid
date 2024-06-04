@@ -1,0 +1,134 @@
+<style>
+  div.grid-view-item {
+    position: relative;
+  }
+  div.grid-view-item div.py-2 {
+      margin-bottom: 40px;
+  }
+  div.grid-view-item div.quick-add-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 80%;
+      transform: translateX(-50%);
+  }
+</style>
+<div class="show-on-scroll py-8">
+	{%- assign collection = collections[section.settings.collection-scrolling] -%}
+	<div data-wetheme-section-type="collection--featured-collection" class="collection-scrolling">
+		<h2 class="text-center font-bold text-4xl pb-4 leading-tight text-orange-dark">{{collection.title}}</h2>
+		<div class="collection-carousel flex flex-nowrap overflow-hidden" id="collection-carousel-scrolling-{{ section.id }}">
+			{% for product in collection.products limit: 12 %}
+				{%- assign grid_image_width = '236x240' -%}
+				{% comment %}
+					Set the default grid_item_width if no variable is set
+				{% endcomment %}
+				{% comment %}
+					Check if the product is on sale and set a variable to be used below.
+				{% endcomment %}
+				{% assign on_sale = false %}
+				{% if product.compare_at_price > product.price %}
+					{% assign on_sale = true %}
+				{% endif %}
+
+				{% comment %}
+					Check if the product is sold out and set a variable to be used below.
+				{% endcomment %}
+				{% assign sold_out = true %}
+				{% if product.available %}
+					{% assign sold_out = false %}
+				{% endif %}
+				<div class="grid-view-item text-center flex-none w-1/5">
+					<div class="h-[240px]">
+						<a href="{{ product.url | within: collection }}" title="{{product.title}}" class="grid__image grid__image__match" tabindex="-1">
+						  {% assign image = product.media[0].preview_image %}
+						  {% capture classs %}object-contain h-[240px]{% endcapture %}
+						  {% render 'responsive-image' with image, alt: image.alt, allow_stretch: true, class: classs %}
+						</a>
+					</div>
+					<div class="py-2">
+						<div class="font-bold text-blue-dark">{{ product.vendor }}</div>
+						<h3 class="py-2">
+							<a href="{{ product.url | within: collection }}" class="text-blue-dark">{{ product.title }}</a>
+						</h3>
+						<div class="pb-2">
+							{% render 'product-grid-item-price', product: product, collection: collection %}
+						</div>
+					</div>
+					<div class="quick-add-wrapper{% if product.variants.size == 1 %} is-singular{% endif %}">
+					{% if product.variants.size > 1 and product.available %}
+						<a class="quick-add-button-variants" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.view_options' | t }}</a>
+					{% elsif product.available %}
+					  {% form 'product', product, id: "CollectionAddToCartForm" %}
+						<input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+						<button class="quick-add-button bg-orange-dark text-white text-center hover:text-green-mist uppercase text-sm px-6 py-3" type="submit">{{ 'products.product.add_to_cart' | t }}</button>
+					  {% endform %}
+					{% endif %}
+					</div>
+					{% if product.compare_at_price_max > product.price and product.available %}
+						<div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+					{% endif %}
+					  {% unless product.available %}
+						<div class="text-center font-bold text-red-strong">{{ 'products.product.sold_out' | t }}</div>
+					  {% endunless %}
+				</div>
+			{% endfor %}
+		</div>
+		<div class="">
+			<a href="javascript:void(0);" class="nav-prev absolute rotate-180 top-1/2 text-gray-dark z-10 left-0">
+				<svg xmlns="http://www.w3.org/2000/svg" width="33" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				</svg>
+			</a>
+			<a href="javascript:void(0);" class="nav-next absolute top-1/2 text-gray-dark z-10 right-0">
+				<svg xmlns="http://www.w3.org/2000/svg" width="33" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				</svg>
+			</a>
+		  </div>
+	</div>
+</div>
+{% schema %}
+{
+    "name": {
+        "en": "Collection Scrolling",
+        "de": "Collection Scrolling",
+        "es": "Collection Scrolling",
+        "fr": "Collection Scrolling",
+        "pt-PT": "Collection Scrolling"
+	},
+	"class":"container",
+	"settings": [
+	  	{
+			"id": "collection-scrolling",
+			"type": "collection",
+			"label": {
+				"en": "Collection",
+				"de": "Kollektion",
+				"es": "Colecci√≥n",
+				"fr": "Collection",
+				"pt-PT": "Cole√ß√£o"
+			}
+    	}
+	],
+	"presets": [
+        {
+            "name": {
+                "en": "Collection Scrolling",
+                "de": "Collection Scrolling",
+                "es": "Collection Scrolling",
+                "fr": "Collection Scrolling",
+                "pt-PT": "Collection Scrolling"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colecci√≥n",
+                "fr": "Collection",
+                "pt-PT": "Cole√ß√£o"
+            }
+        }
+    ]
+
+}
+{% endschema %}

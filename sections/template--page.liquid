@@ -1,0 +1,284 @@
+<!-- /sections/page-template.liquid -->
+{% case section.settings.page_width %}
+  {% when 'full-width' %}
+    {%- assign page_width = 'large--one whole' -%}
+  {% when 'narrow' %}
+    {%- assign page_width = 'large--two-thirds push--large--one-sixth' -%}
+{% endcase %}
+{% if page.handle == 'about' %}
+<link rel="stylesheet" type="text/css" href="{{ 'page-about.css' | asset_url }}">
+{% endif %}
+{% if page.handle == 'about-us' %}
+<link rel="stylesheet" type="text/css" href="{{ 'page-about-us.css' | asset_url }}">
+{% endif %}
+{% if page.handle == 'award' %}
+<link rel="stylesheet" type="text/css" href="{{ 'page-award.css' | asset_url }}">
+{% endif %}
+{% if page.handle == 'award-and-services' %}
+<link rel="stylesheet" type="text/css" href="{{ 'page-award-and-services.css' | asset_url }}">
+{% endif %}
+
+
+<div class="wrapper-padded main-page-container py-4 px-4 md:px-0">
+  <div class="clearfix">
+      <div class="sitewide--title-wrapper">
+        <h1 class="page--title text-brown-zin text-2xl font-normal mb-4">{{ page.title }}</h1>
+      </div>
+        <div class="rte prose max-w-full grid__item{% if section.blocks.size > 0 %} large--two-thirds{% endif %}">
+          {{ page.content }}
+        </div>
+        {% comment %} <div class="page-sidebar grid__item large--one-third">
+            {% for block in section.blocks %}
+              {% case block.type %}
+                  {% when 'text' %}
+                  <div class="sidebar-section">
+                    <h4>{{ block.settings.title }}</h4>
+                  </div>
+                  {% when 'richtext' %}
+                  <div class="sidebar-section sidebar-text">
+                    {{ block.settings.text }}
+                  </div>
+                  {% when 'menu' %}
+                  {% assign menu = linklists[block.settings.menu] %}
+                  <div class="sidebar-section">
+                    {% for link in menu.links %}
+                      {% if link.links != blank %}
+                        <li>
+                          <a href="{{ link.url }}" class="sidebar-menu--has-dropdown-title">{{ link.title }}</a>
+                          <ul class="sidebar-menu--level-2">
+                            {% for sub_link in link.links %}
+                                <li>- <a href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a></li>
+                                  <ul class="sidebar-menu--level-3">
+                                  {% for sub_sub_link in sub_link.links %}
+                                      <li>- <a href="{{ sub_sub_link.url }}">{{ sub_sub_link.title | escape }}</a></li>
+                                  {% endfor %}
+                                </ul>
+                            {% endfor %}
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li>
+                          <a href="{{ link.url }}">{{ link.title }}</a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  {% when 'image_picker' %}
+                  <div class="sidebar-section sidebar-image">
+                    {% if block.settings.image_link != blank %}
+                      <a href="{{ block.settings.image_link }}">
+                    {% endif %}
+
+                    {% if block.settings.sidebar_image == blank %}
+                      {{ 'image' | placeholder_svg_tag: 'icon icon--placeholder' }}
+                    {% else %}
+
+                      {% if block.settings.sidebar_image.alt != blank %}
+                        {% assign side_alt = block.settings.sidebar_image.alt | escape %}
+                      {% elsif block.settings.image_title != blank %}
+                        {% assign side_alt = block.settings.image_title | escape %}
+                      {% else %}
+                        {% assign side_alt = shop.name | escape %}
+                      {% endif %}
+
+                      {% render 'responsive-image' with block.settings.sidebar_image, alt: side_alt %}
+                    {% endif %}
+
+                    {% if block.settings.image_title != blank %}
+                      <h4>{{ block.settings.image_title }}</h4>
+                    {% endif %}
+
+                    {% if block.settings.image_link != blank %}
+                  </a>
+                    {% endif %}
+                  </div>
+              {% endcase %}
+            {% endfor %}
+      </div> {% endcomment %}
+  </div>
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Page",
+        "de": "Seite",
+        "es": "Página",
+        "fr": "Page",
+        "pt-PT": "Página"
+    },
+    "settings": [
+        {
+            "type": "select",
+            "id": "page_width",
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "options": [
+                {
+                    "value": "full-width",
+                    "label": {
+                        "en": "Full width",
+                        "de": "Volle Breite",
+                        "es": "Ancho completo",
+                        "fr": "Pleine largeur",
+                        "pt-PT": "Largura total"
+                    }
+                },
+                {
+                    "value": "narrow",
+                    "label": {
+                        "en": "Narrow",
+                        "de": "Eng",
+                        "es": "Estrecho",
+                        "fr": "Restreindre",
+                        "pt-PT": "Reduzido"
+                    }
+                }
+            ],
+            "default": "full-width"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "text",
+            "name": {
+                "en": "Sidebar title",
+                "de": "Seitenleistentitel",
+                "es": "Título de la barra lateral",
+                "fr": "Titre de la barre latérale",
+                "pt-PT": "Título da barra lateral"
+            },
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Title",
+                        "de": "Titel",
+                        "es": "Título",
+                        "fr": "Titre",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Title",
+                        "de": "Titel",
+                        "es": "Título",
+                        "fr": "Titre",
+                        "pt-PT": "Título"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "richtext",
+            "name": {
+                "en": "Sidebar text",
+                "de": "Seitenleistentext",
+                "es": "Texto de la barra lateral",
+                "fr": "Texte de la barre latérale",
+                "pt-PT": "Texto da barra lateral"
+            },
+            "settings": [
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    },
+                    "default": {
+                        "en": "<p>Add any additional content you want across your stores content pages</p>",
+                        "de": "<p>Fügen Sie alle zusätzlichen Inhalte hinzu, die Sie auf den Inhaltsseiten Ihrer Shops haben möchten</p>",
+                        "es": "<p>Añada cualquier contenido adicional que desee en todas las páginas de su tienda</p>",
+                        "fr": "<p>Ajouter tout contenu supplémentaire que vous désirez dans toutes les pages de contenu de vos magasins</p>",
+                        "pt-PT": "<p>Adicione os conteúdos adicionais que quiser nas páginas de conteúdo das suas lojas</p>"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "menu",
+            "name": {
+                "en": "Sidebar menu",
+                "de": "Seitenleistenmenü",
+                "es": "Menú de la barra lateral",
+                "fr": "Menu de la barre latérale",
+                "pt-PT": "Menu da barra lateral"
+            },
+            "settings": [
+                {
+                    "type": "link_list",
+                    "id": "menu",
+                    "label": {
+                        "en": "Menu",
+                        "de": "Menü",
+                        "es": "Menú",
+                        "fr": "Menu",
+                        "pt-PT": "Menu"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "image_picker",
+            "name": {
+                "en": "Sidebar image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "sidebar_image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "image_title",
+                    "label": {
+                        "en": "Image title",
+                        "de": "Bildtitel",
+                        "es": "Título de la imagen",
+                        "fr": "Titre de l'image",
+                        "pt-PT": "Título da imagem"
+                    },
+                    "placeholder": {
+                        "en": "Title",
+                        "de": "Titel",
+                        "es": "Título",
+                        "fr": "Titre",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "image_link",
+                    "label": {
+                        "en": "Image link",
+                        "de": "Bildlink",
+                        "es": "Enlace de la imagen",
+                        "fr": "Lien vers l'image",
+                        "pt-PT": "Link da imagem"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

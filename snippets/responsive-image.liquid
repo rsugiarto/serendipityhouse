@@ -1,0 +1,80 @@
+{% comment %}
+    Use this snippet to add a responsive image to page.
+
+    Specify Shopify image you want to make responsive in the "with" parameter (see examples below).
+
+    You can use following variables to customize the image
+    * default_size: size of placeholder image until full image is loaded (default: '150x')
+    * sizes: string of media queries and image size definitions
+    * class: additional classes to be applied to an image
+    * alt: alt text for the image
+    * props: additional properties for the <img /> tag (data-, id, etc.)
+    * styles: additional styles (will go into `style="..."` property)
+    * crop: use crop to specify how the image should be cropped when it's too big
+    * force_height: number of pixels the image should have vertically, without stretching
+    * allow_stretch: allow upscaling the image to fit container (disabled by default)
+
+    Usage:
+    {% render 'responsive-image' with product.image, class: 'product-image', alt: 'A simple product', default_size: '300x', props: 'data-id="1"' %}
+{% endcomment %}
+
+{% if default_size == blank %}
+  {% assign default_size = '550x' %}
+{% endif %}
+
+{% if sizes == blank %}
+  {% assign sizes = '(min-width: 2000px) 1000px, (min-width: 1445px) calc(100vw / 2), (min-width: 1200px) calc(100vw / 1.75), (min-width: 1000px) calc(100vw / 1.5), (min-width: 750px) calc(100vw / 3), 100vw' %}
+{% endif %}
+
+{% if crop == blank %}
+  {% assign default_src = responsive-image | img_url: '1000x1000' %}
+  {% assign src = responsive-image | img_url: default_size %}
+{% else %}
+  {% assign default_src = responsive-image | img_url: '1000x1000', crop: crop %}
+  {% assign src = responsive-image | img_url: default_size, crop: crop %}
+{% endif %}
+
+{%- capture divStyle -%}
+  {%- if force_height %}height: {{ force_height }}px; {% endif -%}
+{%- endcapture -%}
+
+<div class="flex items-center{% if wrapper_class %} {{ wrapper_class }}{% endif %}" style="{{ divStyle }}">
+
+<noscript aria-hidden="true">
+  <img
+    class="{{ class }}"
+    src="{{ default_src }}"
+    {% if alt %}
+      alt="{{ alt | escape }}"
+    {% else %}
+      alt="{{ responsive-image.alt | escape }}"
+    {% endif %}
+    {{ props }}
+    loading="lazy"
+  />
+</noscript>
+<img
+  loading="lazy"
+  class="{{ class }} js"
+  style="{% unless allow_stretch %}max-height: {{ responsive-image.height }}px; {% endunless %}{{ styles }}"
+  {% if alt %}
+    alt="{{ alt | escape }}"
+  {% else %}
+    alt="{{ responsive-image.alt | escape }}"
+  {% endif %}
+  {{ props }}
+  width="{{ responsive-image.width }}"
+  height="{{ responsive-image.height }}"
+  srcset="{%- if responsive-image.width >= 550 -%}{{ responsive-image | img_url: '550x' }} 550w,{%- endif -%}
+          {%- if responsive-image.width >= 750 -%}{{ responsive-image | img_url: '750x' }} 750w,{%- endif -%}
+          {%- if responsive-image.width >= 1100 -%}{{ responsive-image | img_url: '1100x' }} 1100w,{%- endif -%}
+          {%- if responsive-image.width >= 1445 -%}{{ responsive-image | img_url: '1445x' }} 1445w,{%- endif -%}
+          {%- if responsive-image.width >= 1680 -%}{{ responsive-image | img_url: '1680x' }} 1680w,{%- endif -%}
+          {%- if responsive-image.width >= 2048 -%}{{ responsive-image | img_url: '2048x' }} 2048w,{%- endif -%}
+          {%- if responsive-image.width >= 2200 -%}{{ responsive-image | img_url: '2200x' }} 2200w,{%- endif -%}
+          {%- if responsive-image.width >= 2890 -%}{{ responsive-image | img_url: '2890x' }} 2890w,{%- endif -%}
+          {{ responsive-image | img_url: 'master' }} {{ responsive-image.width }}w"
+  sizes="{{ sizes }}"
+  src="{{ responsive-image | img_url: '1445x' }}"
+/>
+</div>

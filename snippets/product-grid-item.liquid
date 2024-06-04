@@ -1,0 +1,125 @@
+{% comment %}
+  Set the default grid_item_width if no variable is set
+{% endcomment %}
+
+{% case section.settings.items_per_row %}
+{% when 2 %}
+  {% capture grid_item_width %}large--one-half medium--one-half small--one-half{% endcapture %}
+{% when 3 %}
+  {% capture grid_item_width %}large--one-third medium--one-half small--one-whole{% endcapture %}
+{% when 4 %}
+  {% capture grid_item_width %}large--one-quarter medium--one-half small--one-half{% endcapture %}
+{% when 5 %}
+  {% capture grid_item_width %}large--one-fifth medium--one-half small--one-half{% endcapture %}
+{% endcase %}
+
+{% assign image_stretch = false %}
+
+{% assign crop_setting = settings.product-grid %}
+{% if crop_setting == "square" %}
+    {% assign image_crop = "aspect-ratio--square" %}
+    {% assign image_stretch = true %}
+{% elsif crop_setting == "tall" %}
+    {% assign image_crop = "aspect-ratio--tall" %}
+    {% assign image_stretch = true %}
+{% elsif crop_setting == "wide" %}
+    {% assign image_crop = "aspect-ratio--wide" %}
+    {% assign image_stretch = true %}
+{% else %}
+    {% assign image_crop = false %}
+    {% assign image_stretch = false %}
+{% endif %}
+
+<div class="grid__item {{ grid_item_width }}">
+	<div class="grid-view-item">
+    <div class="grid-view-item-image">
+
+      {% comment %}
+        Link to your product with the 'within: collection' filter for the link to be aware of the collection.
+        This allows you to create collection-based navigation on the product page.
+
+        Results of using 'within: collection':
+        - Instead of a URL with /products/product-handle
+          you would get /collections/collection-handle/products/product-handle
+
+        For more info on navigation within a collection
+          - http://docs.shopify.com/support/your-store/collections/how-to-navigate-within-a-collection
+
+      {% endcomment %}
+
+      {% if section.settings.hover-effect and product.media.size > 1 %}
+      <div class="reveal">
+      {% endif %}
+
+      <a href="{{ product.url | within: collection }}" class="grid__image" tabindex="-1">
+		  {% if image_crop %}<div class="aspect-ratio {{ image_crop }}">{% endif %}
+			{% capture classs %}object-contain h-[240px]{% endcapture %}
+			{% assign image = product.media[0].preview_image %}
+            {% capture props %}
+               style="max-width: {{ image.width }}px"
+            {% endcapture %}
+			{% assign image_alt = image.alt | default: product.title %}
+
+            {% render 'responsive-image' with image, alt: image_alt | escape, props: props, allow_stretch: image_stretch, class: classs %}
+
+            {% if section.settings.hover-effect and product.media.size > 1 %}
+              <div class="hidden ttt">
+                {% assign image = product.media[1].preview_image %}
+                {% capture props %}
+                  style="max-width: {{ image.width }}px"
+			  {% endcapture %}
+			{% capture classs %}object-contain h-[240px]{% endcapture %}
+            {% assign hover_alt = image.alt | default: product.title %}
+            {% render 'responsive-image' with image, alt: hover_alt | escape, props: props, class: classs %}
+          </div>
+        {% endif %}
+
+        {% if image_crop %}</div>{% endif %}
+      </a>
+
+      {% if section.settings.hover-effect and product.media.size > 1 %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <div class="grid-view-item--desc-wrapper">
+      <div class="product-grid--title">
+        <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+      </div>
+      
+{% comment %}Start automatically added Judge.me widget{% endcomment %}
+  {% render 'judgeme_widgets', widget_type: 'judgeme_preview_badge', concierge_install: true, product: product %}
+{% comment %}End automatically added Judge.me widget{% endcomment %}
+<div class="product-grid--price">
+        {%- render 'product-grid-item-price', product: product, collection: collection -%}
+      </div>
+    </div>
+
+
+      <div class="quick-add-wrapper{% if product.variants.size == 1 %} is-singular{% endif %}">
+      {% if product.variants.size > 1 and product.available %}
+        <a class="quick-add-button-variants" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.view_options' | t }}</a>
+      {% elsif product.available %}
+        {% form 'product', product, id: "CollectionAddToCartForm" %}
+          <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+          <button class="quick-add-button" type="submit" tabindex="0">{{ 'products.product.add_to_cart' | t }}</button>
+        {% endform %}
+      {% else %}
+        <a class="sold-out-button" tabindex="0" href="{{ product.url | within: collection }}">{{ 'products.product.sold_out' | t }}</a>
+      {% endif %}
+      </div>
+
+    {% if enable_badges %}
+      {% if product.compare_at_price_max > product.price and product.available %}
+      <div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+      {% endif %}
+
+      {% unless product.available %}
+          <div class="sold-out-badge badge">{{ 'products.product.sold_out' | t }}</div>
+      {% endunless %}
+    {% endif %}
+
+	</div>
+
+</div>

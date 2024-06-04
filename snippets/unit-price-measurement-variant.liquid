@@ -1,0 +1,24 @@
+<div class="unit-price{% unless variant.unit_price_measurement %} hidden{% endunless %}" v-if="variant && variant.unit_price_measurement" v-bind:class="{ hide: false }">
+    (<span class="unit-price__price" v-html="money(variant.unit_price)"><span class="money">{{ variant.unit_price | money }}</span></span>
+    <span> / </span>
+
+    {% assign hide = true %}
+    {%- if variant.unit_price_measurement -%}
+      {%- if variant.unit_price_measurement.reference_value != 1 -%}
+        {% assign hide = false %}
+      {%- endif -%}
+    {%- endif -%}
+    <span class="unit-price__ref-value{% if hide %} js{% endif %}"
+      v-if="variant.unit_price_measurement.reference_value != 1"
+      v-text="variant.unit_price_measurement.reference_value"
+    >
+      {%- if variant.unit_price_measurement -%}
+        {{ variant.unit_price_measurement.reference_value }}
+      {%- endif %}
+    </span>
+    <span class="unit-price__ref-unit"
+      v-text="variant.unit_price_measurement.reference_unit"
+    >
+      {%- if variant.unit_price_measurement -%}{{ variant.unit_price_measurement.reference_unit }}{%- endif -%}
+    </span>)
+</div>

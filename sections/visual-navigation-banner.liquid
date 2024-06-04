@@ -1,0 +1,142 @@
+<link rel="preload" href="{{ 'section-visual-navigation-banner.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-visual-navigation-banner.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+<div class="visual-navigation__wrapper wow fadeInUp">
+  {% if section.settings.title != blank %}
+    <div class="sitewide--title-wrapper">
+      <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+    </div>
+  {% endif %}
+  {% if section.blocks.size > 0 %}
+    <ul class="visual-navigation__list">
+      {% for block in section.blocks %}
+        <li 
+          class="visual-navigation__list-item{% if section.settings.image_style == 'circle' %} visual-navigation__list-item--circle{% endif %}" 
+          {{ block.shopify_attributes }}
+        >
+          {% if block.settings.link_url != blank %}
+            <a 
+              href="{{ block.settings.link_url }}" 
+              class="visual-navigation__link"
+              aria-label="{% if block.settings.link_text != blank %}{{ block.settings.link_text }}{% else %}{{ block.settings.link_url | split: '/' | last | replace: '-', ' ' | capitalize }}{% endif %}"
+            >
+          {% endif %}
+
+            {% if block.settings.link_image != blank %}
+              <img 
+                src="{{ block.settings.link_image | img_url: '100x100', crop: 'center' }}" 
+                class="visual-navigation__image"
+                alt="{{ block.settings.link_image.alt | default: block.settings.link_text }}"
+              >
+            {% else %}
+              {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+              {{ 'collection-' | append: current | placeholder_svg_tag: 'icon--placeholder' }}
+            {% endif %}
+
+            {% if block.settings.link_text != blank %}
+              <span class="visual-navigation__text">{{ block.settings.link_text }}</span>
+            {% endif %}
+
+          {% if block.settings.link_url != blank %}
+            </a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Visual navigation banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "en": "Heading",
+        "de": "Überschrift",
+        "es": "Encabezado",
+        "fr": "Rubrique",
+        "pt-PT": "Título"
+      }
+    },
+    {
+      "type": "select",
+      "id": "image_style",
+      "label": "Image style",
+      "options": [
+        {
+          "value": "circle",
+          "label": "Circle"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "navigation_link",
+      "name": "Navigation item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link"
+        },
+        {
+          "type": "image_picker",
+          "id": "link_image",
+          "label": "Image",
+          "info": {
+              "en": "100 x 100px recommended",
+              "de": "100 x 100 px empfohlen",
+              "es": "Recomendado 100 x 100 px",
+              "fr": "100 x 100 px recommandé",
+              "pt-PT": "100 x 100px, recomendado"
+          }
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Visual navigation banner",
+      "category": "Navigation",
+      "blocks": [
+        {
+          "type": "navigation_link"
+        },
+        {
+          "type": "navigation_link"
+        },
+        {
+          "type": "navigation_link"
+        },
+        {
+          "type": "navigation_link"
+        },
+        {
+          "type": "navigation_link"
+        },
+        {
+          "type": "navigation_link"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    "collection",
+    "blog"
+  ]
+}
+{% endschema %}

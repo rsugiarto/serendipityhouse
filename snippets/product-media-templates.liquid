@@ -1,0 +1,58 @@
+{% comment %}
+Render all media of a product
+
+Parameters:
+* product: Shopify Product
+* section_id: id of a section
+* featured_media_id: id of a featured media
+* enable_image_zoom: if zoom should be enabled on images
+* enable_video_loop: if loop should be on for videos
+{% endcomment %}
+
+{% for media in product.media %}
+  {% if media.media_type != 'image' %}
+    <template id="media-template-{{ section_id }}-{{ media.id }}">
+      <div
+        class="product-medias__media"
+        data-media-type="{{ media.media_type }}"
+        data-media-id="{{ media.id }}"
+      >
+        {% if media.aspect_ratio %}
+          {% capture padding_style %}style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100}}%"{% endcapture %}
+        {% else %}
+          {% capture padding_style %}style="padding-top: {{ 1 | divided_by: media.preview_image.aspect_ratio | times: 100}}%"{% endcapture %}
+        {% endif %}
+
+          {% case media.media_type %}
+            {% when 'image' %}
+              {% capture style %}max-width: {{ media.width }}px{% endcapture %}
+              {% capture props %}
+                id="ProductPhotoImg"
+                data-image-id="{{ media.id }}"
+                data-image-zoom="{{ media | img_url: 'master' }}"
+              {% endcapture %}
+              {% render 'responsive-image' with media, class: 'product-single__photo', alt: media.alt, default_size: '300x', props: props, blur: false, styles: styles %}
+
+            {% when 'external_video' %}
+              <div {{ padding_style }} class="product-single__media__wrapper" data-video-loop="{% if enable_video_loop %}true{% else %}false{% endif %}">
+                {{ media | external_video_tag }}
+              </div>
+
+            {% when 'model' %}
+              <div {{ padding_style }} class="product-single__media__wrapper media-model-{{ section.id }}-{{ media.id }}">
+                {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true, image_size: "1024x", data-model-id: media.id }}
+              </div>
+
+            {% when 'video' %}
+              <div {{ padding_style }} class="product-single__media__wrapper" data-video-loop="{% if enable_video_loop %}true{% else %}false{% endif %}">
+                {{ media | video_tag: controls: true }}
+              </div>
+
+            {% else %}
+              {{ media | media_tag }}
+
+          {% endcase %}
+      </div>
+    </template>
+  {% endif %}
+{% endfor %}

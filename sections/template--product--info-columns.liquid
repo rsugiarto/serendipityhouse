@@ -1,0 +1,237 @@
+{{ 'section-product-info-columns.min.css' | asset_url | stylesheet_tag }}
+
+{% case section.blocks.size %}
+	{% when 1 %}
+		{%- assign column_size = 'info-cols--item-50' -%}
+	{% when 2 %}
+		{%- assign column_size = 'info-cols--item-50' -%}
+	{% else %}
+		{%- assign column_size = 'info-cols--item-33' -%}
+{% endcase %}
+
+<div class="info-cols">
+	<div class="homepage-sections-wrapper info-cols--container">
+		<div class="info-cols--row wrapper-padded">
+			{% for block in section.blocks %}
+
+			<div class="{{ column_size }}">
+
+			{%- liquid 
+			if block.settings.image.alt != blank 
+				assign alt = block.settings.image.alt
+			elsif block.settings.title != blank 
+				assign alt = block.settings.title
+			else
+				assign alt = shop.name
+			endif -%}
+	
+			{% if block.settings.link != blank %}
+				<a aria-label="{{ alt }}" href="{{ block.settings.link }}" class="info-cols--image-is-link"><span class="sr-only">{{ alt }}</span>
+			{% endif %}
+
+				<div class="info-cols--image" aria-hidden="true">
+					{% if block.settings.image == blank %}
+						{{ 'image' | placeholder_svg_tag: 'icon--placeholder' }}
+					{% else %}
+						{% render 'responsive-image' with block.settings.image, alt: alt, allow_stretch: true %}
+					{% endif %}
+				</div>
+
+			{% if block.settings.link != blank %}
+				</a>
+			{% endif %}
+
+			{% if block.settings.title != '' %}
+				<h3 class="info-cols--title">{{ block.settings.title }}</h3>
+			{% endif %}
+
+			{% if block.settings.text != '' %}
+				<div class="info-cols--text">{{ block.settings.text }}</div>
+			{% endif %}
+
+			{% if block.settings.link_text != '' and block.settings.link != blank %}
+                <div class="info-cols--link--wrapper">
+                    <a href="{{ block.settings.link }}" class="info-cols--link_text">{{ block.settings.link_text }}</a>
+                </div>
+			{% endif %}
+
+			</div>
+
+		{% endfor %}
+
+		{% if section.blocks.size == 0 %}
+			<div class="placeholder-noblocks">
+				{{ 'general.onboarding.no_content' | t }}
+			</div>
+		{% endif %}
+
+		</div>
+	</div>
+</div>
+
+{% schema %}
+{
+	"name": {
+		"en": "Info columns",
+		"de": "Info columns",
+		"es": "Info columns",
+		"fr": "Info columns",
+		"pt-PT": "Info columns"
+	},
+	"class": "product-section--info-columns show-on-scroll",
+	"max_blocks": 3,
+	"settings": [
+
+	],
+	"blocks": [
+		{
+			"type": "image",
+			"name": {
+				"en": "Image",
+				"de": "Bild",
+				"es": "Imagen",
+				"fr": "Image",
+				"pt-PT": "Imagem"
+			},
+			"settings": [
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": {
+						"en": "Image",
+						"de": "Bild",
+						"es": "Imagen",
+						"fr": "Image",
+						"pt-PT": "Imagem"
+					},
+					"info": {
+						"en": "680px minimum recommended width",
+						"de": "680 px empfohlene Mindestbreite",
+						"es": "680px ancho mínimo recomendado",
+						"fr": "Largeur minimale recommandée de 680 pixels",
+						"pt-PT": "Largura mínima recomendada de 680 px"
+					}
+				},
+				{
+					"type": "text",
+					"id": "title",
+					"label": {
+						"en": "Title",
+						"de": "Titel",
+						"es": "Título",
+						"fr": "Titre",
+						"pt-PT": "Título"
+					},
+					"default": {
+						"en": "Title",
+						"de": "Title",
+						"es": "Título",
+						"fr": "Title",
+						"pt-PT": "Title"
+					},
+					"info": {
+						"en": "Optional",
+						"de": "Optional",
+						"es": "Opcional",
+						"fr": "Facultatif",
+						"pt-PT": "Opcional"
+					}
+				},
+				{
+					"type": "textarea",
+					"id": "text",
+					"label": {
+						"en": "Text",
+						"de": "Text",
+						"es": "Texto",
+						"fr": "Text",
+						"pt-PT": "Text"
+					},
+					"default": {
+						"en": "Share store details, promotions, or brand content with your customers.",
+						"de": "Teilen Sie Geschäftsdetails, Werbeaktionen oder Markeninhalte mit Ihren Kunden.",
+						"es": "Comparta detalles de la tienda, promociones o contenido de marca con sus clientes.",
+						"fr": "Partagez les détails du magasin, les promotions ou le contenu de la marque avec vos clients.",
+						"pt-PT": "Compartilhe detalhes da loja, promoções ou conteúdo da marca com seus clientes."
+					},
+					"info": {
+						"en": "Optional",
+						"de": "Optional",
+						"es": "Opcional",
+						"fr": "Facultatif",
+						"pt-PT": "Opcional"
+					}
+				},
+				{
+					"type": "url",
+					"id": "link",
+					"label": {
+						"en": "Link",
+						"de": "Link",
+						"es": "Enlace",
+						"fr": "Lien",
+						"pt-PT": "Ligação"
+					},
+					"info": {
+						"en": "Optional",
+						"de": "Optional",
+						"es": "Opcional",
+						"fr": "Facultatif",
+						"pt-PT": "Opcional"
+					}
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": {
+						"en": "Link text",
+						"de": "Link text",
+						"es": "Link texto",
+						"fr": "Link texte",
+						"pt-PT": "Link texto"
+					},
+					"default": {
+						"en": "Optional link",
+						"de": "Optional link",
+						"es": "Optional link",
+						"fr": "Optional link",
+						"pt-PT": "Optional link"
+					}
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": {
+				"en": "Info columns",
+				"de": "Info columns",
+				"es": "Info columns",
+				"fr": "Info columns",
+				"pt-PT": "Info columns"
+			},
+			"category": {
+				"en": "Image",
+				"de": "Bild",
+				"es": "Imagen",
+				"fr": "Image",
+				"pt-PT": "Imagem"
+			},
+			"blocks": [
+				{
+					"type": "image"
+				},
+				{
+					"type": "image"
+				},
+				{
+					"type": "image"
+				}
+			]
+		}
+	],
+	"templates": [
+		"product"
+	]
+}
+{% endschema %}

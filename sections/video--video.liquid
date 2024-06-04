@@ -1,0 +1,297 @@
+<link rel="preload" href="{{ 'section-video.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-video.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+<div
+  class="homepage-sections-wrapper homepage-sections-wrapper--{{ section.settings.colors }}"
+  data-wetheme-section-type="video--video" data-wetheme-section-id="{{ section.id }}"
+>
+
+  {% assign has_text = false %}
+  <div class="grid--center">
+    {% if section.settings.title != blank or section.settings.richtext != '' %}
+      <div class="homepage-hero-content--text-block large--three-quarters">
+        {% if section.settings.title != blank %}
+          <h2>{{ section.settings.title | escape }}</h2>
+        {% endif %}
+
+        {% if section.settings.richtext != '' %}
+          {{ section.settings.richtext }}
+        {% endif %}
+      </div>
+      {% assign has_text = true %}
+    {% endif %}
+  </div>
+
+  <div class="grid grid--center">
+    {% assign type = 'mp4' %}
+    {% if section.settings.url contains "youtube.com" %}
+      {% assign type = 'youtube' %}
+    {% elsif section.settings.url contains "youtu.be" %}
+      {% assign type = 'youtube' %}
+    {% elsif section.settings.url contains "vimeo.com" %}
+      {% assign type = 'vimeo' %}
+    {% else %}
+      <link rel="preload" href="{{ 'plyr.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+      <noscript>{{ 'plyr.min.css' | asset_url | stylesheet_tag }}</noscript>
+    {% endif %}
+    <div class="homepage-hero-content--video {% case section.settings.width_classes %}{% when 50 %}grid__item large--one-half{% when 75 %}grid__item large--three-quarters{% when 100 %}grid__item large--one-whole{% endcase %}{% if has_text %} has-text{% else %} no-text{% endif %}  type-{{ type }}">
+      <div>
+        <wetheme-video
+          section-id="{{ section.id }}"
+          v-bind:hero="false"
+          video-type="{{ type }}"
+          url="{{ section.settings.url }}"
+          v-bind:autoplay="{% if section.settings.autoplay %}true{% else %}false{% endif %}"
+          v-bind:loop="{% if section.settings.loop %}true{% else %}false{% endif %}"
+          v-bind:mute="{% if section.settings.mute %}true{% else %}false{% endif %}"
+          v-bind:overlay="true"
+        >
+        </wetheme-video>
+      </div>
+
+      <style>
+        .homepage-video-content-overlay-wrapper-{{ section.id }}::before {
+            opacity: 0.{{ section.settings.video_overlay_opacity }} !important;
+        }
+
+        {% if section.settings.image %}
+          {% capture selector %}.homepage-video-content-overlay-wrapper-{{ section.id }} .video--video__static-image{% endcapture %}
+          {% render 'responsive-background-image' with section.settings.image, selector: selector %}
+        {% endif %}
+      </style>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Video",
+        "de": "Video",
+        "es": "Vídeo",
+        "fr": "Vidéo",
+        "pt-PT": "Vídeo"
+    },
+    "class": "homepage-section--video-wrapper show-on-scroll",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "type": "range",
+            "id": "width_classes",
+            "min": 50,
+            "max": 100,
+            "step": 25,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "default": 75
+        },
+        {
+            "id": "url",
+            "type": "text",
+            "label": {
+                "en": "Video URL",
+                "de": "Video-URL",
+                "es": "URL del vídeo",
+                "fr": "URL de la vidéo",
+                "pt-PT": "URL do Vídeo"
+            },
+            "info": {
+                "en": "Accepts YouTube, Vimeo and MP4. Video will be muted and some devices may prevent autoplay. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020109497-Product-Media#Videos)",
+                "de": "Akzeptiert YouTube, Vimeo und MP4. Das Video wird stumm geschaltet, und einige Geräte verhindern möglicherweise die automatische Wiedergabe. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020109497-Product-Media#Videos)",
+                "es": "Acepta YouTube, Vimeo y MP4. El vídeo se silenciará y algunos dispositivos pueden evitar la reproducción automática. [Más información](https://support.weareeight.com/hc/en-us/articles/360020109497-Product-Media#Videos)",
+                "fr": "Accepte YouTube, Vimeo et MP4. Le son de la vidéo sera désactivé et certains appareils peuvent empêcher la lecture automatique. [En savoir plus](https://support.weareeight.com/hc/en-us/articles/360020109497-Product-Media#Videos)",
+                "pt-PT": "Aceita YouTube, Vimeo e MP4. O vídeo será silenciado e alguns dispositivos podem impedir a reprodução automática. [Saber mais](https://support.weareeight.com/hc/en-us/articles/360020109497-Product-Media#Videos)"
+            },
+            "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+            "type": "checkbox",
+            "id": "autoplay",
+            "label": {
+                "en": "Autoplay",
+                "de": "Automatische Wiedergabe",
+                "es": "Reproducción automática",
+                "fr": "Lecture automatique",
+                "pt-PT": "Reprodução Automática"
+            },
+            "info": {
+                "en": "Video will be muted and some devices may prevent autoplay.",
+                "de": "Das Video wird stumm geschaltet, und einige Geräte verhindern möglicherweise die automatische Wiedergabe.",
+                "es": "El vídeo se silenciará y algunos dispositivos pueden evitar la reproducción automática",
+                "fr": "Le son de la vidéo sera désactivé et certains appareils peuvent empêcher la lecture automatique.",
+                "pt-PT": "O vídeo será silenciado e alguns dispositivos podem impedir a reprodução automática"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "loop",
+            "label": {
+                "en": "Loop",
+                "de": "Schleife",
+                "es": "En bucle",
+                "fr": "Boucle",
+                "pt-PT": "Repetição"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "mute",
+            "label": {
+                "en": "Mute",
+                "de": "Stummschalten",
+                "es": "Silenciar",
+                "fr": "Muet",
+                "pt-PT": "Silenciar"
+            },
+            "default": false
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "range",
+            "id": "video_overlay_opacity",
+            "min": 0,
+            "max": 95,
+            "step": 5,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Overlay opacity",
+                "de": "Überlagerungsdeckkraft",
+                "es": "Capacidad de sobrexposición",
+                "fr": "Opacité de superposition",
+                "pt-PT": "Opacidade de sobreposição"
+            },
+            "default": 50
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            },
+            "category": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            }
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,244 @@
+<!-- /templates/blog.liquid -->
+{% comment %}
+  Loop through a defined number of articles with the 'paginate' tag.
+  Don't forget to close the tag after your loop.
+{% endcomment %}
+
+{% paginate blog.articles by 12 %}
+
+{% comment %}
+  This template is also used for listing out articles of a specific tag.
+  You can change layouts or styles by checking if current_tags is true.
+{% endcomment %}
+<img loading="lazy" src="{{ 'blog-title-bg.png' | asset_url }}" />
+<div class="wrapper-padded px-4 md:px-0">
+	<div class="sitewide--title-wrapper mb-4">
+    	{% if current_tags %}
+        	<h1 class="page--title text-brown-zin text-4xl font-normal">{{ blog.title | link_to: blog.url }} &mdash; {{ current_tags.first }}</h1>
+    	{% else %}
+        	<h1 class="page--title text-brown-zin text-4xl font-normal">{{ blog.title }} <a href="{{ shop.url }}{{ blog.url }}.atom"><i class="fa fa-rss" aria-hidden="true"></i></a></h1>
+      	{% endif %}
+	</div>
+	<div class="md:flex">
+		<div class="large--three-quarters blog-template--main md:w-3/4">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+      		{% comment %}
+        		Loop through each article in your blog. This is limited to what you set for pagination above.
+        		For more info on article liquid tags:
+          		- http://docs.shopify.com/themes/liquid-variables/article
+      		{% endcomment %}
+      		{% for article in blog.articles %}
+        		<div class="article--indiv border border-slate-300">
+            		{% if article.image %}
+            			<div class="article__featured-image-wrap">
+              				<a class="block article__featured-image{% if settings.ken_burns_enabled %} kb-enabled{% endif %}" href="{{ article.url }}">
+                				{% capture article_alt %}{{ article.image.alt | default: article.title }}{% endcapture %}
+                				{% render 'responsive-image' with article.image, alt: article_alt | escape %}
+              				</a>
+            			</div>
+					{% endif %}
+					<div class="p-4 flex flex-col justify-between">
+              			<h3 class="mb-4"><a class="text-black text-xl" href="{{ article.url }}">{{ article.title }}</a></h3>
+            			{% comment %}
+              				Add a surrounding div with class 'rte' to anything that will come from the rich text editor.
+              				Since this is just a listing page, you can either use the excerpt or truncate the full article.
+            			{% endcomment %}
+            			{% comment %} <div class="rte">
+                			{{ article.excerpt_or_content  | strip_html | truncatewords: 20 }}
+            			</div>
+            			<p><a href="{{ article.url }}">{{ 'blogs.article.read_more' | t }} &rarr;</a></p> {% endcomment %}
+            			<div>
+              				{% comment %} {% if section.settings.show_author_name %}
+                				{{ article.author }}<br />
+              				{% endif %} {% endcomment %}
+              				{% if section.settings.blog_show_date %}
+                				<time class="text-gray-taupe font-sm mb-4" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | time_tag: format: 'date' }}</time>
+              				{% endif %}
+            			</div>
+        				<ul class="blog-sidebar--meta">
+        					{% if blog.comments_enabled? %}
+        						<li>
+        							<a href="{{ article.url }}#comments">
+        								{{ 'blogs.comments.with_count' | t: count: article.comments_count }}
+        							</a>
+        						</li>
+        					{% endif %}
+  							{% if article.tags.size > 0 %}
+    							<li>
+      								{% for tag in article.tags %}
+        								<a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="text-green-mist">{{ tag }}</a>{% unless forloop.last %}, {% endunless %}
+      								{% endfor %}
+    							</li>
+  							{% endif %}
+						</ul>
+					</div>
+        		</div>
+			{% endfor %}
+			</div>
+			<div class="grid__item large--one-whole">
+			{% if paginate.pages > 1 %}
+				<div class="pagination grid__item large--three-quarters">
+					<ul>
+						{% if paginate.previous %}
+							<li class="pagination-arrow"><a href="{{ paginate.previous.url }}"><i class="fa icon-angle-left"></i></a></li>
+						{% else %}
+							<li class="prev disabled"><a href="#" onclick="return false;">&laquo;</a></li>
+						{% endif %}
+
+						{% for part in paginate.parts %}
+							{% if part.is_link %}
+								<li class="pagination-number">{{ part.title | link_to: part.url }}</li>
+							{% else %}
+								{% if part.title == '&hellip;' %}
+									<li class="ellipsis">{{ part.title }}</li>
+								{% else %}
+									<li class="active pagination-number">{{ part.title | link_to: part.url }}</li>
+								{% endif %}
+							{% endif %}
+						{% endfor %}
+						{% if paginate.next %}
+							<li class="pagination-arrow"><a href="{{ paginate.next.url }}"><i class="fa icon-angle-right"></i></a></li>
+						{% else %}
+								<li class="next disabled"><a href="#" onclick="return false;">&raquo;</a></li>
+						{% endif %}
+					</ul>
+				</div>
+			{% endif %}
+  			</div>
+    	</div>
+		<div class="md:w-1/4 px-4">
+			<div class="grid__item large--one-quarter">
+				{% if section.settings.show_blog_tags %}
+					<div class="mb-8">
+        				<h4 class="h4 font-bold mb-4 text-xl">{{ 'blogs.sidebar.categories' | t }}</h4>
+        				<ul class="no-bullets blog-sidebar--all-categories">
+          					{% for tag in blog.all_tags %}
+            					<li>{{ tag | link_to_tag: tag }}</li>
+          					{% endfor %}
+						</ul>
+					</div>
+      			{% endif %}
+      			{% if section.settings.blog-sidebar-image %}
+        			{% if section.settings.blog-sidebar-link %}
+          				<a href="{{ section.settings.blog-sidebar-link }}" itemprop="url">
+        			{% endif %}
+        			{% capture blog_sidebar_alt %}{{ section.settings.blog-sidebar-image.alt | default: shop.name }}{% endcapture %}
+        			{% render 'responsive-image' with section.settings.blog-sidebar-image, alt: article.title, class: 'blog-sidebar-image', alt: blog_sidebar_alt | escape %}
+        			{% if section.settings.blog-sidebar-link %}
+          				</a>
+        			{% endif %}
+      			{% endif %}
+      			{% if section.settings.show_recent_posts %}
+      				<h4 class="h4 font-bold mb-4 text-xl">{{ 'blogs.sidebar.recent_articles' | t }}</h4>
+      				<ul class="no-bullets blog-sidebar--recent-articles">
+        				{% for article in blogs[blog.handle].articles limit:6 %}
+          					<li>
+            					<a href="{{ article.url }}">{{ article.title }}</a>
+            					{% comment %} <br>
+            					{% if section.settings.blog_show_date %}
+              						<time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | time_tag: format: 'date' }}</time>
+            					{% endif %} {% endcomment %}
+          					</li>
+        				{% endfor %}
+      				</ul>
+      			{% endif %}
+			</div>
+		</div>
+	</div>
+ </div>
+
+{% endpaginate %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Blog pages",
+        "de": "Blogseiten",
+        "es": "Páginas del blog",
+        "fr": "Pages du blog",
+        "pt-PT": "Páginas de blogs"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_author_name",
+            "label": {
+                "en": "Show author name",
+                "de": "Autorennamen anzeigen",
+                "es": "Mostrar el nombre de autor",
+                "fr": "Afficher le nom de l'auteur",
+                "pt-PT": "Mostrar nome do autor"
+            },
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Sidebar",
+                "de": "Seitenleiste",
+                "es": "Barra lateral",
+                "fr": "Barre latérale",
+                "pt-PT": "Barra lateral"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "blog-sidebar-image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "url",
+            "id": "blog-sidebar-link",
+            "label": {
+                "en": "Link",
+                "de": "Link",
+                "es": "Enlace",
+                "fr": "Lien",
+                "pt-PT": "Ligação"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_blog_tags",
+            "label": {
+                "en": "Show tags",
+                "de": "Tags anzeigen",
+                "es": "Mostrar etiquetas",
+                "fr": "Afficher les étiquettes",
+                "pt-PT": "Mostrar etiquetas"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_recent_posts",
+            "label": {
+                "en": "Show 'Recent articles'",
+                "de": "Neueste Artikel' anzeigen",
+                "es": "Mostrar 'Artículos recientes'",
+                "fr": "Afficher 'Articles récents'",
+                "pt-PT": "Mostrar \"artigos recentes\""
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "blog_show_date",
+            "label": {
+                "en": "Show dates",
+                "de": "Daten anzeigen",
+                "es": "Mostrar fechas",
+                "fr": "Afficher les dates",
+                "pt-PT": "Mostrar datas"
+            },
+            "default": true
+        }
+    ]
+}
+{% endschema %}

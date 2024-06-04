@@ -1,0 +1,47 @@
+{%- if show_locale_selector and localization.available_languages.size > 1 -%}
+    <noscript>
+        {%- form 'localization', id: 'FooterLanguageFormNoScript', class: 'localization-form localization-form__noscript' -%}
+            <div class="localization-form__select">
+                <h2 class="visually-hidden" id="FooterLanguageLabelNoScript">{{ 'general.localization.language_label' | t }}</h2>
+                <select class="localization-selector link" name="locale_code" aria-labelledby="FooterLanguageLabelNoScript">
+                    {%- for language in localization.available_languages -%}
+                        <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {%- if language.iso_code == localization.language.iso_code %} selected{% endif %}>
+                            {{ language.endonym_name | capitalize }}
+                        </option>
+                    {%- endfor -%}
+                </select>
+            </div>
+            <button class="btn alt-focus">{{ 'general.localization.update_language' | t }}</button>
+        {%- endform -%}
+    </noscript>
+    <localization-form>
+        {% form 'localization' %}
+            <div class="js">
+                <div class="disclosure">
+				    <div type="button" class="mobile-nav__has-sublist" aria-expanded="false" aria-controls="LanguageList">
+                        {{ localization.language.iso_code | upcase }}
+                        <div class="mobile-nav__toggle">
+                            <button type="button" class="{{nav-item-dropdown-icon-class}} mobile-nav__toggle-open" aria-label="{{ 'cart.general.see_more' | t }}">
+                              <i class="icon-arrow-right" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="{{nav-item-dropdown-icon-class}} mobile-nav__toggle-close" aria-label="{{ 'layout.drawers.close_menu' | t }}">
+                              <i class="icon-arrow-down" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <ul id="LanguageList" role="list" class="mobile-nav__sublist pl-4">
+                        {% for language in localization.available_languages %}
+                            <li class="mobile-nav__item--active" tabindex="-1">
+                                <a class="block text-xs px-6 py-3 uppercase border-b" href="#"{% if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %} hreflang="{{ language.iso_code }}" lang="{{ language.iso_code }}" data-value="{{ language.iso_code }}">
+                                    {{ language.endonym_name | capitalize }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <input type="hidden" name="language_code" value="{{ localization.language.iso_code }}">
+                </div>
+            </div>
+        {% endform %}
+    </localization-form>
+{%- endif -%}
+<script src="{{ 'component-localization-form.js' | asset_url }}" defer="defer" type="module"></script>

@@ -1,0 +1,124 @@
+<style>
+
+  .header-logo {
+    width: {{ section.settings.logo_max_width }}px!important;
+    margin: 0 auto;
+  }
+  
+  @media only screen and (max-width: 768px) {
+    .header-logo {
+      max-width: 290px!important;
+    }
+  }
+
+  #gift-card-outer-container {
+    background: none;
+    box-shadow: none;
+  }
+
+  #gift-card-header{
+      text-align: center;
+  }
+
+  #gift-card-header h2 {
+      float: none;
+  }
+
+  #apple-wallet-badge {
+      margin-bottom: 20px;
+  }
+
+  #QrCode img {
+    margin: auto;
+    margin-bottom: 20px;
+  }
+
+  .gift-card__header a {
+      display: block;
+      font-family: var(--header-font-stack);
+      font-weight: var(--header-font-weight);
+      font-style: var(--header-font-style);
+      text-transform: var(--header-font-transform);
+      letter-spacing: var(--header-letter-spacing);
+      font-size: var(--heading-font-size);
+      text-decoration: none;
+      -ms-word-break: break-all;
+      word-break: break-all;
+      color: var(--color-primary);
+  }
+  
+</style>
+
+<header id="header" class="gift-card__header">
+  <h1 id="site-title">
+	<a href="{{ shop.url }}">
+		{% if section.settings.logo %}
+			{% assign alt = shop.name | escape %}
+			{% if section.settings.logo.alt %}
+				{% assign alt = section.settings.logo.alt | escape %}	
+			{% endif %}
+			{% render 'responsive-image' with section.settings.logo, alt: alt, props: 'itemprop="logo"', class: 'header-logo', blur:false %}
+		{% else %}
+			{{ shop.name | escape }}
+		{% endif %}
+	</a>
+  </h1>  
+</header>
+
+
+{% schema %}
+{
+  "name": {
+    "en": "Header",
+    "de": "Überschrift",
+    "es": "Encabezado",
+    "fr": "En-tête",
+    "pt-PT": "Cabeçalho"
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en": "Header",
+        "de": "Überschrift",
+        "es": "Encabezado",
+        "fr": "En-tête",
+        "pt-PT": "Cabeçalho"
+      }
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": {
+        "en": "Logo image",
+        "de": "Logobild",
+        "es": "Imagen del logotipo",
+        "fr": "Image du logo",
+        "pt-PT": "Imagem do logótipo"
+      }
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "min": 50,
+      "max": 400,
+      "step": 10,
+      "unit": {
+        "en": "px",
+        "de": "px",
+        "es": "px",
+        "fr": "px",
+        "pt-PT": "px"
+      },
+      "label": {
+      "en": "Preferred width",
+      "de": "Bevorzugte Breite",
+      "es": "Ancho preferido",
+      "fr": "Largeur préférée",
+      "pt-PT": "Largura preferida"
+      },
+      "default": 200
+    }
+  ]
+}
+{% endschema %}

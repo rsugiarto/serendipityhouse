@@ -1,0 +1,124 @@
+{% if settings.enable_verification_popup %}
+
+  {% assign background_opacity = settings.verification_background_opacity | divided_by: 100.0 %}
+  {% assign prompt_background_opacity = settings.verification_prompt_background_opacity | divided_by: 100.0 %}
+
+  <div class="verification-popup-container" style="display: none" data-age-test-mode="{{ settings.verification-pop-up__test-mode }}" tabindex="-1">
+    <div id="prompt__background">
+      <div id="verification__prompt" class="modal__prompt" role="dialog">
+
+        {% capture logo-image %}
+          <div class="verification-popup-logo__container" itemscope itemtype="http://schema.org/Organization">
+            {% capture props %}itemprop="logo"{% endcapture %}
+
+            {% if settings.verification-popup__logo %}
+              <div class="verification-popup-logo__image">
+                {% capture alt %}{{ settings.verification-popup__logo.alt | default: shop.name }}{% endcapture %}
+                {% render 'responsive-image' with settings.verification-popup__logo, alt: alt, blur: false, props: props %}
+              </div>
+            {% endif %}
+          </div>
+        {% endcapture %}
+
+        <div class="modal-initial-content">
+          {{ logo-image }}
+          <div class="modal-content__wrapper">
+            {% if settings.verification-pop-up__header != '' %}
+              <h3>
+                {{ settings.verification-pop-up__header }}
+              </h3>
+            {% endif %}
+            {% if settings.verification-pop-up__description != '' %}
+              <div class="rte">
+                {{ settings.verification-pop-up__description }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="modal-button-container">
+            {% if settings.exit-button__text != '' %}
+              <button
+                role="button"
+                id="button__exit"
+                class="btn__exit btn secondary-button styled-submit"
+                tabindex="1"
+              >
+                {{ settings.exit-button__text }}
+              </button>
+            {% endif %}
+
+            {% if settings.confirm-button__text != '' %}
+              <button
+                role="button"
+                class="btn__enter btn"
+                id="button__enter"
+                tabindex="1"
+              >
+                {{ settings.confirm-button__text }}
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="modal-deny-content hidden">
+          {{ logo-image }}
+          <div class="modal-content__wrapper">
+            {% if settings.deny__header != '' %}
+              <h3>
+                {{ settings.deny__header }}
+              </h3>
+            {% endif %}
+            {% if settings.deny__description != '' %}
+              <div class="rte">
+                {{ settings.deny__description }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="modal-button-container">
+              <button role="button" id="button__return" class="btn__return btn">
+                {% if settings.deny-button__text != '' %}
+                  {{ settings.deny-button__text }}
+                {% else %}
+                  {{ 'general.verification_popup.return_text' | t }}
+                {% endif %}
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}
+
+<style>
+
+.verification-popup-logo__image img {
+  width: {{ settings.verification-popup-logo--max-width }}px;
+  max-width: {{ settings.verification-popup-logo--max-width }}px !important;
+}
+
+@media (max-width: 991px) {
+  .verification-popup-logo__image img {
+    max-width: 220px !important;
+  }
+}
+
+
+
+{% if settings.verification-popup--background-image %}
+  {% render 'responsive-background-image' with settings.verification-popup--background-image, selector: '#prompt__background', sizes: '600, 1200, 2000', scale: 1 %}
+
+  body {
+    min-height: 100%;
+  }
+{% else %}
+  #prompt__background:after {
+    {% if settings.verification-popup--background-color != 'rgba(0,0,0,0)' %}
+      background-color: {{ settings.verification-popup--background-color | color_modify: 'alpha', background_opacity }};
+    {% else %}
+      background-color: #000;
+    {% endif %}
+  }
+{% endif %}
+</style>

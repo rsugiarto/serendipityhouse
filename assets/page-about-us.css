@@ -1,0 +1,68 @@
+img.circle {
+    border-radius: 100%;
+}
+img.full-width {
+    max-width: unset;
+}
+h1.page--title{
+    text-align:center;
+}
+.section{
+  padding:17px;
+}
+@media screen and (min-width:769px){
+.main-content.container{
+    max-width:1920px;
+}
+  .main-content p, .main-content li {
+    font-size: medium;
+}
+.section h1 {
+    text-align: center;
+    font-size: xx-large!important;
+}
+.section {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.section.two-cols {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+.section.two-cols.equally-width .col {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content:center;
+  flex-direction:column;
+}
+.section.two-cols.equally-width{
+    padding:0;
+}
+.section.two-cols .col h1 {
+    text-align: left;
+}
+.section.two-cols .col:first-child p {
+    padding-left: 0;
+}
+.section.two-cols .col:first-child {
+    padding-left: 10%;
+}
+.section.two-cols .col:last-child {
+  padding-left:5%;
+    padding-right: 10%;
+}
+.full-width-img-section img {
+    width: 100%;
+    height: auto;
+  margin:0;
+}
+.section p,.section ol,.section h2.in-two-cols {
+    padding: 10px 10%;
+}
+}

@@ -1,0 +1,742 @@
+<link rel="preload" href="{{ 'section-slideshow.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>{{ 'section-slideshow.min.css' | asset_url | stylesheet_tag }}</noscript>
+
+{% assign overlay_text = false %}
+{% if section.settings.text-below-image == false or section.settings.slider-width == 'full-screen' %}
+    {% assign overlay_text = true %}
+{% endif %}
+
+<div class="
+    {%- if section.settings.slider-width == 'fixed' %}wrapper-padded {% endif -%}
+    homepage-slider-container slider-section--{{ section.id }}
+  "
+  data-wetheme-section-type="image--slideshow" data-wetheme-section-id="{{ section.id }}"
+>
+	{% if section.blocks.size > 0 %}
+		<div
+			class="swiper-container slideshow--{{ section.settings.slider-width }}"
+			data-slider-id="{{ section.id }}"
+			data-slider-slide-time="{{ section.settings.slider-slide-time }}000"
+			data-slider-animation="{{ section.settings.slider-animation }}"
+			>
+			<div class="swiper-wrapper{% if section.settings.slider-width != 'full-screen' and section.settings.vertical-alignment %} align-center{% endif %}" style="width: {% if section.settings.slider-animation == 'slide' %}{{ section.blocks | size | times:100 }}%{% else %}100%{% endif %};">
+				{% assign number_of_slides_float = section.blocks | size | times:1.0 %}
+					{% for block in section.blocks %}
+						{%- assign slide_is_link = false -%}
+
+						{% if block.settings.button_link != blank %}
+							{%- assign slide_is_link = true -%}
+						{% endif %}
+
+						<!-- When slideshow text drops below the image on mobile-->
+						{% if overlay_text == false and block.settings.caption-background == 'rgba(0,0,0,0)' %}
+							{% assign slider-text-color = settings.color_body_text %}
+							{% assign slider-button-text-color = settings.color_primary_button_text %}
+							{% assign slider-button-background-color = settings.color_primary_button_background %}
+						{% else %}
+							{% assign slider-text-color = block.settings.caption-text %}
+							{% assign slider-button-text-color = block.settings.button-text %}
+							{% assign slider-button-background-color = block.settings.button-background %}
+						{% endif %}
+
+						{% assign buttonHidden = false %}
+						{% if block.settings.button_link != blank and block.settings.button_label == blank %}
+							{% assign buttonHidden = true %}
+						{% endif %}
+
+						<style>
+							.slider-section--{{ section.id }} .block-section--{{ block.id }} .slideshow-title,
+							.slider-section--{{ section.id }} .block-section--{{ block.id }} .slideshow-title a,
+							.slider-section--{{ section.id }} .block-section--{{ block.id }} .textarea {
+								color: {{ block.settings.caption-text }};
+							}
+
+							@media screen and (max-width: 768px) {
+								.slider-section--{{ section.id }} .block-section--{{ block.id }} .slideshow-title,
+								.slider-section--{{ section.id }} .block-section--{{ block.id }} .slideshow-title a,
+								.slider-section--{{ section.id }} .block-section--{{ block.id }} .textarea {
+									color: {{ slider-text-color }};
+								}
+							}
+
+							.slider-section--{{ section.id }} .block-section--{{ block.id }} .homepage-section-btn {
+								color: {{ block.settings.button-text }};
+								background: {{ block.settings.button-background }};
+							}
+
+							@media screen and (max-width: 768px) {
+								.slider-section--{{ section.id }} .block-section--{{ block.id }} .homepage-section-btn {
+									color: {{ slider-button-text-color }};
+									background: {{ slider-button-background-color }};
+								}
+							}
+
+							.slider-section--{{ section.id }} .block-section--{{ block.id }} .homepage-featured-content-box {
+								background-color: {{ block.settings.caption-background }};
+							}
+						</style>
+
+						<div
+							{{ block.shopify_attributes }} data-slide-index="{{ forloop.index0 }}"
+
+							class="swiper-slide homepage-sections--slideshow-wrapper
+							{% case block.settings.captionHorizontal %}
+								{% when 'left' %}
+									slideshow-wrapper--captionHorizontal-left
+								{% when 'center' %}
+									slideshow-wrapper--captionHorizontal-center
+								{% when 'right' %}
+									slideshow-wrapper--captionHorizontal-right
+							{% endcase %}
+
+							{% case block.settings.captionAlignment %}
+								{% when 'left' %}
+									slideshow-wrapper--captionAlignment-left
+								{% when 'center' %}
+									slideshow-wrapper--captionAlignment-center
+								{% when 'right' %}
+									slideshow-wrapper--captionAlignment-right
+							{% endcase %}
+							block-section--{{ block.id }}"
+						>
+							{% if slide_is_link and block.settings.button_label == blank %}
+								<a href="{{ block.settings.button_link }}" class="slideshow__link">
+							{% endif %}
+
+								{% if block.settings.image == blank %}
+									{% capture current %}{% cycle 1, 2 %}{% endcapture %}
+									{{ 'lifestyle-' | append: current | placeholder_svg_tag: 'icon icon--placeholder' }}
+								{% elsif block.settings.mobile_image %}
+									{% assign img-mobile_alt = block.settings.mobile_image.alt | default: shop.name %}
+									{% assign img-desktop_alt = block.settings.image.alt | default: shop.name %}
+									
+                                    {% render 'responsive-image' with block.settings.mobile_image, alt: img-mobile_alt | escape, wrapper_class: ' slideshow-mobile-image', sizes: '100vw' %}
+									{% render 'responsive-image' with block.settings.image, alt: img-desktop_alt | escape, wrapper_class: ' slideshow-desktop-image', allow_stretch: true, sizes: '100vw' %}
+                                  
+								{% else %}
+									{% assign img_alt = block.settings.image.alt | default: shop.name %}
+									{% render 'responsive-image' with block.settings.image, alt: img_alt | escape, wrapper_class: ' slideshow-desktop-as-mobile-image', allow_stretch: true, sizes: '100vw' %}
+								{% endif %}
+
+									<div class="homepage-featured-content-box{% if overlay_text %} slideshow-mobile-overlay-text{% endif %}">
+										<div class="homepage-featured-content-box-inner wow fadeInUp {% if block.settings.mobile_image == blank and section.settings.show-slide-dots %} mobile-dot-nav-spacing{% endif %}">
+											{% if block.settings.title != blank %}
+												<div class="sitewide--title-wrapper slideshow-title">
+													<h2 class="homepage-sections--title homepage-section-title" id="{{ section.id }}_{{ block.id }}_title">
+														{% if buttonHidden == true %}<a href="{{ block.settings.button_link }}">{% endif %}{{ block.settings.title | escape }}{% if buttonHidden == true %}</a>{% endif %}
+													</h2>
+												</div>
+											{% endif %}
+
+											{% if block.settings.text != blank %}
+												<div class="rte featured-row__subtext textarea">{{ block.settings.text }}</div>
+											{% endif %}
+
+											{% render 'home-section-button', link: block.settings.button_link, label: block.settings.button_label %}
+										</div>
+									</div>
+
+							{% if slide_is_link %}
+								</a>
+							{% endif %}
+						</div>
+				{% endfor %}
+			</div>
+
+			{% if section.settings.show-slide-arrows %}
+			  <div class="image--slideshow__navigation">
+				<a href="#" class="flex-prev">
+				  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  </svg>
+				</a>
+				<a href="#" class="flex-next">
+				  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 51.388 51.388" xml:space="preserve">
+					<path d="M9.169 51.388a1.166 1.166 0 0 1-.703-2.097l31.066-23.598L8.461 2.098A1.17 1.17 0 0 1 9.877.238l33.51 25.456-33.51 25.457a1.182 1.182 0 0 1-.708.237z"/>
+				  </svg>
+				</a>
+			  </div>
+			{% endif %}
+
+			{% if section.settings.show-slide-dots %}
+				<div class="swiper-pagination"></div>
+			{% endif %}
+		</div>
+	{% endif %}
+</div>
+
+<style>
+	@media screen and (min-width: 769px) {
+	  .slider-section--{{ section.id }} h2.homepage-sections--title{
+	    font-size: {{ section.settings.caption-heading-size }}px;
+	  }
+	  .slider-section--{{ section.id }} .featured-row__subtext{
+	    font-size: {{ section.settings.caption-subheading-size }}px;
+	  }
+	  .slider-section--{{ section.id }} .homepage-section-btn {
+	    font-size: {{ section.settings.caption-button-size }}px;
+	  }
+	}
+
+	.slider-section--{{ section.id }} .swiper-pagination-bullet {
+		background: none;
+		border: 1px solid {{ section.settings.slider-navigation-color }};
+    	width: 11px;
+    	height: 11px;
+    	opacity: 1;
+	}
+
+	.slider-section--{{ section.id }} .swiper-pagination-bullet-active {
+		background: {{ section.settings.slider-navigation-color }};
+	}
+
+	.slider-section--{{ section.id }} .image--slideshow__navigation a {
+		color: {{ section.settings.slider-navigation-color }};
+        fill: {{ section.settings.slider-navigation-color }};
+	}
+
+	{% unless section.settings.show-slide-dots and section.blocks.size > 1 %}
+			.slider-section--{{ section.id }} .image--slideshow__navigation .flex-control-nav{
+				display:none;
+			}
+	{% endunless %}
+
+	{% unless section.settings.show-slide-arrows and section.blocks.size > 1 %}
+		 .slider-section--{{ section.id }} .image--slideshow__navigation .flex-prev,
+		 .slider-section--{{ section.id }} .image--slideshow__navigation .flex-next{
+				display:none;
+			}
+	{% endunless %}
+
+		@media only screen and (max-width: 768px) {
+			.homepage-slider-container .swiper-slide .slideshow-desktop-image {
+					display: none;
+			}
+		}
+		@media only screen and (min-width: 769px) {
+			.homepage-slider-container .swiper-slide .slideshow-mobile-image {
+					display: none;
+			}
+		}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Slideshow",
+        "de": "Diashow",
+        "es": "Presentación de diapositivas",
+        "fr": "Diaporama",
+        "pt-PT": "Apresentação de diapositivos"
+    },
+    "class": "homepage-section--slideshow-wrapper show-on-scroll",
+    "max_blocks": 12,
+    "settings": [
+        {
+            "type": "radio",
+            "id": "slider-animation",
+            "label": {
+                "en": "Transition effect",
+                "de": "Übergangseffekt",
+                "es": "Efectos de transición",
+                "fr": "Effet de transition",
+                "pt-PT": "Efeito de transição"
+            },
+            "options": [
+                {
+                    "value": "slide",
+                    "label": {
+                        "en": "Slide",
+                        "de": "Dia",
+                        "es": "Deslizarse",
+                        "fr": "Diapositive",
+                        "pt-PT": "Diapositivo"
+                    }
+                },
+                {
+                    "value": "fade",
+                    "label": {
+                        "en": "Fade",
+                        "de": "Ausblenden",
+                        "es": "Desvanecerse",
+                        "fr": "Fondu",
+                        "pt-PT": "Desvanecer"
+                    }
+                }
+            ],
+            "default": "slide"
+        },
+        {
+            "type": "radio",
+            "id": "slider-width",
+            "label": {
+                "en": "Size",
+                "fr": "Taille",
+                "de": "Größe",
+                "es": "Tamaño",
+                "pt-PT": "Tamanho"
+            },
+            "options": [
+                {
+                    "value": "fixed",
+                    "label": {
+                        "en": "Fixed",
+                        "de": "Festgestellt",
+                        "es": "Fijo",
+                        "fr": "Fixe",
+                        "pt-PT": "Fixo"
+                    }
+                },
+                {
+                    "value": "full-width",
+                    "label": {
+                        "en": "Full width",
+                        "de": "Volle Breite",
+                        "es": "Ancho completo",
+                        "fr": "Pleine largeur",
+                        "pt-PT": "Largura total"
+                    }
+                },
+                {
+                    "value": "full-screen",
+                    "label": {
+                        "en": "Fullscreen",
+                        "de": "Vollbild",
+                        "es": "Pantalla completa",
+                        "fr": "Plein écran",
+                        "pt-PT": "Ecrã inteiro"
+                    }
+                }
+            ],
+            "default": "full-screen"
+        },
+        {
+            "type": "checkbox",
+            "id": "vertical-alignment",
+            "info": "Only when Size is set to Fixed or Full width",
+            "label": {
+                "en": "Center align images",
+                "de": "Bilder zentriert ausrichten",
+                "es": "Alinear las imágenes en el centro",
+                "fr": "Centrer les images",
+                "pt-PT": "Alinhar as imagens ao centro"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "text-below-image",
+            "info": "Only when Size is set to Fixed or Full width",
+            "label": "Show text below image on mobile",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "slider-slide-time",
+            "min": 3,
+            "max": 8,
+            "step": 1,
+            "unit": {
+                "en": "sec",
+                "de": "Sek.",
+                "es": "seg",
+                "fr": "sec.",
+                "pt-PT": "seg"
+            },
+            "label": {
+                "en": "Rotation interval",
+                "de": "Rotationsintervall",
+                "es": "Intervalo de rotación",
+                "fr": "Intervalle de rotation",
+                "pt-PT": "Intervalo de rotação"
+            },
+            "default": 5
+        },
+        {
+            "type": "range",
+            "id": "caption-heading-size",
+            "label": {
+                "en": "Heading size",
+                "de": "Überschift-Größe",
+                "es": "Tamaño del encabezado",
+                "fr": "Taille de la rubrique",
+                "pt-PT": "Tamanho do título"
+            },
+            "min": 16,
+            "max": 60,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "default": 30
+        },
+        {
+            "type": "range",
+            "id": "caption-subheading-size",
+            "label": {
+                "en": "Subheading size",
+                "de": "Unterüberschrift-Größe",
+                "es": "Tamaño del subencabezado",
+                "fr": "Taille des sous-positions",
+                "pt-PT": "Tamanho do subtítulo"
+            },
+            "min": 12,
+            "max": 30,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "default": 16
+        },
+        {
+            "type": "range",
+            "id": "caption-button-size",
+            "label": {
+                "en": "Button size",
+                "de": "Button-Größe",
+                "es": "Tamaño del botón",
+                "fr": "Taille des boutons",
+                "pt-PT": "Tamanho do botão"
+            },
+            "min": 12,
+            "max": 30,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "default": 14
+        },
+        {
+            "type": "checkbox",
+            "id": "show-slide-dots",
+            "label": {
+                "en": "Show slide dots",
+                "de": "Diapunkte anzeigen",
+                "es": "Mostrar puntos para deslizamiento",
+                "fr": "Montrer les points des diapositives",
+                "pt-PT": "Mostrar pontos do diapositivo"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show-slide-arrows",
+            "label": {
+                "en": "Show slide arrows",
+                "de": "Diapfeile anzeigen",
+                "es": "Mostrar flechas para deslizamiento",
+                "fr": "Afficher les flèches de diapositives",
+                "pt-PT": "Mostrar setas do diapositivo"
+            },
+            "default": true
+        },
+        {
+                "type": "color",
+                "id": "slider-navigation-color",
+                "label": {
+                        "en": "Slider navigation color",
+                        "de": "Schieberegler-Navigation Farbe",
+                        "es": "Color del control deslizante de navegación",
+                        "fr": "Couleur de la barre de navigation",
+                        "pt-PT": "Cor de navegação do cursor"
+                },
+                "default": "#ffffff"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "name": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    },
+                    "info": {
+                        "en": "2000 x 900px recommended",
+                        "de": "2000 x 900 px empfohlen",
+                        "es": "Recomendado 2000 x 900 px",
+                        "fr": "2000 x 900 px recommandé",
+                        "pt-PT": "2000 x 900px, recomendado"
+                    }
+                },
+                {
+                    "type": "image_picker",
+                    "id": "mobile_image",
+                    "label": {
+                        "en": "Mobile Image (Optional)",
+                        "de": "Mobiles Bild (optional)",
+                        "es": "Imagen móvil (opcional)",
+                        "fr": "Image mobile (en option)",
+                        "pt-PT": "Imagem Móvel (Opcional)"
+                    },
+                    "info": {
+                        "en": "1400 x 1400px recommended",
+                        "de": "1400 x 1400 px empfohlen",
+                        "es": "Recomendado 1400 x 1400 px",
+                        "fr": "1400 x 1400 px recommandé",
+                        "pt-PT": "1400 x 1400px, recomendado"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Share your story",
+                        "de": "Teilen Sie Ihre Geschichte",
+                        "es": "Comparte tu historia",
+                        "fr": "Partagez votre histoire",
+                        "pt-PT": "Partilhe a sua história"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "text",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subencabezado",
+                        "fr": "Sous-rubrique",
+                        "pt-PT": "Subtítulo"
+                    },
+                    "default": {
+                        "en": "Here's your chance to make a great first impression",
+                        "de": "Hier ist Ihre Chance, einen großartigen ersten Eindruck zu hinterlassen.",
+                        "es": "Esta es tu oportunidad de causar una buena primera impresión",
+                        "fr": "C'est le moment ou jamais de faire une excellente première impression",
+                        "pt-PT": "Aqui está a sua oportunidade de causar uma excelente primeira impressão"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "button_label",
+                    "label": {
+                        "en": "Button text",
+                        "de": "Buttontext",
+                        "es": "Texto del botón",
+                        "fr": "Texte des boutons",
+                        "pt-PT": "Texto do botão"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "button_link",
+                    "label": {
+                        "en": "Slide link",
+                        "de": "Dialink",
+                        "es": "Enlace de la diapositiva",
+                        "fr": "Lien coulissant",
+                        "pt-PT": "Ligação do diapositivo"
+                    }
+                },
+                {
+                    "type": "color",
+                    "id": "caption-background",
+                    "label": {
+                        "en": "Caption background",
+                        "de": "Überschrift-Hintergrund",
+                        "es": "Subtítulos de fondo",
+                        "fr": "Fond de légende",
+                        "pt-PT": "Fundo da legenda"
+                    },
+                    "default": "rgba(0,0,0,0)"
+                },
+                {
+                    "type": "color",
+                    "id": "caption-text",
+                    "label": {
+                        "en": "Caption text",
+                        "de": "Überschrifttext",
+                        "es": "Texto del subtítulo",
+                        "fr": "Texte de légende",
+                        "pt-PT": "Texto da legenda"
+                    },
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "button-text",
+                    "label": {
+                        "en": "Button text",
+                        "de": "Buttontext",
+                        "es": "Texto del botón",
+                        "fr": "Texte des boutons",
+                        "pt-PT": "Texto do botão"
+                    },
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "button-background",
+                    "label": {
+                        "en": "Button background",
+                        "de": "Button-Hintergrund",
+                        "es": "Fondo del botón",
+                        "fr": "Bouton fond d'écran",
+                        "pt-PT": "Fundo do botão"
+                    },
+                    "default": "#000000"
+                },
+                {
+                    "type": "select",
+                    "id": "captionHorizontal",
+                    "label": {
+                        "en": "Caption horizontal alignment",
+                        "de": "Überschrift horizontale Ausrichtung",
+                        "es": "Alineación horizontal de los subtítulos",
+                        "fr": "Alignement horizontal de la légende",
+                        "pt-PT": "Alinhamento horizontal da legenda"
+                    },
+                    "options": [
+                        {
+                            "value": "left",
+                            "label": {
+                                "en": "Left",
+                                "de": "Links",
+                                "es": "Izquierda",
+                                "fr": "Gauche",
+                                "pt-PT": "Esquerda"
+                            }
+                        },
+                        {
+                            "value": "center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "right",
+                            "label": {
+                                "en": "Right",
+                                "de": "Rechts",
+                                "es": "Derecha",
+                                "fr": "Droite",
+                                "pt-PT": "Direita"
+                            }
+                        }
+                    ],
+                    "default": "left"
+                },
+                {
+                    "type": "select",
+                    "id": "captionAlignment",
+                    "label": {
+                        "en": "Caption text alignment",
+                        "de": "Ausrichtung des Beschriftungstextes",
+                        "es": "Alineación del texto de la leyenda",
+                        "fr": "Alignement du texte de la légende",
+                        "pt-PT": "Alinhamento de texto da legenda"
+                    },
+                    "options": [
+                        {
+                            "value": "left",
+                            "label": {
+                                "en": "Left",
+                                "de": "Links",
+                                "es": "Izquierda",
+                                "fr": "Gauche",
+                                "pt-PT": "Esquerda"
+                            }
+                        },
+                        {
+                            "value": "center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "right",
+                            "label": {
+                                "en": "Right",
+                                "de": "Rechts",
+                                "es": "Derecha",
+                                "fr": "Droite",
+                                "pt-PT": "Direita"
+                            }
+                        }
+                    ],
+                    "default": "left"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Slideshow",
+                "de": "Diashow",
+                "es": "Presentación de diapositivas",
+                "fr": "Diaporama",
+                "pt-PT": "Apresentação de diapositivos"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": {
+                "slider-slide-time": 5
+            },
+            "blocks": [
+                {
+                    "type": "image",
+                    "settings": {
+                        "title": "Share your story",
+                        "text": "Here's your chance to make a great first impression",
+                        "caption-text": "#FFFFFF"
+                    }
+                },
+                {
+                    "type": "image",
+                    "settings": {
+                        "title": "Share your story",
+                        "text": "Here's your chance to make a great first impression",
+                        "caption-text": "#FFFFFF"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}
